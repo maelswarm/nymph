@@ -1,6 +1,12 @@
 # nymph
 A slightly different version of C.
 
+In Nymph, String means char \*.
+In Nymph, ADTs and primitive data types may have prototype functions.
+
+Simply compile your \*.n file with ./nymph <file to compile into c>
+Then compile the generated c file.
+
 Example program:
 
 File: test_nymph.n
@@ -12,7 +18,7 @@ File: test_nymph.n
         return this;
     }
 
-    void String.world(int b,int c) { //object protype function declaration
+    void String.world(int b,int c) { //object protoype function declaration
         printf("%c%c\n", this[b], this[c]); //"this" is the string object
     }
 
