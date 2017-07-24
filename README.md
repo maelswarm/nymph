@@ -14,7 +14,7 @@ Example program:
 
 File: test_nymph.n
 
-    #include <stdio.h>; //semi-colons are needed after include directives
+    #include <stdio.h>
 
     int int.myWorld(String a,float b) { //primitive data type prototype function declaration
         printf("%s %f", a, b);
