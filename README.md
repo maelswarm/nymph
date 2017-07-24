@@ -1,7 +1,7 @@
 # nymph
 A slightly different version of C.
-
-
+<br/>
+<br/>
 In Nymph, String means char \*.
 
 In Nymph, ADTs and primitive data types functions are simplified.
