@@ -230,7 +230,7 @@ void createFunction(FILE *outputFP, char *token, int lastIDX) {
 int main(int argc, const char * argv[]) {
     
     char *token;
-    const char s[2] = ";";
+    const char s[2] = ";>";
     FILE *inputFP;
     FILE *outputFP;
     
@@ -248,11 +248,11 @@ int main(int argc, const char * argv[]) {
     while(token != NULL) {
         
         
-        if (strstr(token, ".") != NULL && strstr(token, "(") != NULL && strstr(token, ">") == NULL && strstr(token, "{") < strstr(token, ")")) {
+        if (strstr(token, ".") != NULL && strstr(token, "(") != NULL && strstr(token, "{") < strstr(token, ")")) {
             checkForThis(&token);
             checkForString(&token);
             createFunctionCall(outputFP, token, lastIDX);
-        } else if(strstr(token, ".") != NULL && strstr(token, "(") != NULL && strstr(token, ">") == NULL) {
+        } else if(strstr(token, ".") != NULL && strstr(token, "(") != NULL) {
             checkForThis(&token);
             checkForString(&token);
             createFunction(outputFP, token, lastIDX);
@@ -264,7 +264,11 @@ int main(int argc, const char * argv[]) {
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
             strcpy(newToken, token);
-            strcat(newToken, ";");
+            if (strstr(token, "<")) {
+                strcat(newToken, ">");
+            } else {
+                strcat(newToken, ";");
+            }
             fwrite(newToken , 1 , strlen(newToken) , outputFP);
         }
         token = strtok(NULL, s);
