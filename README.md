@@ -6,9 +6,8 @@ In Nymph, String means char \*.
 
 In Nymph, ADTs and primitive data types may have prototype functions.
 
-Simply compile your \*.c file with ./nymph <file to compile into c>
 
-Then compile the generated c file.
+Simply compile your nymph \*.c file with ./nymph <file to compile into c> <output name>
 
 Example program:
 
