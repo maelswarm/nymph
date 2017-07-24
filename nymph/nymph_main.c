@@ -234,12 +234,13 @@ int main(int argc, const char * argv[]) {
     FILE *inputFP;
     FILE *outputFP;
     
-    if (argc != 2) {
+    if (argc != 3) {
+        printf("Input and Output parameter needed.\n");
         return 1;
     }
 
     inputFP = fopen (argv[1], "rb");
-    outputFP = fopen("trans.c", "wb+");
+    outputFP = fopen(argv[2], "wb+");
     
     char *buffer = loadFile(inputFP);
     token = strtok(buffer, s);
