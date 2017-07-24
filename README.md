@@ -15,11 +15,6 @@ File: test_nymph.c
 
     #include <stdio.h>
 
-    int int.myWorld(String a,float b) { //primitive data type function declaration
-        printf("%s %f", a, b);
-        return this;
-    }
-
     void String.world(int b,int c) { //object function declaration
         printf("%c%c\n", this[b], this[c]); //"this" is the string object
     }
@@ -29,8 +24,6 @@ File: test_nymph.c
         String hello = "Blah";
         int blade = 1;
         int runner = 2;
-
-        blade.myWorld(hello,(float)runner); //calling primitive data type function
 
         hello.world(blade,runner); //calling object function
 
