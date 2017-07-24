@@ -252,7 +252,7 @@ int main(int argc, const char * argv[]) {
             checkForThis(&token);
             checkForString(&token);
             createFunctionCall(outputFP, token, lastIDX);
-        } else if(strstr(token, ".") != NULL && strstr(token, "(") != NULL) {
+        } else if(strstr(token, ".") != NULL && strstr(token, "(") != NULL && strstr(token, ">") == NULL) {
             checkForThis(&token);
             checkForString(&token);
             createFunction(outputFP, token, lastIDX);
