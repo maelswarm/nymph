@@ -4,7 +4,7 @@ A slightly different version of C.
 <br/>
 In Nymph, String means char \*.
 
-In Nymph, ADTs and primitive data types functions are simplified.
+In Nymph, ADTs and primitive data type functions are simplified.
 <br/>
 <br/>
 Simply compile your nymph \*.c file with ./nymph \<file to compile into c\> \<output name\>
