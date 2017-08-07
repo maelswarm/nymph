@@ -9,10 +9,6 @@ In Nymph, ADTs and primitive data type functions are simplified.
 In Nymph, terminators are not semicolons, but newlines.
 <br/>
 
-Example program:
-
-File: test_nymph.c
-
     #include <stdio.h>
 
     void String.world(int b,int c) { //object function declaration
