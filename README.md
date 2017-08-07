@@ -18,7 +18,7 @@ File: test_nymph.c
     #include <stdio.h>
 
     void String.world(int b,int c) { //object function declaration
-        printf("%c%c\n", this[b], this[c]); //"this" is the string object
+        printf("%c%c\n", this[b], this[c]) //"this" is the string object
     }
 
     int main(int argc, const char * argv[]) {
