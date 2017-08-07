@@ -6,7 +6,7 @@ In Nymph, String means char \*.
 
 In Nymph, ADTs and primitive data type functions are simplified.
 
-In Nymph, semi-colons are replaced by newlines.
+In Nymph, terminators are not semicolons, but newlines.
 <br/>
 <br/>
 Simply compile your nymph \*.c file with ./nymph \<file to compile into c\> \<output name\>
