@@ -5,6 +5,8 @@ A slightly different version of C.
 In Nymph, String means char \*.
 
 In Nymph, ADTs and primitive data type functions are simplified.
+
+In Nymph, semi-colons are replaced by newlines.
 <br/>
 <br/>
 Simply compile your nymph \*.c file with ./nymph \<file to compile into c\> \<output name\>
@@ -21,11 +23,11 @@ File: test_nymph.c
 
     int main(int argc, const char * argv[]) {
 
-        String hello = "Blah";
-        int blade = 1;
-        int runner = 2;
+        String hello = "Blah"
+        int blade = 1
+        int runner = 2
 
-        hello.world(blade,runner); //calling object function
+        hello.world(blade,runner) //calling object function
 
-        return 0;
+        return 0
     }
