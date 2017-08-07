@@ -1,5 +1,4 @@
 # nymph ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
-A slightly different version of C.
 <br/>
 <br/>
 In Nymph, String means char \*.
