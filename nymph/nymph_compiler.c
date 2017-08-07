@@ -164,7 +164,7 @@ void createFunctionCall(FILE *outputFP, char *token, int lastIDX) {
         if(i != parametersLength - 1) {
             strcat(function, ",");
         } else {
-            strcat(function, ");");
+            strcat(function, ");\n");
         }
     }
     //printf("FUNCTION: %s", function);
@@ -217,7 +217,7 @@ void createFunction(FILE *outputFP, char *token, int lastIDX) {
         if(i != parametersLength - 1) {
             strcat(function, ",");
         } else {
-            strcat(function, ");");
+            strcat(function, ") {\n");
         }
     }
     
@@ -230,7 +230,7 @@ void createFunction(FILE *outputFP, char *token, int lastIDX) {
 int main(int argc, const char * argv[]) {
     
     char *token;
-    const char s[2] = ";>";
+    const char s[2] = "\n";
     FILE *inputFP;
     FILE *outputFP;
     
@@ -265,11 +265,7 @@ int main(int argc, const char * argv[]) {
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
             strcpy(newToken, token);
-            if (strstr(token, "<")) {
-                strcat(newToken, ">");
-            } else {
-                strcat(newToken, ";");
-            }
+            strcat(newToken, ";\n");
             fwrite(newToken , 1 , strlen(newToken) , outputFP);
         }
         token = strtok(NULL, s);
