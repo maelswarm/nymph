@@ -2,9 +2,12 @@
 <br/>
 In Nymph, String means char \*.
 <br/>
+<br/>
 In Nymph, ADTs and primitive data type functions are simplified.
 <br/>
+<br/>
 In Nymph, terminators are not semicolons, but newlines.
+<br/>
 <br/>
 
     #include <stdio.h>
