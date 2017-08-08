@@ -213,7 +213,9 @@ void createFunctionCall(FILE *outputCFP, char *token) {
         if(i != parametersLength - 1) {
             strcat(function, ",");
         } else {
-            strcat(function, ",");
+            if(parametersLength > 1) {
+                strcat(function, ",");
+            }
             strcat(function, objectName);
             strcat(function, ");\n");
         }
@@ -334,10 +336,10 @@ int main(int argc, const char * argv[]) {
     int lastIDX = 0;
     
     regex_t functionRegex; //function
-    int retFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
+    int retFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}[[:punct:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
     
     regex_t functionCallRegex; //function
-    int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*$", 0);
+    int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}[[:punct:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*$", 0);
     
     regex_t objectRegex; //function
     int retObject = regcomp(&objectRegex, "^[[:space:]]*object[[:space:]]\\{1,\\}[[:alpha:]]\\{1,\\}[[:space:]]\\{1,\\}{[[:space:]]*$", 0);
