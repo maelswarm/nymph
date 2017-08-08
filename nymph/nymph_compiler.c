@@ -133,7 +133,7 @@ void createInclude(FILE *outputCFP, char *token) {
     
     strcpy(includeArr, "");
     strcat(includeArr, name);
-    strcat(includeArr, ".h>\n");
+    strcat(includeArr, ".h\"\n");
     
     fwrite(includeArr , 1 , strlen(includeArr) , outputCFP);
     
@@ -163,7 +163,7 @@ void createStruct(FILE *outputCFP, char *token, FILE *outputHFP) {
     strcpy(structArrH, "");
     strcat(structArrH, "typedef struct ");
     strcat(structArrH, structName);
-    strcat(structArrH, " *");
+    strcat(structArrH, " ");
     strcat(structArrH, structName);
     strcat(structArrH, ";\n");
     
@@ -343,7 +343,7 @@ int main(int argc, const char * argv[]) {
     int retObject = regcomp(&objectRegex, "^[[:space:]]*object[[:space:]]\\{1,\\}[[:alpha:]]\\{1,\\}[[:space:]]\\{1,\\}{[[:space:]]*$", 0);
     
     regex_t includeRegex; //function
-    int retInclude = regcomp(&includeRegex, "^[[:space:]]*#include[[:space:]]\\{1,\\}\\<[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\>[[:space:]]*$", 0);
+    int retInclude = regcomp(&includeRegex, "^[[:space:]]*#include[[:space:]]\\{1,\\}\"[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\"[[:space:]]*$", 0);
     
     while(token != NULL) {
         
