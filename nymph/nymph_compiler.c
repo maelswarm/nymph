@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <regex.h>
 
 char *str_replace(char *orig, char *rep, char *with) {
     char *result; // the return string
@@ -209,14 +210,14 @@ void createFunction(FILE *outputFP, char *token, int lastIDX) {
     strcat(function, " ");
     strcat(function, functionName);
     strcat(function, "(");
-    strcat(function, objectType);
-    strcat(function, " rebrab");
-    strcat(function, ",");
     for (int i=0; i<parametersLength; i++) {
-        strcat(function, parameters[i]);
-        if(i != parametersLength - 1) {
+        if (parametersLength > 1) {
+            strcat(function, parameters[i]);
             strcat(function, ",");
-        } else {
+        }
+        if(i == parametersLength - 1) {
+            strcat(function, objectType);
+            strcat(function, " rebrab");
             strcat(function, ") {\n");
         }
     }
@@ -238,7 +239,7 @@ int main(int argc, const char * argv[]) {
         printf("Input and Output parameter needed.\n");
         return 1;
     }
-
+    
     inputFP = fopen (argv[1], "rb");
     outputFP = fopen(argv[2], "wb+");
     
@@ -248,12 +249,20 @@ int main(int argc, const char * argv[]) {
     
     while(token != NULL) {
         
+        regex_t functionRegex; //function
+        int regFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
+        regFunction = regexec(&functionRegex, token, 0, NULL, 0);
         
-        if (strstr(token, ".") != NULL && strstr(token, "(") != NULL && strstr(token, "{") < strstr(token, ")")) {
+        regex_t functionCallRegex; //function
+        int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*$", 0);
+        retFunctionCall = regexec(&functionCallRegex, token, 0, NULL, 0);
+        printf("%s %i %i\n", token, retFunctionCall, regFunction);
+        
+        if (!retFunctionCall) {
             checkForThis(&token);
             checkForString(&token);
             createFunctionCall(outputFP, token, lastIDX);
-        } else if(strstr(token, ".") != NULL && strstr(token, "(") != NULL) {
+        } else if(!regFunction) {
             checkForThis(&token);
             checkForString(&token);
             createFunction(outputFP, token, lastIDX);
@@ -265,7 +274,11 @@ int main(int argc, const char * argv[]) {
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
             strcpy(newToken, token);
-            strcat(newToken, ";\n");
+            if(newToken[strlen(newToken) - 1] != '{' && newToken[strlen(newToken) - 1] != '}') {
+                strcat(newToken, ";\n");
+            } else {
+                strcat(newToken, "\n");
+            }
             fwrite(newToken , 1 , strlen(newToken) , outputFP);
         }
         token = strtok(NULL, s);
@@ -275,4 +288,4 @@ int main(int argc, const char * argv[]) {
     fclose(outputFP);
     
     return 0;
-};
+}
