@@ -10,9 +10,9 @@ In Nymph, terminators are not semicolons, but newlines.
 <br/>
 <br/>
 
-    #include <stdio.h>
+    #include <stdio.n>
 
-    void String.world(int b,int c) { //object function declaration
+    public void String.world(int b,int c) { //object function declaration
         printf("%c%c\n", this[b], this[c]) //"this" is the string object
     }
 
