@@ -124,7 +124,57 @@ char *loadFile(FILE *fp) {
     return buffer;
 }
 
-void createFunctionCall(FILE *outputFP, char *token, int lastIDX) {
+void createInclude(FILE *outputCFP, char *token) {
+    char includeArr[1000];
+    memset(includeArr, '\0', sizeof(includeArr));
+    
+    char *name = subString(token, '.');
+    token += strlen(name) + 1;
+    
+    strcpy(includeArr, "");
+    strcat(includeArr, name);
+    strcat(includeArr, ".h>\n");
+    
+    fwrite(includeArr , 1 , strlen(includeArr) , outputCFP);
+    
+    free(name);
+}
+
+void createStruct(FILE *outputCFP, char *token, FILE *outputHFP) {
+    char structArr[1000];
+    char structArrH[1000];
+    memset(structArr, '\0', sizeof(structArr));
+    memset(structArrH, '\0', sizeof(structArrH));
+    
+    
+    char *tmp = subString(token, ' '); //skip 'object'
+    token += strlen(tmp) + 1;
+    
+    char *structName = subString(token, '{');
+    token += strlen(structName) + 1;
+    
+    trim(structName);
+    
+    strcpy(structArr, "\n");
+    strcat(structArr, "struct ");
+    strcat(structArr, structName);
+    strcat(structArr, " {\n");
+    
+    strcpy(structArrH, "");
+    strcat(structArrH, "typedef struct ");
+    strcat(structArrH, structName);
+    strcat(structArrH, " *");
+    strcat(structArrH, structName);
+    strcat(structArrH, ";\n");
+    
+    fwrite(structArr , 1 , strlen(structArr) , outputCFP);
+    fwrite(structArrH , 1 , strlen(structArrH) , outputHFP);
+    
+    free(tmp);
+    free(structName);
+}
+
+void createFunctionCall(FILE *outputCFP, char *token) {
     char function[1000];
     char **parameters = (char **)malloc(100*sizeof(char *));
     int parametersLength = 0;
@@ -158,27 +208,32 @@ void createFunctionCall(FILE *outputFP, char *token, int lastIDX) {
     strcpy(function, "\n");
     strcat(function, functionName);
     strcat(function, "(");
-    strcat(function, objectName);
-    strcat(function, ",");
     for (int i=0; i<parametersLength; i++) {
         strcat(function, parameters[i]);
         if(i != parametersLength - 1) {
             strcat(function, ",");
         } else {
+            strcat(function, ",");
+            strcat(function, objectName);
             strcat(function, ");\n");
         }
     }
     //printf("FUNCTION: %s", function);
-    fwrite(function , 1 , strlen(function) , outputFP);
+    fwrite(function , 1 , strlen(function) , outputCFP);
     free(objectName);
     free(functionName);
 }
 
-void createFunction(FILE *outputFP, char *token, int lastIDX) {
+void createFunction(FILE *outputCFP, char *token, FILE *outputHFP) {
     char function[1000];
+    char functionH[1000];
     char **parameters = (char **)malloc(100*sizeof(char *));
     int parametersLength = 0;
     memset(function, '\0', sizeof(function));
+    memset(functionH, '\0', sizeof(functionH));
+    
+    char *accessType = subString(token, ' ');
+    token += strlen(accessType) + 1;
     
     char *returnType = subString(token, ' ');
     token += strlen(returnType) + 1;
@@ -222,7 +277,30 @@ void createFunction(FILE *outputFP, char *token, int lastIDX) {
         }
     }
     
-    fwrite(function , 1 , strlen(function) , outputFP);
+    fwrite(function , 1 , strlen(function) , outputCFP);
+    
+    trim(accessType);
+    printf("%s\n", accessType);
+    if (!strcmp(accessType, "public")) {
+        strcpy(functionH, "");
+        strcat(functionH, returnType);
+        strcat(functionH, " ");
+        strcat(functionH, functionName);
+        strcat(functionH, "(");
+        for (int i=0; i<parametersLength; i++) {
+            if (parametersLength > 1) {
+                strcat(functionH, parameters[i]);
+                strcat(functionH, ",");
+            }
+            if(i == parametersLength - 1) {
+                strcat(functionH, objectType);
+                strcat(functionH, " rebrab");
+                strcat(functionH, ");\n");
+            }
+        }
+        fwrite(functionH , 1 , strlen(functionH) , outputHFP);
+    }
+    
     free(returnType);
     free(functionName);
     free(objectType);
@@ -233,7 +311,8 @@ int main(int argc, const char * argv[]) {
     char *token;
     const char s[2] = "\n";
     FILE *inputFP;
-    FILE *outputFP;
+    FILE *outputCFP;
+    FILE *outputHFP;
     
     if (argc != 3) {
         printf("Input and Output parameter needed.\n");
@@ -241,31 +320,52 @@ int main(int argc, const char * argv[]) {
     }
     
     inputFP = fopen (argv[1], "rb");
-    outputFP = fopen(argv[2], "wb+");
+    char hFile[100];
+    char cFile[100];
+    strcpy(cFile, argv[2]);
+    strcat(cFile, ".c");
+    strcpy(hFile, argv[2]);
+    strcat(hFile, ".h");
+    outputCFP = fopen(cFile, "wb+");
+    outputHFP = fopen(hFile, "wb+");
     
     char *buffer = loadFile(inputFP);
     token = strtok(buffer, s);
     int lastIDX = 0;
     
+    regex_t functionRegex; //function
+    int retFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
+    
+    regex_t functionCallRegex; //function
+    int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*$", 0);
+    
+    regex_t objectRegex; //function
+    int retObject = regcomp(&objectRegex, "^[[:space:]]*object[[:space:]]\\{1,\\}[[:alpha:]]\\{1,\\}[[:space:]]\\{1,\\}{[[:space:]]*$", 0);
+    
+    regex_t includeRegex; //function
+    int retInclude = regcomp(&includeRegex, "^[[:space:]]*#include[[:space:]]\\{1,\\}\\<[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\>[[:space:]]*$", 0);
+    
     while(token != NULL) {
         
-        regex_t functionRegex; //function
-        int regFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
-        regFunction = regexec(&functionRegex, token, 0, NULL, 0);
+        retFunction = regexec(&functionRegex, token, 0, NULL, 0);
         
-        regex_t functionCallRegex; //function
-        int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*$", 0);
         retFunctionCall = regexec(&functionCallRegex, token, 0, NULL, 0);
-        printf("%s %i %i\n", token, retFunctionCall, regFunction);
+        printf("%s %i %i\n", token, retFunctionCall, retFunction);
         
+        retObject = regexec(&objectRegex, token, 0, NULL, 0);
+        
+        retInclude = regexec(&includeRegex, token, 0, NULL, 0);
+        
+        checkForThis(&token);
+        checkForString(&token);
         if (!retFunctionCall) {
-            checkForThis(&token);
-            checkForString(&token);
-            createFunctionCall(outputFP, token, lastIDX);
-        } else if(!regFunction) {
-            checkForThis(&token);
-            checkForString(&token);
-            createFunction(outputFP, token, lastIDX);
+            createFunctionCall(outputCFP, token);
+        } else if(!retFunction) {
+            createFunction(outputCFP, token, outputHFP);
+        } else if(!retObject) {
+            createStruct(outputCFP, token, outputHFP);
+        } else if(!retInclude) {
+            createInclude(outputCFP, token);
         } else {
             
             checkForThis(&token);
@@ -274,18 +374,19 @@ int main(int argc, const char * argv[]) {
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
             strcpy(newToken, token);
-            if(newToken[strlen(newToken) - 1] != '{' && newToken[strlen(newToken) - 1] != '}') {
+            if(newToken[strlen(newToken) - 1] != '>') {
                 strcat(newToken, ";\n");
             } else {
                 strcat(newToken, "\n");
             }
-            fwrite(newToken , 1 , strlen(newToken) , outputFP);
+            fwrite(newToken , 1 , strlen(newToken) , outputCFP);
         }
         token = strtok(NULL, s);
     }
     
     fclose(inputFP);
-    fclose(outputFP);
+    fclose(outputCFP);
+    fclose(outputHFP);
     
     return 0;
 }
