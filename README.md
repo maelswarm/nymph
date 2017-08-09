@@ -10,19 +10,33 @@ In Nymph, terminators are not semicolons, but newlines.
 <br/>
 <br/>
 
-    #include <stdio.n>
 
-    public void String.world(int b,int c) { //object function declaration
-        printf("%c%c\n", this[b], this[c]) //"this" is the string object
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include "nymph.n" //be sure to include the current filename
+
+    object Box {
+      int height
+      int width
+      int depth
+    }
+
+    public void Box *.print() {
+        printf("%i %i %i\n", this->height, this->width, this->depth)
+    }
+
+    public void Box *.create(int w, int h, int d) {
+        this = malloc(sizeof(Box))
+        this->width = w
+        this->height = h
+        this->depth = d
     }
 
     int main(int argc, const char * argv[]) {
 
-        String hello = "Blah"
-        int blade = 1
-        int runner = 2
-
-        hello.world(blade,runner) //calling object function
+        Box *myBox
+        myBox.create()
+        myBox.print()
 
         return 0
     }
