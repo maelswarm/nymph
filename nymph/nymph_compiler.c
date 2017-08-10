@@ -211,9 +211,12 @@ void createFunctionCall(FILE *outputCFP, char *token, struct dict myDict[], int 
     char *functionName = subString(token, '(');
     token += strlen(functionName) + 1;
     
+    char tmpObjectName[100];
+    strcpy(tmpObjectName, objectName);
+    trimAllButAlpha(tmpObjectName);
     for (int i=0; i<myDictLen; i++) {
-        if(!strcmp(myDict[i].val, objectName)) {
-            //printf("Dict values: %s %s\n",myDict[i].val, objectName);
+        //printf("Dict values: %s %s\n",myDict[i].val, tmpObjectName);
+        if(!strcmp(myDict[i].val, tmpObjectName)) {
             trim(myDict[i].key);
             strcat(functionName, myDict[i].key);
             break;
@@ -279,7 +282,7 @@ void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict m
     char *functionName = subString(token, '(');
     token += strlen(functionName) + 1;
     if (strchr(objectType, '*') != NULL) {
-        printf("OBJECTTYPE: %s\n", objectType);
+        //printf("OBJECTTYPE: %s\n", objectType);
         char objectTypeTmp[1000];
         strcpy(objectTypeTmp, objectType);
         trimAllButAlpha(objectTypeTmp);
@@ -385,7 +388,7 @@ int main(int argc, const char * argv[]) {
     int retFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}[[:space:]]*[[:punct:]]*[[:space:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
     
     regex_t functionCallRegex; //function
-    int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}[[:punct:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*$", 0);
+    int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:print:]]\\{1,\\}[[:punct:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\);[[:space:]]*$", 0);
     
     regex_t objectRegex; //function
     int retObject = regcomp(&objectRegex, "^[[:space:]]*object[[:space:]]\\{1,\\}[[:alpha:]]\\{1,\\}[[:space:]]\\{1,\\}{[[:space:]]*$", 0);
@@ -394,7 +397,7 @@ int main(int argc, const char * argv[]) {
     int retInclude = regcomp(&includeRegex, "^[[:space:]]*#include[[:space:]]\\{1,\\}\"[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\"[[:space:]]*$", 0);
     
     regex_t objectDictRegex; //function
-    int retObjectDict = regcomp(&objectDictRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}[[:space:]]*[[:alpha:]]\\{1,\\}[[:space:]]*$", 0);
+    int retObjectDict = regcomp(&objectDictRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}[[:space:]]*[[:alpha:]]\\{1,\\}\\;[[:space:]]*$", 0);
     
     while(token != NULL) {
         
@@ -408,14 +411,14 @@ int main(int argc, const char * argv[]) {
         retInclude = regexec(&includeRegex, token, 0, NULL, 0);
         
         checkForThis(&token);
-        if (!retFunctionCall) {
+        if(!retInclude) {
+            createInclude(outputCFP, token);
+        } else if (!retFunctionCall) {
             createFunctionCall(outputCFP, token, myDict, myDictLen);
         } else if(!retFunction) {
             createFunction(outputCFP, token, outputHFP, myDict, myDictLen);
         } else if(!retObject) {
             createStruct(outputCFP, token, outputHFP);
-        } else if(!retInclude) {
-            createInclude(outputCFP, token);
         } else if(!retObjectDict) {
             checkForString(&token);
             struct dict newDict;
@@ -449,15 +452,15 @@ int main(int argc, const char * argv[]) {
                 }
             }
             trimAllButAlpha(nToken);
-            trim(vToken);
+            trimAllButAlpha(vToken);
             newDict.key = nToken;
             newDict.val = vToken;
-            printf("NTOKEN: %s Token: %s\n",nToken, token);
-            printf("VTOKEN: %s Token: %s\n",vToken, token);
+            //printf("NTOKEN: %s Token: %s\n",nToken, token);
+            //printf("VTOKEN: %s Token: %s\n",vToken, token);
             
             myDict[myDictLen] = newDict;
             myDictLen++;
-            printf("DICT: %s %s\n", newDict.key, newDict.val);
+            //printf("DICT: %s %s\n", newDict.key, newDict.val);
             
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
@@ -475,11 +478,11 @@ int main(int argc, const char * argv[]) {
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
             strcpy(newToken, token);
-            if(newToken[strlen(newToken) - 1] != '>') {
-                strcat(newToken, ";\n");
-            } else {
-                strcat(newToken, "\n");
-            }
+            //if(newToken[strlen(newToken) - 1] != '>') {
+            //strcat(newToken, ";\n");
+            //} else {
+            strcat(newToken, "\n");
+            //}
             fwrite(newToken , 1 , strlen(newToken) , outputCFP);
         }
         token = strtok(NULL, s);
