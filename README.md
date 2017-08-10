@@ -22,7 +22,7 @@ In Nymph, ADTs and primitive data type functions are simplified.
         printf("%i %i %i\n", this->height, this->width, this->depth);
     }
 
-    public void Box *.create(int w, int h, int d) {
+    public void Box **.create(int w, int h, int d) {
         this = malloc(sizeof(Box));
         this->width = w;
         this->height = h;
@@ -32,7 +32,7 @@ In Nymph, ADTs and primitive data type functions are simplified.
     int main(int argc, const char * argv[]) {
 
         Box *myBox;
-        myBox.create();
+        &myBox.create();
         myBox.print();
 
         return 0
