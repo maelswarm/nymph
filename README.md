@@ -6,9 +6,6 @@ In Nymph, String means char *.
 In Nymph, ADTs and primitive data type functions are simplified.
 <br/>
 <br/>
-In Nymph, terminators are not semicolons, but newlines.
-<br/>
-<br/>
 
 
     #include <stdio.h>
@@ -16,27 +13,27 @@ In Nymph, terminators are not semicolons, but newlines.
     #include "nymph.n" //be sure to include the current filename
 
     object Box {
-      int height
-      int width
-      int depth
+      int height;
+      int width;
+      int depth;
     }
 
     public void Box *.print() {
-        printf("%i %i %i\n", this->height, this->width, this->depth)
+        printf("%i %i %i\n", this->height, this->width, this->depth);
     }
 
     public void Box *.create(int w, int h, int d) {
-        this = malloc(sizeof(Box))
-        this->width = w
-        this->height = h
-        this->depth = d
+        this = malloc(sizeof(Box));
+        this->width = w;
+        this->height = h;
+        this->depth = d;
     }
 
     int main(int argc, const char * argv[]) {
 
-        Box *myBox
-        myBox.create()
-        myBox.print()
+        Box *myBox;
+        myBox.create();
+        myBox.print();
 
         return 0
     }
