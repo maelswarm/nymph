@@ -34,6 +34,7 @@ In Nymph, ADTs and primitive data type functions are simplified.
         Box *myBox;
         &myBox.create();
         myBox.print();
-
+        free(myBox);
+        
         return 0
     }
