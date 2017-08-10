@@ -18,11 +18,11 @@ In Nymph, ADTs and primitive data type functions are simplified.
       int depth;
     }
 
-    public void Box *.print() {
+    public void Box*.print() {
         printf("%i %i %i\n", this->height, this->width, this->depth);
     }
 
-    public void Box **.create(int w, int h, int d) {
+    public void Box**.create(int w, int h, int d) {
         this = malloc(sizeof(Box));
         this->width = w;
         this->height = h;
