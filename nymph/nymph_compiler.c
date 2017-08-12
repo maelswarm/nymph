@@ -465,7 +465,7 @@ int main(int argc, const char * argv[]) {
             char newToken[10000];
             memset(newToken, '\0', sizeof(newToken));
             strcpy(newToken, token);
-            if(newToken[strlen(newToken) - 1] != '>') {
+            if(newToken[strlen(newToken) - 1] != '>' && newToken[strlen(newToken) - 1] != ';' && newToken[strlen(newToken) - 1] != '{') {
                 strcat(newToken, ";\n");
             } else {
                 strcat(newToken, "\n");
