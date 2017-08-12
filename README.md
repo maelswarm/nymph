@@ -32,7 +32,7 @@ In Nymph, ADTs and primitive data type functions are simplified.
     int main(int argc, const char * argv[]) {
 
         Box *myBox;
-        &myBox.create();
+        &myBox.create(1, 2, 3);
         myBox.print();
         free(myBox);
         
