@@ -17,6 +17,12 @@ struct dict {
     char *val;
 };
 
+regex_t functionRegex; //function
+regex_t functionCallRegex; //function
+regex_t objectRegex; //function
+regex_t includeRegex; //function
+regex_t objectDictRegex; //function
+
 char *str_replace(char *orig, char *rep, char *with) {
     char *result; // the return string
     char *ins;    // the next insert point
@@ -196,69 +202,103 @@ void createStruct(FILE *outputCFP, char *token, FILE *outputHFP) {
     free(structName);
 }
 
-void createFunctionCall(FILE *outputCFP, char *token, struct dict myDict[], int myDictLen) {
-    char function[1000];
-    char **parameters = (char **)malloc(100*sizeof(char *));
-    int parametersLength = 0;
-    memset(function, '\0', sizeof(function));
+void parser(char *str) {
     
-    char *objectName = subString(token, '.');
-    token += strlen(objectName) + 1;
-    trim(objectName);
-    
-    checkForString(&objectName);
-    
-    char *functionName = subString(token, '(');
-    token += strlen(functionName) + 1;
-    
-    char tmpObjectName[100];
-    strcpy(tmpObjectName, objectName);
-    trimAllButAlpha(tmpObjectName);
-    for (int i=0; i<myDictLen; i++) {
-        //printf("Dict values: %s %s\n",myDict[i].val, tmpObjectName);
-        if(!strcmp(myDict[i].val, tmpObjectName)) {
-            trim(myDict[i].key);
-            strcat(functionName, myDict[i].key);
-            break;
-        }
-    }
-    
-    
-    while (strchr(token, ',') != NULL) {
-        char *parameterName = subString(token, ',');
-        token += strlen(parameterName) + 1;
-        parameters[parametersLength] = parameterName;
-        parametersLength++;
-    }
-    
-    char *parameterName = subStringLastOccurance(token, ')');
-    parameters[parametersLength] = parameterName;
-    parametersLength++;
-    token += strlen(parameterName) + 1;
-    
-    for(int i=0; i<parametersLength; i++) {
-        //printf("PARAMETER: %s\n",parameters[i]);
-    }
-    
-    strcpy(function, "\n");
-    strcat(function, functionName);
-    strcat(function, "(");
-    for (int i=0; i<parametersLength; i++) {
-        strcat(function, parameters[i]);
-        if(i != parametersLength - 1) {
-            strcat(function, ",");
-        } else {
-            if(parametersLength > 1) {
+}
+
+char *createFunctionCall(char *token, struct dict myDict[], int myDictLen) { // hello.world(a,b.print());
+    char *function = malloc(1000*sizeof(char));
+    function[0] = '\0';
+    int i = 0;
+    int j = 0;
+    char *objectName = malloc(1000*sizeof(char));
+    char *functionName = malloc(1000*sizeof(char));
+    char *functionInner = malloc(1000*sizeof(char));
+    objectName[0] = '\0';
+    functionName[0] = '\0';
+    functionInner[0] = '\0';
+    char *str = malloc(1000*sizeof(char));
+    str[0] = '\0';
+    for (; i<strlen(token); i++, j++) {
+        if (token[i] == '.') {
+            str[j] = '\0';
+            strcpy(objectName, str);
+            j = -1;
+        } else if(token[i] == '(') {
+            str[j] = '\0';
+            strcpy(functionName, str);
+            if (functionName[0] != '\0') {
+                trim(functionName);
+                char tmpObjectName[100];
+                strcpy(tmpObjectName, objectName);
+                trimAllButAlpha(tmpObjectName);
+                for (int i=0; i<myDictLen; i++) {
+                    if(!strcmp(myDict[i].val, tmpObjectName)) {
+                        trim(myDict[i].key);
+                        strcat(functionName, myDict[i].key);
+                        break;
+                    }
+                }
+            }
+            strcat(functionName, "(");
+            strcpy(function, functionName);
+            if (objectName[0] != '\0') {
+                trim(objectName);
+                strcat(function, objectName);
+                if (token[i+1] != ')') {
+                    strcat(function, ",");
+                }
+            }
+            if (functionInner[0] != '\0') {
+                strcat(function, ",");
+                strcat(function, functionInner);
+            }
+            j = 0;
+            return strcat(function, createFunctionCall(&token[i+1], myDict, myDictLen));
+        } else if(token[i] == ',') {
+            str[j] = token[i];
+            str[j+1] = '\0';
+            strcpy(functionInner, str);
+            if (functionName[0] != '\0') {
+                trimAllButAlpha(functionName);
+                strcat(function, functionName);
+                strcat(function, "(");
+            }
+            if (objectName[0] != '\0') {
+                trim(objectName);
+                strcat(function, objectName);
+            }
+            if (functionInner[0] != '\0') {
+                strcat(function, functionInner);
+            }
+            j = 0;
+            return strcat(function, createFunctionCall(&token[i+1], myDict, myDictLen));
+        } else if(token[i] == ')') {
+            str[j] = token[i];
+            str[j+1] = '\0';
+            strcpy(functionInner, str);
+            if (functionName[0] != '\0') {
+                trimAllButAlpha(functionName);
+                strcat(function, functionName);
+                strcat(function, "(");
+            }
+            if (objectName[0] != '\0') {
+                trim(objectName);
+                strcat(function, objectName);
                 strcat(function, ",");
             }
-            strcat(function, objectName);
-            strcat(function, ");\n");
+            if (functionInner[0] != '\0') {
+                strcat(function, functionInner);
+            }
+            j = 0;
+            return strcat(function, createFunctionCall(&token[i+1], myDict, myDictLen));
+        } else if(token[i] == ';') {
+            return ";";
+        } else {
+            str[j] = token[i];
         }
     }
-    //printf("FUNCTION: %s", function);
-    fwrite(function , 1 , strlen(function) , outputCFP);
-    free(objectName);
-    free(functionName);
+    return NULL;
 }
 
 void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict myDict[], int myDictLen) {
@@ -314,15 +354,19 @@ void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict m
     strcat(function, " ");
     strcat(function, functionName);
     strcat(function, "(");
+    strcat(function, objectType);
+    strcat(function, " rebrab");
+    if (parametersLength > 1) {
+        strcat(function, ",");
+    }
     for (int i=0; i<parametersLength; i++) {
         if (parametersLength > 1) {
             strcat(function, parameters[i]);
-            strcat(function, ",");
         }
         if(i == parametersLength - 1) {
-            strcat(function, objectType);
-            strcat(function, " rebrab");
             strcat(function, ") {\n");
+        } else {
+            strcat(function, ",");
         }
     }
     
@@ -336,15 +380,19 @@ void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict m
         strcat(functionH, " ");
         strcat(functionH, functionName);
         strcat(functionH, "(");
+        strcat(functionH, objectType);
+        strcat(functionH, " rebrab");
+        if (parametersLength > 1) {
+            strcat(functionH, ",");
+        }
         for (int i=0; i<parametersLength; i++) {
             if (parametersLength > 1) {
                 strcat(functionH, parameters[i]);
-                strcat(functionH, ",");
             }
             if(i == parametersLength - 1) {
-                strcat(functionH, objectType);
-                strcat(functionH, " rebrab");
                 strcat(functionH, ");\n");
+            } else {
+                strcat(functionH, ",");
             }
         }
         fwrite(functionH , 1 , strlen(functionH) , outputHFP);
@@ -384,19 +432,10 @@ int main(int argc, const char * argv[]) {
     token = strtok(buffer, s);
     int lastIDX = 0;
     
-    regex_t functionRegex; //function
     int retFunction = regcomp(&functionRegex, "[[:alpha:]]\\{1,\\}[[:space:]]*[[:punct:]]*[[:space:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\)[[:space:]]*{[[:space:]]*$", 0);
-    
-    regex_t functionCallRegex; //function
     int retFunctionCall = regcomp(&functionCallRegex, "^[[:space:]]*[[:print:]]\\{1,\\}[[:punct:]]*\\.[[:alpha:]]\\{1,\\}\\([[:print:]]*\\);[[:space:]]*$", 0);
-    
-    regex_t objectRegex; //function
     int retObject = regcomp(&objectRegex, "^[[:space:]]*object[[:space:]]\\{1,\\}[[:alpha:]]\\{1,\\}[[:space:]]\\{1,\\}{[[:space:]]*$", 0);
-    
-    regex_t includeRegex; //function
     int retInclude = regcomp(&includeRegex, "^[[:space:]]*#include[[:space:]]\\{1,\\}\"[[:alpha:]]\\{1,\\}\\.[[:alpha:]]\\{1,\\}\"[[:space:]]*$", 0);
-    
-    regex_t objectDictRegex; //function
     int retObjectDict = regcomp(&objectDictRegex, "^[[:space:]]*[[:alpha:]]\\{1,\\}[[:space:]]*[[:alpha:]]\\{1,\\}\\;[[:space:]]*$", 0);
     
     while(token != NULL) {
@@ -414,7 +453,11 @@ int main(int argc, const char * argv[]) {
         if(!retInclude) {
             createInclude(outputCFP, token);
         } else if (!retFunctionCall) {
-            createFunctionCall(outputCFP, token, myDict, myDictLen);
+            char *function = createFunctionCall(token, myDict, myDictLen);
+            strcat(function, "\n");
+            fwrite(function , 1 , strlen(function) , outputCFP);
+            free(function);
+            printf("\n");
         } else if(!retFunction) {
             createFunction(outputCFP, token, outputHFP, myDict, myDictLen);
         } else if(!retObject) {
