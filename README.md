@@ -23,7 +23,7 @@ In Nymph, ADTs and primitive data type functions are simplified.
     }
 
     public void Box**.create(int w, int h, int d) {
-        this = malloc(sizeof(Box));
+        (*this) = malloc(sizeof(Box));
         (*this)->width = w;
         (*this)->height = h;
         (*this)->depth = d;
