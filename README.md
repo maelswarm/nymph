@@ -60,8 +60,8 @@ In Nymph, ADTs and primitive data type functions are simplified.
         &myBox.create();
         &myRect.create();
         
-        myBox.print(1, 2, 3);
-        myRect.print(1, 2);
+        myBox.print();
+        myRect.print();
         
         free(myBox);
         free(myRect);
