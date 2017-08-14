@@ -241,7 +241,7 @@ char *createFunctionCall(char *token, struct dict myDict[], int myDictLen) { // 
                 }
             }
             strcat(functionName, "(");
-            strcpy(function, functionName);
+            strcat(function, functionName);
             if (objectName[0] != '\0') {
                 trim(objectName);
                 strcat(function, objectName);
@@ -253,12 +253,11 @@ char *createFunctionCall(char *token, struct dict myDict[], int myDictLen) { // 
                 strcat(function, ",");
                 strcat(function, functionInner);
             }
-            j = 0;
             return strcat(function, createFunctionCall(&token[i+1], myDict, myDictLen));
         } else if(token[i] == ',') {
             str[j] = token[i];
             str[j+1] = '\0';
-            strcpy(functionInner, str);
+            strcat(functionInner, str);
             if (functionName[0] != '\0') {
                 trimAllButAlpha(functionName);
                 strcat(function, functionName);
@@ -271,12 +270,11 @@ char *createFunctionCall(char *token, struct dict myDict[], int myDictLen) { // 
             if (functionInner[0] != '\0') {
                 strcat(function, functionInner);
             }
-            j = 0;
             return strcat(function, createFunctionCall(&token[i+1], myDict, myDictLen));
         } else if(token[i] == ')') {
             str[j] = token[i];
             str[j+1] = '\0';
-            strcpy(functionInner, str);
+            strcat(functionInner, str);
             if (functionName[0] != '\0') {
                 trimAllButAlpha(functionName);
                 strcat(function, functionName);
@@ -290,12 +288,16 @@ char *createFunctionCall(char *token, struct dict myDict[], int myDictLen) { // 
             if (functionInner[0] != '\0') {
                 strcat(function, functionInner);
             }
-            j = 0;
             return strcat(function, createFunctionCall(&token[i+1], myDict, myDictLen));
         } else if(token[i] == ';') {
             return ";";
         } else {
             str[j] = token[i];
+            if (!isalnum(token[i]) && token[i] != '&') {
+                j = -1;
+                trim(str);
+                strcat(function, str);
+            }
         }
     }
     return NULL;
@@ -342,11 +344,14 @@ void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict m
     
     char *parameterName = subString(token, ')');
     parameters[parametersLength] = parameterName;
-    parametersLength++;
+    trim(parameterName);
+    if(strcmp(parameterName, "")) {
+        parametersLength++;
+    }
     token += strlen(parameterName) + 1;
     
     for(int i=0; i<parametersLength; i++) {
-        //printf("PARAMETER: %s\n",parameters[i]);
+        printf("PARAMETER: %s\n",parameters[i]);
     }
     
     strcpy(function, "\n");
@@ -356,20 +361,16 @@ void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict m
     strcat(function, "(");
     strcat(function, objectType);
     strcat(function, " rebrab");
-    if (parametersLength > 1) {
+    if (parametersLength > 0) {
         strcat(function, ",");
     }
     for (int i=0; i<parametersLength; i++) {
-        if (parametersLength > 1) {
-            strcat(function, parameters[i]);
-        }
-        if(i == parametersLength - 1) {
-            strcat(function, ") {\n");
-        } else {
+        strcat(function, parameters[i]);
+        if (parametersLength - 1 != i) {
             strcat(function, ",");
         }
     }
-    
+    strcat(function, ") {\n");
     fwrite(function , 1 , strlen(function) , outputCFP);
     
     trim(accessType);
@@ -382,19 +383,16 @@ void createFunction(FILE *outputCFP, char *token, FILE *outputHFP, struct dict m
         strcat(functionH, "(");
         strcat(functionH, objectType);
         strcat(functionH, " rebrab");
-        if (parametersLength > 1) {
+        if (parametersLength > 0) {
             strcat(functionH, ",");
         }
         for (int i=0; i<parametersLength; i++) {
-            if (parametersLength > 1) {
-                strcat(functionH, parameters[i]);
-            }
-            if(i == parametersLength - 1) {
-                strcat(functionH, ");\n");
-            } else {
+            strcat(functionH, parameters[i]);
+            if (parametersLength - 1 != i) {
                 strcat(functionH, ",");
             }
         }
+        strcat(functionH, ");\n");
         fwrite(functionH , 1 , strlen(functionH) , outputHFP);
     }
     
