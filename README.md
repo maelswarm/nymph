@@ -28,7 +28,7 @@ In Nymph, ADTs and primitive data type functions are simplified.
         (*this)->depth = 1;
     }
 
-    //square.n
+    //rect.n
     #include <stdlib.h>
     #include <stdio.h>
 
