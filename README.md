@@ -10,7 +10,6 @@ In Nymph, ADTs and primitive data type functions are simplified.
 
     #include <stdio.h>
     #include <stdlib.h>
-    #include "nymph.n" //be sure to include the current filename
 
     object Box {
       int height;
