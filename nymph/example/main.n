@@ -1,0 +1,20 @@
+#include <stdlib.h>
+#include "box.n"
+#include "rect.n"
+
+int main(int argc, const char * argv[]) {
+
+    Box *myBox;
+    Rect *myRect;
+    
+    &myBox.create();
+    &myRect.create();
+    
+    myBox.print();
+    myRect.print();
+    
+    free(myBox);
+    free(myRect);
+
+    return 0
+}
