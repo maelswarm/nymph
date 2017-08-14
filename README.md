@@ -35,7 +35,6 @@ In Nymph, ADTs and primitive data type functions are simplified.
     object Rect {
         int height;
         int width;
-        int depth;
     }
 
     public void Rect*.print() {
