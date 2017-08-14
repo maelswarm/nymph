@@ -8,7 +8,6 @@ In Nymph, ADTs and primitive data type functions are simplified.
 <br/>
 
     //box.n
-    
     #include <stdlib.h>
     #include <stdio.h>
 
@@ -29,17 +28,44 @@ In Nymph, ADTs and primitive data type functions are simplified.
         (*this)->depth = 1;
     }
 
+    //square.n
+    #include <stdlib.h>
+    #include <stdio.h>
+
+    object Rect {
+        int height;
+        int width;
+        int depth;
+    }
+
+    public void Rect*.print() {
+        printf("%i %i\n", this->height, this->width);
+    }
+
+    public void Rect**.create() {
+        (*this) = malloc(sizeof(Rect));
+        (*this)->width = 1;
+        (*this)->height = 1;
+    }
+
     //main.n
-    
     #include <stdlib.h>
     #include "box.n"
+    #include "square.n"
 
     int main(int argc, const char * argv[]) {
 
         Box *myBox;
+        Rect *myRect;
+        
         &myBox.create();
+        &myRect.create();
+        
         myBox.print();
+        myRect.print();
+        
         free(myBox);
+        free(myRect);
 
         return 0
     }
