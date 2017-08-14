@@ -78,8 +78,8 @@ makefile
             gcc -std=c11 nymph_compiler.c -o nymph
             ./nymph square.n square
             ./nymph box.n box
-            ./nymph main.n box
+            ./nymph main.n main
             gcc -std=c11 -c square.c square.h
             gcc -std=c11 -c box.c box.h
-            gcc -std=c11 -c main.c
+            gcc -std=c11 -c main.c main.h
             gcc -std=c11 main.o box.o nymph.o -o out
