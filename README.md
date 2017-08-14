@@ -7,7 +7,8 @@ In Nymph, ADTs and primitive data type functions are simplified.
 <br/>
 <br/>
 
-    //box.n
+box.n
+
     #include <stdlib.h>
     #include <stdio.h>
 
@@ -28,7 +29,8 @@ In Nymph, ADTs and primitive data type functions are simplified.
         (*this)->depth = 1;
     }
 
-    //rect.n
+rect.n
+
     #include <stdlib.h>
     #include <stdio.h>
 
@@ -47,7 +49,8 @@ In Nymph, ADTs and primitive data type functions are simplified.
         (*this)->height = 1;
     }
 
-    //main.n
+main.n
+
     #include <stdlib.h>
     #include "box.n"
     #include "square.n"
@@ -68,3 +71,15 @@ In Nymph, ADTs and primitive data type functions are simplified.
 
         return 0
     }
+
+makefile
+
+    nymph: nymph_compiler.c
+            gcc -std=c11 nymph_compiler.c -o nymph
+            ./nymph square.n square
+            ./nymph box.n box
+            ./nymph main.n box
+            gcc -std=c11 -c square.c square.h
+            gcc -std=c11 -c box.c box.h
+            gcc -std=c11 -c main.c
+            gcc -std=c11 main.o box.o nymph.o -o out
