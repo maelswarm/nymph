@@ -428,6 +428,12 @@ int main(int argc, const char * argv[]) {
     outputCFP = fopen(cFile, "wb+");
     outputHFP = fopen(hFile, "wb+");
     
+    char str[100];
+    strcpy(str, "#include \"");
+    strcat(str, hFile);
+    strcat(str, "\"\n");
+    fwrite(str , 1 , strlen(str) , outputCFP);
+    
     char *buffer = loadFile(inputFP);
     token = strtok(buffer, s);
     int lastIDX = 0;
