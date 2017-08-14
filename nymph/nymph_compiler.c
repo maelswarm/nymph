@@ -293,7 +293,14 @@ char *createFunctionCall(char *token, struct dict myDict[], int myDictLen) { // 
             return ";";
         } else {
             str[j] = token[i];
-            if (!isalnum(token[i]) && token[i] != '&') {
+            if (token[i] == '*') {
+                int k = 1;
+                if (token[i+1] == ' ' || isalnum(token[i-1])) {
+                    j = -1;
+                    trim(str);
+                    strcat(function, str);
+                }
+            } else if(!isalnum(token[i]) && token[i] != '&') {
                 j = -1;
                 trim(str);
                 strcat(function, str);
