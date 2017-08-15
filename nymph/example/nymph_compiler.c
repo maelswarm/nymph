@@ -236,7 +236,7 @@ char *includeCreate(char *token) {
     
     strcpy(str, "");
     strcat(str, name);
-    strcat(str, ".h\"");
+    strcat(str, ".h\"\n");
     free(name);
     
     return str;
@@ -387,7 +387,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
     trim(lastParam);
     printf("LAST PARAM: %s\n", lastParam);
     if (strcmp(lastParam, "")) {
-        if (strstr(lastParam, ")") == NULL) {
+        if (lastParam[0] != ')') {
             strcat(function, ",");
         }
         //strcat(lastParam, ";");

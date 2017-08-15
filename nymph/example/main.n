@@ -1,8 +1,18 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "box.n"
 #include "rect.n"
 
+private char* char*.print(char *a) {
+    printf("%s %s\n", this, a);  
+    return this;
+}
+
 int main(int argc, const char * argv[]) {
+    char *a = "hi";
+    char *b = "hello";
+    a.print(b.print(a));
+
 
     Box *myBox;
     Rect *myRect;    
