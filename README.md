@@ -1,5 +1,5 @@
 # nymph ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
-This project is for fun. Let's see if we can rewrite C syntax into something a little more high level.
+This project is for fun. Let's see if we can what we can achieve by reworking C syntax.
 
 ## Updates
 A new parser has been implemented.
