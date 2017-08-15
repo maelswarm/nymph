@@ -1,12 +1,12 @@
 # nymph ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
-<br/>
-In Nymph, String means char *.
-<br/>
-<br/>
-In Nymph, ADTs and primitive data type functions are simplified.
-<br/>
-<br/>
 
+## Updates
+A new parser has been implemented.
+
+## Goals
+Have both class and object methods implemented by August 22nd, 2017.
+
+## Example
 box.n
 
     #include <stdlib.h>
