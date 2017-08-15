@@ -70,7 +70,7 @@ main.n
         free(myBox);
         free(myRect);
 
-        return 0
+        return 0;
     }
 
 makefile
