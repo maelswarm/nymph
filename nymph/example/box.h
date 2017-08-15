@@ -1,3 +1,3 @@
 typedef struct Box Box;
-void printBox(Box* rebrab);
-void createBox(Box** rebrab);
+void printBox1(Box* rebrab);
+void createBox11(Box** rebrab);

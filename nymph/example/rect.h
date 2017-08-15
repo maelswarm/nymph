@@ -1,3 +1,3 @@
 typedef struct Rect Rect;
-void printRect(Rect* rebrab);
-void createRect(Rect** rebrab);
+void printRect1(Rect* rebrab);
+void createRect11(Rect** rebrab);
