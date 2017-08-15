@@ -24,7 +24,7 @@ box.n
     }
 
     public void Box**.create() {
-        (*this) = malloc(sizeof(Box));
+        (*this) = new Box;
         (*this)->width = 1;
         (*this)->height = 1;
         (*this)->depth = 1;
@@ -45,7 +45,7 @@ rect.n
     }
 
     public void Rect**.create() {
-        (*this) = malloc(sizeof(Rect));
+        (*this) = new Rect;
         (*this)->width = 1;
         (*this)->height = 1;
     }
