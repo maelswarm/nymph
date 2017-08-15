@@ -16,5 +16,5 @@ int main(int argc, const char * argv[]) {
     free(myBox);
     free(myRect);
 
-    return 0
+    return 0;
 }

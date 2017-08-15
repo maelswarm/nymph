@@ -170,6 +170,7 @@ void rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
     int spaceFlag = 0;
     char *str1 = malloc(1000*sizeof(char));
     char *str2 = malloc(1000*sizeof(char));
+    trim(token);
     for (int i=0; i<strlen(token); i++) {
         if (isspace(token[i])) {
             spaceFlag = 1;
@@ -200,6 +201,7 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
     int spaceFlag = 0;
     char *str1 = malloc(1000*sizeof(char));
     char *str2 = malloc(1000*sizeof(char));
+    trim(token);
     for (int i=0; i<strlen(token); i++) {
         if (isspace(token[i])) {
             spaceFlag = 1;
@@ -344,7 +346,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
     
     int flag = 0;
     int i = strlen(object)-1;
-    for (i; i>-1; i--) { if(isalpha(object[i])) {} else {break;} }
+    for (i; i>-1; i--) { if(isalpha(object[i]) || object[i] == '&' || object[i] == '*') {} else {break;} }
     if (i > -1) {strncpy(preObject, object, (i + 1)*sizeof(char));object += i + 1;}
     
     char *functionName = subString(token, '(');
@@ -382,12 +384,21 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
     char *lastParam = lastPtheses(token);
     token += strlen(lastParam);
     trim(lastParam);
+    printf("LAST PARAM: %s\n", lastParam);
     if (strcmp(lastParam, "")) {
-        strcat(function, ",");
-        strcat(lastParam, ";");
+        if (strstr(lastParam, ")") == NULL) {
+            strcat(function, ",");
+        }
+        //strcat(lastParam, ";");
         printf("Pre: %s\n", lastParam);
         char *output = parse(lastParam, pos, outputCFP, outputHFP, myDict, myDictLen);
+        if (strstr(output, "(") == NULL) {
+            char *str = str_replace(output, ";", "");
+            free(output);
+            output = str;
+        }
         strcat(function, output);
+        printf("OUTPUT: %s\n", output);
         free(output);
     }
     printf("FUNCTION: %s\n", function);
@@ -500,9 +511,10 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
             functionBody = lastPtheses(token);
             trim(functionBody);
             printf("String: %s\n", functionBody);
+            int a = *pos;
             char *function = functionCall(functionBody, pos, outputCFP, outputHFP, myDict, myDictLen);
             strcat(output, function);
-            strcat(output, parse(token+strlen(functionBody), pos, outputCFP, outputHFP, myDict, myDictLen));
+            strcat(output, parse(token+a, pos, outputCFP, outputHFP, myDict, myDictLen));
             free(function);
             break;
         case 3: //function declaration

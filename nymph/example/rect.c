@@ -3,18 +3,10 @@
 #include <stdio.h>
 
 struct Rect {
-int height;
-int width;
+    int height;
+    int width;
 };
 
-void printRect(Rect* rebrab) {
-;
-printf("%i %i\n", rebrab->height, rebrab->width);
-};
+void printRect(Rect* rebrab) {printf("%i %i\n", rebrab->height, rebrab->width);};
 
-void createRect(Rect** rebrab) {
-;
-(*rebrab) =malloc(sizeof(Rect));
-(*rebrab)->width =1;
-(*rebrab)->height =1;
-};
+void createRect(Rect** rebrab) {(*rebrab)=malloc(sizeof(Rect));(*rebrab)->width =1;(*rebrab)->height =1;};
