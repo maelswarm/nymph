@@ -5,14 +5,14 @@
 int main(int argc, const char * argv[]) {
 
     Box *myBox;
-    Rect *myRect;
-    
+    Rect *myRect;    
+
     &myBox.create();
     &myRect.create();
-    
+
     myBox.print();
     myRect.print();
-    
+
     free(myBox);
     free(myRect);
 

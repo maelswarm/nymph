@@ -230,6 +230,7 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
 
 char *includeCreate(char *token) {
     char *str = malloc(1000*sizeof(char));
+    memset(str, '\0', sizeof(str));
     char *name = subString(token, '.');
     token += strlen(name) + 1;
     
@@ -284,7 +285,6 @@ char *functionCreate(char *token, FILE *outputHFP) {
     }
     token += strlen(parameterName) + 1;
     
-    strcpy(function, "\n");
     strcat(function, returnType);
     strcat(function, " ");
     strcat(function, functionName);
@@ -343,6 +343,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
     char *preObject = malloc(1000*sizeof(char));
     char *object = subString(token, '.');
     token += strlen(object) + 1;
+    trim(object);
     
     int flag = 0;
     int i = strlen(object)-1;
@@ -436,6 +437,7 @@ void createStruct(char *token, FILE *outputHFP) {
 
 int findNearestSymbol(char *token, int *pos) {
     int dotFlag = 0;
+    int hashFlag = 0;
     *pos = 0;
     
     for(int i=0; i<strlen(token); i++,(*pos)++) {
@@ -457,9 +459,11 @@ int findNearestSymbol(char *token, int *pos) {
             }
         } else if(token[i] == '.') {
             dotFlag = 1;
-        } else if(token[i] == '"' || token[i] == '>') {
+        } else if(token[i] == '#') {
+            hashFlag = 1;
+        } else if((token[i] == '\"' && hashFlag) || (token[i] == '>' && hashFlag)) {
             if(dotFlag) {
-                if (token[i] == '"') {
+                if (token[i] == '\"') {
                     return 4;
                 } else {
                     return -1;
@@ -477,6 +481,7 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
     char *output = malloc(100000*sizeof(char));
     char *functionBody;
     char *myStruct;
+    memset(output, '\0', sizeof(output));
     strcpy(output, "");
     (*pos)++;
     printf("Symbol: %i\n", symbol);
@@ -509,12 +514,11 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
             break;
         case 2: //function call
             functionBody = lastPtheses(token);
-            trim(functionBody);
             printf("String: %s\n", functionBody);
             int a = *pos;
             char *function = functionCall(functionBody, pos, outputCFP, outputHFP, myDict, myDictLen);
             strcat(output, function);
-            strcat(output, parse(token+a, pos, outputCFP, outputHFP, myDict, myDictLen));
+            strcat(output, parse(token+strlen(output)+strlen(functionBody), pos, outputCFP, outputHFP, myDict, myDictLen));
             free(function);
             break;
         case 3: //function declaration
