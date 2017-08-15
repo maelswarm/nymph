@@ -1,0 +1,19 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+object Box {
+    int height;
+    int width;
+    int depth;
+}
+
+public void Box*.print() {
+    printf("%i %i %i\n", this->height, this->width, this->depth);
+}
+
+public void Box**.create() {
+    (*this) = malloc(sizeof(Box));
+    (*this)->width = 1;
+    (*this)->height = 1;
+    (*this)->depth = 1;
+}

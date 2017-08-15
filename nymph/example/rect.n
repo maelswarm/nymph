@@ -1,0 +1,17 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+object Rect {
+    int height;
+    int width;
+}
+
+public void Rect*.print() {
+    printf("%i %i\n", this->height, this->width);
+}
+
+public void Rect**.create() {
+    (*this) = malloc(sizeof(Rect));
+    (*this)->width = 1;
+    (*this)->height = 1;
+}
