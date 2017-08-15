@@ -11,7 +11,7 @@ public void Rect*.print() {
 }
 
 public void Rect**.create() {
-    (*this) = malloc(sizeof(Rect));
+    (*this) = new Rect;
     (*this)->width = 1;
     (*this)->height = 1;
 }

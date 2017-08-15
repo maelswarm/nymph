@@ -12,7 +12,7 @@ public void Box*.print() {
 }
 
 public void Box**.create() {
-    (*this) = malloc(sizeof(Box));
+    (*this) = new Box;
     (*this)->width = 1;
     (*this)->height = 1;
     (*this)->depth = 1;

@@ -80,6 +80,22 @@ void checkForString(char **str) {
     }
 }
 
+void trimAllButAlphaAndStar(char* str) {
+    if(!str)
+        return;
+    
+    char* ptr = str;
+    int len = strlen(ptr);
+    
+    while(len-1 > 0 && (isspace(ptr[len-1]) || ispunct(ptr[len-1]) && ptr[len-1] != '*'))
+        ptr[--len] = 0;
+    
+    while(*ptr && (isspace(*ptr) || ispunct(*ptr) && ptr[len-1] != '*'))
+        ++ptr, --len;
+    
+    memmove(str, ptr, len + 1);
+}
+
 void trimAllButAlpha(char* str)
 {
     if(!str)
@@ -190,10 +206,12 @@ int numberOfcharInString(char* str, char c) {
     return cnt;
 }
 
-void rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
+char *rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
+    char *returnStr = malloc(1000*sizeof(char));
     int spaceFlag = 0;
     char *str1 = malloc(1000*sizeof(char));
     char *str2 = malloc(1000*sizeof(char));
+    char *origStr2 = malloc(1000*sizeof(char));
     trim(token);
     for (int i=0; i<strlen(token); i++) {
         if (isspace(token[i])) {
@@ -219,6 +237,8 @@ void rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
     str1 = str_replace(str1, " ", "");
     str1 = str_replace(str1, "*", "1");
     trim(str1);
+    strcpy(origStr2, str2);
+    trimAllButAlphaAndStar(origStr2);
     trimAllButAlpha(str2);
     if(strcmp(str1, "") && strcmp(str2, "")) {
         struct dict *newDict = malloc(sizeof(struct dict));
@@ -230,8 +250,22 @@ void rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
             printf("String1: %s String2: %s\n", str1, str2);
         }
     }
+    if (!strcmp(str1, "new")) {
+        strcmp(returnStr, "");
+        strcat(returnStr, "malloc(sizeof(");
+        strcat(returnStr, origStr2);
+        strcat(returnStr, "));");
+    } else {
+        free(returnStr);
+        returnStr = NULL;
+    }
     free(str1);
     free(str2);
+    free(origStr2);
+    if (returnStr != NULL) {
+        return returnStr;
+    }
+    return NULL;
 }
 
 void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen) {
@@ -563,14 +597,19 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
         case 1: //right assignment or declaration
             checkForThis(&token);
             strncpy(str, token, *pos*sizeof(char));
-            rightAssignmentCreate(str, myDict, myDictLen);
+            char *rightAss = rightAssignmentCreate(str, myDict, myDictLen);
             if (DEBUG) {
                 printf("String: %s\n", str);
             }
-            if (strcmp(str, ";")) {
-                strcat(output, str);
+            if (rightAss != NULL) {
+                strcat(output, rightAss);
+                strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen));
+            } else {
+                if (strcmp(str, ";")) {
+                    strcat(output, str);
+                }
+                strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen));
             }
-            strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen));
             break;
         case 2: //function call
             functionBody = lastPtheses(token);
