@@ -5,7 +5,7 @@ Let's see what we can achieve by reworking C syntax.
 A new parser has been implemented.
 
 ## Goals
-Default object member values.
+Polish default object member values.
 
 ## Example
 box.n
@@ -14,9 +14,9 @@ box.n
     #include <stdio.h>
 
     object Box {
-        int height;
-        int width;
-        int depth;
+        int height = 3;
+        int width = 5;
+        int depth = 9;
     }
 
     public void Box*.print() {
@@ -36,8 +36,8 @@ rect.n
     #include <stdio.h>
 
     object Rect {
-        int height;
-        int width;
+        int height = 1;
+        int width = 1;
     }
 
     public void Rect*.print() {
@@ -46,8 +46,6 @@ rect.n
 
     public void Rect**.create() {
         (*this) = new Rect;
-        (*this)->width = 1;
-        (*this)->height = 1;
     }
 
 main.n
