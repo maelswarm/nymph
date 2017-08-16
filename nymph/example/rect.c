@@ -1,8 +1,7 @@
 #include "rect.h"
 #include <stdlib.h>
 #include <stdio.h>
-
-struct Rect {
+struct Rect{ 
     int height;
     int width;
 };
