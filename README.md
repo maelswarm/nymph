@@ -5,7 +5,7 @@ Let's see what we can achieve by reworking C syntax.
 A new parser has been implemented.
 
 ## Goals
-Have both class and object methods implemented by August 22nd, 2017.
+Default object member values.
 
 ## Example
 box.n
