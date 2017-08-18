@@ -165,10 +165,10 @@ void trimAllButNumbers(char* str)
     char* ptr = str;
     int len = strlen(ptr);
     
-    while(len-1 > 0 && (!isnumber(ptr[len-1])))
+    while(len-1 > 0 && (!isdigit(ptr[len-1])))
         ptr[--len] = 0;
     
-    while(*ptr && (!isnumber(ptr[len-1])))
+    while(*ptr && (!isdigit(ptr[len-1])))
         ++ptr, --len;
     
     memmove(str, ptr, len + 1);
