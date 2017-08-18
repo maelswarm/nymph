@@ -17,17 +17,17 @@ box.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    object Box {
+    obj Box {
         int height = 1;
         int width = 1;
         int depth = 1;
     }
 
-    private int add(int a, int b) {
+    pri int add(int a, int b) {
       return a + b;
     }
 
-    public void printBox(Box *this) {
+    pub void printBox(Box *this) {
         printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
     }
 
@@ -36,12 +36,12 @@ rect.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    object Rect {
+    obj Rect {
         int height = 3;
         int width = 3;
     }
 
-    public void printRect(Rect *this) {
+    pub void printRect(Rect *this) {
         printf("%i %i\n", this->height, this->width);
     }
 
@@ -51,7 +51,7 @@ main.n
     #include "box.n"
     #include "rect.n"
 
-    private int main(int argc, const char * argv[]) {
+    pri int main(int argc, const char * argv[]) {
 
         Box **myBoxes = new Box*10;
         Box *myBox = new Box;
