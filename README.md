@@ -50,13 +50,16 @@ main.n
 
     private int main(int argc, const char * argv[]) {
 
-        Box *myBox = new Box;    
+        Box **myBoxes = new Box*10;
+        Box *myBox = new Box;
+        myBoxes[0] = myBox;
         Rect *myRect = new Rect;
 
-        printBox(myBox);
+        printBox(myBoxes[0]);
         printRect(myRect);
 
         free(myBox);
+        free(myBoxes);
         free(myRect);
 
         return 0;
