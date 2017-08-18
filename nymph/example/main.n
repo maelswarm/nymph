@@ -12,6 +12,7 @@ private int main(int argc, const char * argv[]) {
     printRect(myRect);
 
     free(myBox);
+    free(myBoxes);
     free(myRect);
 
     return 0;

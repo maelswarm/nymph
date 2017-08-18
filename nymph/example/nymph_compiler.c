@@ -240,11 +240,11 @@ char *lastPtheses(char *str) {
         } else if(str[i] == ')') {
             cnt--;
         }
+        substring[i] = str[i];
+        substring[i+1] = '\0';
         if (flag && cnt == 0) {
             break;
         }
-        substring[i] = str[i];
-        substring[i+1] = '\0';
     }
     return substring;
 }
@@ -553,7 +553,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
             //strcat(parameters[parametersLength], offset);
             
             nxtFunction = str_replace(nxtFunction, ";", "");
-            token += strlen(nxtFunction) + 1;
+            token += strlen(nxtFunction);
             
             parametersLength++;
             
@@ -687,19 +687,21 @@ int findNearestSymbol(char *token, int *pos) {
         if(token[i] == '=') {
             return 0;
         } else if(token[i] == ';' && i != 0) {
-            if(openParaFlag) {
+            if(openParaFlag == 2) {
                 return 2;
             } else {
                 return 1;
             }
         } else if(token[i] == '{') {
-            if(openParaFlag) {
+            if(openParaFlag == 2) {
                 return 3;
             } else {
                 return -1;
             }
         } else if(token[i] == '(') {
             openParaFlag = 1;
+        } else if(token[i] == ')' && !isalpha(token[i+1])) {
+            openParaFlag = 2;
         } else if(token[i] == '#') {
             hashFlag = 1;
         } else if(token[i] == '.') {
