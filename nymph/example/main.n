@@ -2,11 +2,11 @@
 #include "box.n"
 #include "rect.n"
 
-private int add(int a, int b) {
+pri int add(int a, int b) {
     return a+b;
 }
 
-private int main(int argc, const char * argv[]) {
+pri int main(int argc, const char * argv[]) {
     Box **myBoxes = new Box*10;
     Box *myBox = new Box;
     myBoxes[0] = myBox;

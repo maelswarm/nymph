@@ -443,7 +443,7 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     memset(functionH, '\0', sizeof(functionH));
     trim(function);
     
-    if ((strstr(token, "private") != NULL || strstr(token, "public") != NULL)) {
+    if ((strstr(token, "pri") != NULL || strstr(token, "pub") != NULL)) {
         char *accessType = subString(token, ' ');
         token += strlen(accessType) + 1;
         trim(accessType);
@@ -456,7 +456,7 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         
         trim(functionName);
         
-        if (!strcmp(accessType, "private") && strcmp(functionName, "main")) {
+        if (!strcmp(accessType, "pri") && strcmp(functionName, "main")) {
             strcat(function, "static ");
         }
         
@@ -524,7 +524,7 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         strcat(function, functionInner);
         strcat(function, ") {");
         
-        if (strstr(accessType, "public")) {
+        if (strstr(accessType, "pub")) {
             strcat(functionH, returnType);
             strcat(functionH, " ");
             strcat(functionH, functionName);
@@ -653,10 +653,6 @@ char *createStruct(char *token, FILE *outputHFP, struct sDict **mySDict, int *my
     return myStruct;
 }
 
-char *createForStatement(char *token) {
-    
-}
-
 int findNearestSymbol(char *token, int *pos) {
     int openParaFlag = 0;
     int hashFlag = 0;
@@ -665,7 +661,8 @@ int findNearestSymbol(char *token, int *pos) {
     
     for(int i=0; i<strlen(token); i++,(*pos)++) {
         char tmp[1000];
-        strncpy(tmp, &token[i], 6*sizeof(char));
+        memset(tmp, '\0', sizeof(tmp));
+        strncpy(tmp, &token[i], 3*sizeof(char));
         if(token[i] == '=') {
             return 0;
         } else if(token[i] == ';' && i != 0) {
@@ -696,7 +693,7 @@ int findNearestSymbol(char *token, int *pos) {
                     return -1;
                 }
             }
-        } else if(!strcmp(tmp, "object")) {
+        } else if(!strcmp(tmp, "obj")) {
             return 6;
         }
     }
@@ -948,7 +945,6 @@ int main(int argc, const char * argv[]) {
             printf("TOKEN: %s\n", token);
         }
         char *output = parse(token, pos, outputCFP, outputHFP, myDict, &myDictLen, statements, &statementsLength, currentVar, filesCompiled, &filesCompiledLength, functions, &functionsLength);
-        printf("MAIN OUT: %s\n", output);
         if (strstr(output, "#include") != NULL && strstr(output, "{") == NULL) {
             strcat(output, "\n");
         } else {
