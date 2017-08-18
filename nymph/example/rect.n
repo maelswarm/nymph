@@ -1,17 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "main.n"
 
 object Rect {
-    int height;
-    int width;
+    int height = 3;
+    int width = 3;
 }
 
-public void Rect*.print() {
+public void printRect(Rect *this) {
     printf("%i %i\n", this->height, this->width);
-}
-
-public void Rect**.create() {
-    (*this) = new Rect;
-    (*this)->width = 1;
-    (*this)->height = 1;
 }

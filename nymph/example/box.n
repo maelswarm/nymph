@@ -7,13 +7,10 @@ object Box {
     int depth = 1;
 }
 
-public void Box*.print() {
-    printf("%i %i %i\n", this->height, this->width, this->depth);
+private int add(int a, int b) {
+  return a + b;
 }
 
-public void Box**.create() {
-    (*this) = new Box;
-    (*this)->width = 1;
-    (*this)->height = 1;
-    (*this)->depth = 1;
+public void printBox(Box *this) {
+    printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
 }

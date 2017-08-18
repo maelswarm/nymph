@@ -3,16 +3,13 @@
 #include "box.n"
 #include "rect.n"
 
-int main(int argc, const char * argv[]) {
+private int main(int argc, const char * argv[]) {
 
-    Box *myBox;
-    Rect *myRect;    
+    Box *myBox = new Box;    
+    Rect *myRect = new Rect;
 
-    &myBox.create();
-    &myRect.create();
-
-    myBox.print();
-    myRect.print();
+    printBox(myBox);
+    printRect(myRect);
 
     free(myBox);
     free(myRect);
