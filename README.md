@@ -7,7 +7,9 @@ A new parser has been implemented.
 Default object member values implemented.
 
 ## Goals
-...
+Rework access mods.
+
+Namespace?
 
 ## Example
 box.n
