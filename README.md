@@ -3,9 +3,10 @@ Let's see what we can achieve by reworking C syntax.
 
 ## Updates
 A new parser has been implemented.
+Default object member values implemented.
 
 ## Goals
-Polish default object member values.
+...
 
 ## Example
 box.n
@@ -14,20 +15,17 @@ box.n
     #include <stdio.h>
 
     object Box {
-        int height = 3;
-        int width = 5;
-        int depth = 9;
+        int height = 1;
+        int width = 1;
+        int depth = 1;
     }
 
-    public void Box*.print() {
-        printf("%i %i %i\n", this->height, this->width, this->depth);
+    private int add(int a, int b) {
+      return a + b;
     }
 
-    public void Box**.create() {
-        (*this) = new Box;
-        (*this)->width = 1;
-        (*this)->height = 1;
-        (*this)->depth = 1;
+    public void printBox(Box *this) {
+        printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
     }
 
 rect.n
@@ -36,16 +34,12 @@ rect.n
     #include <stdio.h>
 
     object Rect {
-        int height = 1;
-        int width = 1;
+        int height = 3;
+        int width = 3;
     }
 
-    public void Rect*.print() {
+    public void printRect(Rect *this) {
         printf("%i %i\n", this->height, this->width);
-    }
-
-    public void Rect**.create() {
-        (*this) = new Rect;
     }
 
 main.n
@@ -54,17 +48,14 @@ main.n
     #include "box.n"
     #include "rect.n"
 
-    int main(int argc, const char * argv[]) {
+    private int main(int argc, const char * argv[]) {
 
-        Box *myBox;
-        Rect *myRect;
-        
-        &myBox.create();
-        &myRect.create();
-        
-        myBox.print();
-        myRect.print();
-        
+        Box *myBox = new Box;    
+        Rect *myRect = new Rect;
+
+        printBox(myBox);
+        printRect(myRect);
+
         free(myBox);
         free(myRect);
 
@@ -75,8 +66,6 @@ makefile
 
     nymph: nymph_compiler.c
             gcc -std=c11 nymph_compiler.c -o nymph
-            ./nymph rect.n rect
-            ./nymph box.n box
             ./nymph main.n main
             gcc -std=c11 -c box.c box.h
             gcc -std=c11 -c rect.c rect.h
