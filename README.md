@@ -3,6 +3,7 @@ Let's see what we can achieve by reworking C syntax.
 
 ## Updates
 A new parser has been implemented.
+
 Default object member values implemented.
 
 ## Goals
