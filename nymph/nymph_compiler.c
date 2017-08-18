@@ -92,6 +92,22 @@ void checkForString(char **str) {
     }
 }
 
+void trimAllButLetterAndStar(char* str) {
+    if(!str)
+        return;
+    
+    char* ptr = str;
+    int len = strlen(ptr);
+    
+    while(len-1 > 0 && (!isalpha(ptr[len-1]) && ptr[len-1] != '*'))
+        ptr[--len] = 0;
+    
+    while(*ptr && (!isalpha(ptr[len-1]) && ptr[len-1] != '*'))
+        ++ptr, --len;
+    
+    memmove(str, ptr, len + 1);
+}
+
 void trimAllButAlphaAndStar(char* str) {
     if(!str)
         return;
@@ -120,6 +136,23 @@ void trimAllButAlpha(char* str)
         ptr[--len] = 0;
     
     while(*ptr && (isspace(*ptr) || ispunct(*ptr)))
+        ++ptr, --len;
+    
+    memmove(str, ptr, len + 1);
+}
+
+void trimAllButNumbers(char* str)
+{
+    if(!str)
+        return;
+    
+    char* ptr = str;
+    int len = strlen(ptr);
+    
+    while(len-1 > 0 && (!isnumber(ptr[len-1])))
+        ptr[--len] = 0;
+    
+    while(*ptr && (!isnumber(ptr[len-1])))
         ++ptr, --len;
     
     memmove(str, ptr, len + 1);
@@ -296,9 +329,18 @@ char *rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, s
      }
      }*/
     
-    if (!strcmp(str1, "new")) {
+    if (strstr(str1, "new") != NULL) {
+        char *size = malloc(100*sizeof(char));
+        strcpy(size, str1);
+        trimAllButNumbers(size);
         strcmp(returnStr, "");
-        strcat(returnStr, "malloc(sizeof(");
+        strcat(returnStr, "malloc(");
+        if (strcmp(size, "")) {
+            strcat(returnStr, size);
+            strcat(returnStr, "*");
+        }
+        strcat(returnStr, "sizeof(");
+        trimAllButLetterAndStar(origStr2);
         strcat(returnStr, origStr2);
         strcat(returnStr, "));");
         for (int i=0; i<*mySDictLength; i++) {
