@@ -795,15 +795,15 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
             char *myStruct = createStruct(token, outputHFP, mySDict, mySDictLength);
             //strcat(output, myStruct);
             break;
-            //        case 6: //object
-            //            strncpy(str, token, *pos*sizeof(char));
-            //            if (DEBUG) {
-            //                printf("String: %s\n", str);
-            //            }
-            //            char *forStatement = createForStatement(str, outputHFP, mySDict, mySDictLength);
-            //            strcat(output, forStatement);
-            //            strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
-            //            break;
+//        case 6: //object
+//            strncpy(str, token, *pos*sizeof(char));
+//            if (DEBUG) {
+//                printf("String: %s\n", str);
+//            }
+//            char *forStatement = createForStatement(str, outputHFP, mySDict, mySDictLength);
+//            strcat(output, forStatement);
+//            strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
+//            break;
     }
     return output;
 }
@@ -858,7 +858,6 @@ char *includeCreate(char *token, struct dict **myDict, int *myDictLen, struct sD
             char *buffer = loadFile(inputFP);
             newToken = strtok(buffer, s);
             buffer += strlen(newToken) + 1;
-            int lastIDX = 0;
             
             while(newToken != NULL && strcmp(newToken, "")) {
                 if (DEBUG) {
@@ -873,9 +872,9 @@ char *includeCreate(char *token, struct dict **myDict, int *myDictLen, struct sD
                 newToken = strtok(buffer, s);
                 buffer += strlen(newToken) + 1;
                 trim(newToken);
-                //                if (newToken == NULL || !strcmp(newToken, "")) {
-                //                    strcat(output, "}");
-                //                }
+//                if (newToken == NULL || !strcmp(newToken, "")) {
+//                    strcat(output, "}");
+//                }
                 fwrite(output, 1, strlen(output), newOutputCFP);
                 free(output);
             }
@@ -899,16 +898,14 @@ int main(int argc, const char * argv[]) {
     
     struct dict **myDict;
     myDict = malloc(1000*sizeof(struct dict *));
-    int *myDictLen = malloc(sizeof(int));
-    *myDictLen = 0;
+    int myDictLen = 0;
     struct sDict **statements = malloc(100*sizeof(struct sDict *));
-    int *statementsLength = malloc(sizeof(int));
-    *statementsLength = 0;
+    int statementsLength = 0;
     char *currentVar = malloc(1000*sizeof(char));
     char **filesCompiled = malloc(1000*sizeof(char*));
-    int *filesCompiledLength = malloc(sizeof(int));
+    int filesCompiledLength = 0;
     struct functions **functions = malloc(1000*sizeof(struct functions*));
-    int *functionsLength = malloc(sizeof(int));
+    int functionsLength = 0;
     
     char *token;
     int *pos = malloc(sizeof(int));
@@ -923,9 +920,9 @@ int main(int argc, const char * argv[]) {
     }
     
     inputFP = fopen (argv[1], "rb");
-    filesCompiled[*filesCompiledLength] = malloc(100*sizeof(char));
-    strcpy(filesCompiled[*filesCompiledLength], argv[1]);
-    (*filesCompiledLength)++;
+    filesCompiled[filesCompiledLength] = malloc(100*sizeof(char));
+    strcpy(filesCompiled[filesCompiledLength], argv[1]);
+    filesCompiledLength++;
     
     char hFile[100];
     char cFile[100];
@@ -945,13 +942,12 @@ int main(int argc, const char * argv[]) {
     char *buffer = loadFile(inputFP);
     token = strtok(buffer, s);
     buffer += strlen(token) + 1;
-    int lastIDX = 0;
     
     while(token != NULL && strcmp(token, "")) {
         if (DEBUG) {
             printf("TOKEN: %s\n", token);
         }
-        char *output = parse(token, pos, outputCFP, outputHFP, myDict, myDictLen, statements, statementsLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
+        char *output = parse(token, pos, outputCFP, outputHFP, myDict, &myDictLen, statements, &statementsLength, currentVar, filesCompiled, &filesCompiledLength, functions, &functionsLength);
         printf("MAIN OUT: %s\n", output);
         if (strstr(output, "#include") != NULL && strstr(output, "{") == NULL) {
             strcat(output, "\n");
@@ -962,9 +958,9 @@ int main(int argc, const char * argv[]) {
         token = strtok(buffer, s);
         buffer += strlen(token) + 1;
         trim(token);
-        //        if (token == NULL || !strcmp(token, "")) {
-        //            strcat(output, "}");
-        //        }
+//        if (token == NULL || !strcmp(token, "")) {
+//            strcat(output, "}");
+//        }
         fwrite(output, 1, strlen(output), outputCFP);
         free(output);
     }
