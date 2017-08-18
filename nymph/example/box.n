@@ -12,5 +12,5 @@ private int add(int a, int b) {
 }
 
 public void printBox(Box *this) {
-    printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
+    printf("%i\n", add(this->width, this->height));
 }

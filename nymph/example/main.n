@@ -2,15 +2,23 @@
 #include "box.n"
 #include "rect.n"
 
+private int add(int a, int b) {
+    return a+b;
+}
+
 private int main(int argc, const char * argv[]) {
     Box **myBoxes = new Box*10;
     Box *myBox = new Box;
     myBoxes[0] = myBox;
     Rect *myRect = new Rect;
-
-    printBox(myBoxes[0]);
-    printRect(myRect);
-
+    
+    int i = 0;
+    switch(add(1,0)) {
+        case 1:
+        printBox(myBoxes[0]);
+        printRect(myRect);
+	break;
+    }
     free(myBox);
     free(myBoxes);
     free(myRect);
