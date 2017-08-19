@@ -23,7 +23,7 @@ box.n
         int depth = 1;
     }
 
-    pri int add(int a, int b) {
+    int add(int a, int b) {
       return a + b;
     }
 
@@ -51,7 +51,7 @@ main.n
     #include "box.n"
     #include "rect.n"
 
-    pri int main(int argc, const char * argv[]) {
+    int main(int argc, const char * argv[]) {
 
         Box **myBoxes = new Box*10;
         Box *myBox = new Box;
