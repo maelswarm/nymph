@@ -1,7 +1,5 @@
 typedef struct Rect Rect;
 
-struct Rect{ 
-    int height ;
-    int width ;
+struct Rect{ int height ;int width ;
 };
-void printRect(Rect *this);
+void printRectRect(Rect *this);
