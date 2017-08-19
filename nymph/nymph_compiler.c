@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <regex.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 struct dict {
     char key[1000];
@@ -131,10 +131,10 @@ void trimAllButAlphaAndStar(char* str) {
     char* ptr = str;
     int len = strlen(ptr);
     
-    while(len-1 > 0 && (isspace(ptr[len-1]) || ispunct(ptr[len-1]) && ptr[len-1] != '*'))
+    while(len-1 > 0 && (isspace(ptr[len-1]) || (ispunct(ptr[len-1]) && ptr[len-1] != '*')))
         ptr[--len] = 0;
     
-    while(*ptr && (isspace(*ptr) || ispunct(*ptr) && ptr[len-1] != '*'))
+    while(*ptr && (isspace(*ptr) || (ispunct(*ptr) && ptr[len-1] != '*')))
         ++ptr, --len;
     
     memmove(str, ptr, len + 1);
@@ -215,6 +215,18 @@ char *postSubString(char *string, char end) {
         }
     }
     substring[j] = '\0';
+    return substring;
+}
+
+char *subStringPostLastOccurance(char *string, char end) {
+    char *substring = (char *)malloc(1000*sizeof(char));
+    int i = strlen(string)-1;
+    int j = 0;
+    for(;string[i] != end; i--) {}
+    for (int idx = i; idx < strlen(string); idx++, j++) {
+        substring[j] = string[idx];
+        substring[j+1] = '\0';
+    }
     return substring;
 }
 
@@ -352,14 +364,13 @@ char *rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, s
                 if (strstr(mySDict[i]->statement, "=")) {
                     trim(mySDict[i]->statement);
                     char *var = postSubString(mySDict[i]->statement, ' ');
-                    strcat(returnStr, currentVar);
-                    for (int i=0; i<*myDictLen; i++) {
-                        
+                    if (strstr(mySDict[i]->statement, "volatile") != NULL || strstr(mySDict[i]->statement, "const") != NULL) {
+                        var = postSubString(var, ' ');
                     }
+                    strcat(returnStr, currentVar);
                     strcat(returnStr, "->"); //need to detect "->" vs. "."
                     strcat(returnStr, var);
                     strcat(returnStr, ";");
-                    //printf("%s\n",returnStr);
                     free(var);
                 }
             }
@@ -705,7 +716,6 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
     char *output = malloc(100000*sizeof(char));
     char *functionBody;
     char *myStruct;
-    memset(output, '\0', sizeof(output));
     strcpy(output, "");
     (*pos)++;
     if (DEBUG) {
@@ -807,7 +817,6 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
 
 char *includeCreate(char *token, struct dict **myDict, int *myDictLen, struct sDict **mySDict, int *mySDictLength, char *currentVar, char **filesCompiled, int *filesCompiledLength, struct functions **functions, int *functionsLength) {
     char *str = malloc(1000*sizeof(char));
-    memset(str, '\0', sizeof(str));
     char *statement = subString(token, '.');
     
     if(strstr(statement, "<") == NULL) {

@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 obj Box {
-    int height = 1;
+    volatile int height = 1;
     int width = 1;
     int depth = 1;
 }

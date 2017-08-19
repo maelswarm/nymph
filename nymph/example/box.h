@@ -1,7 +1,7 @@
 typedef struct Box Box;
 
 struct Box{ 
-    int height ;
+    volatile int height ;
     int width ;
     int depth ;
 };
