@@ -7,7 +7,6 @@ A new parser has been implemented.
 Default object member values implemented.
 
 ## Goals
-Re-work access mods.
 
 Namespace?
 
