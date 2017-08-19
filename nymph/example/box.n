@@ -7,7 +7,7 @@ obj Box {
     int depth = 1;
 }
 
-pri int add(int a, int b) {
+int add(int a, int b) {
   return a + b;
 }
 
