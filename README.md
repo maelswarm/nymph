@@ -13,7 +13,7 @@ Namespace?
 
 ## Example
 box.n
-
+```c
     #include <stdlib.h>
     #include <stdio.h>
 
@@ -30,9 +30,9 @@ box.n
     pub void printBox(Box *this) {
         printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
     }
-
+```
 rect.n
-
+```c
     #include <stdlib.h>
     #include <stdio.h>
 
@@ -44,9 +44,9 @@ rect.n
     pub void printRect(Rect *this) {
         printf("%i %i\n", this->height, this->width);
     }
-
+```
 main.n
-
+```c
     #include <stdlib.h>
     #include "box.n"
     #include "rect.n"
@@ -67,13 +67,14 @@ main.n
 
         return 0;
     }
-
+```
 makefile
-
-    nymph: nymph_compiler.c
+```make
+    nymph: nymph_compiler.c box.n rect.n main.n
             gcc -std=c11 nymph_compiler.c -o nymph
             ./nymph main.n main
             gcc -std=c11 -c box.c box.h
             gcc -std=c11 -c rect.c rect.h
             gcc -std=c11 -c main.c main.h
             gcc -std=c11 main.o box.o rect.o -o out
+```
