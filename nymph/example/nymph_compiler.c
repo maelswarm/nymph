@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <regex.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 struct dict {
     char key[1000];
@@ -416,11 +416,13 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, cha
         }
     }
     //printf("String1: %s String2: %s\n", str1, str2);
-    if(strcmp(str2, "")) {
+    if(strcmp(str2, "") & strcmp(str2, "=")) {
         strcpy(currentVar, str2);
+        trimAllButLetterAndStar(currentVar);
     } else {
         if(strcmp(str1, "=")) {
             strcpy(currentVar, str1);
+            trimAllButLetterAndStar(currentVar);
         }
     }
     //printf("CURRENTVAR: %s\n", str1);

@@ -8,9 +8,13 @@ pri int add(int a, int b) {
 
 pri int main(int argc, const char * argv[]) {
     Box **myBoxes = new Box*10;
-    Box *myBox = new Box;
-    myBoxes[0] = myBox;
-    Rect *myRect = new Rect;
+    Box *myBox;
+    Rect *myRect;
+    myBox=new Box;
+    myRect=new Rect;
+    myBoxes[0]=myBox;
+
+    volatile int *a = new int;
 
     printBox(myBoxes[0]);
     printRect(myRect);
