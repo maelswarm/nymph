@@ -6,7 +6,7 @@ A new parser has been implemented.
 
 Default object member values implemented.
 
-Function Overloading implemented!
+Function overloading implemented!
 
 ## Goals
 
