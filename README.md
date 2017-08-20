@@ -8,6 +8,8 @@ Default object member values implemented.
 
 Function overloading implemented!
 
+Prototypes have been polished.
+
 ## Goals
 
 Namespace?
