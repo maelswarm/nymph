@@ -12,6 +12,10 @@ Function overloading implemented!
 
 Namespace?
 
+## Documentation
+
+![https://github.com/roecrew/nymph/wiki](https://github.com/roecrew/nymph/wiki)
+
 ## Example
 box.n
 
