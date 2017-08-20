@@ -533,8 +533,14 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         trim(para);
         functionInner += strlen(para) + 1;
         strcpy(parameters[parametersLength], para);
-        char *dataType = subString(para, ' ');
+
+        char *dataType = subStringLastOccurance(para, ' ');
+        trim(dataType);
         para += strlen(dataType) + 1;
+        while(strstr(dataType, " ") != NULL) {
+            dataType = postSubString(dataType, ' ');
+        }
+
         char *varName = subString(para, ' ');
         trim(dataType);
 
@@ -564,8 +570,14 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     trim(para);
     functionInner += strlen(para) + 1;
     strcpy(parameters[parametersLength], para);
-    char *dataType = subString(para, ' ');
+    
+    char *dataType = subStringLastOccurance(para, ' ');
+    trim(dataType);
     para += strlen(dataType) + 1;
+    while(strstr(dataType, " ") != NULL) {
+        dataType = postSubString(dataType, ' ');
+    }
+
     char *varName = subString(para, ' ');
     trim(dataType);
 
@@ -593,6 +605,7 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
 
     strcat(function, returnType);
     strcat(function, " ");
+    trim(functionName);
     strcat(function, functionName);
     strcat(function, "(");
 
@@ -702,10 +715,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                     paraCpy = subString(parameters[parametersLength], '-');
                     trimAllButLetter(paraCpy);
                     for(int i=0; i<*myDictLen; i++) {
-                        printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                        //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                         if(!strcmp(myDict[i]->val, paraCpy)) {
                             for(int j=0; j<*mySDictLength; j++) {
-                                printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
+                                //printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
                                 if(!strcmp(mySDict[j]->objectName, myDict[i]->key)) {
                                     char *dataType;
                                     char *statementCopy = malloc(1000*sizeof(char));
@@ -724,9 +737,9 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                                         tmp = postSubString(tmp, ' ');
                                     }
 
-                                    printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
+                                    //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                     if(!strcmp(tmp, paraName)) {
-                                        printf("MATCH %s %s\n", tmp, paraName);
+                                        //printf("MATCH %s %s\n", tmp, paraName);
                                         strcat(functionName, dataType);
                                         break;
                                     }
@@ -745,7 +758,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                     derefCnt -= numberOfcharInString(parameters[parametersLength], '&');
 
                     for(int i=0; i<*myDictLen; i++) {
-                    printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                    //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                         if(!strcmp(myDict[i]->val, paraCpy)) {
                             int x = myDict[i]->key[strlen(myDict[i]->key) - 1] - '0';
                             printf("my x:%i\n", x);
@@ -828,10 +841,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                 paraCpy = subString(parameters[parametersLength], '-');
                 trimAllButLetter(paraCpy);
                 for(int i=0; i<*myDictLen; i++) {
-                    printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                    //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                     if(!strcmp(myDict[i]->val, paraCpy)) {
                         for(int j=0; j<*mySDictLength; j++) {
-                            printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
+                            //printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
                             if(!strcmp(mySDict[j]->objectName, myDict[i]->key)) {
                                 char *dataType;
                                 char *statementCopy = malloc(1000*sizeof(char));
@@ -850,7 +863,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                                     tmp = postSubString(tmp, ' ');
                                 }
 
-                                printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
+                                //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                 if(!strcmp(tmp, paraName)) {
                                     printf("MATCH %s %s\n", tmp, paraName);
                                     strcat(functionName, dataType);
@@ -871,7 +884,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                 derefCnt -= numberOfcharInString(parameters[parametersLength], '&');
 
                 for(int i=0; i<*myDictLen; i++) {
-                    printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                    //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                     if(!strcmp(myDict[i]->val, paraCpy)) {
                         int x = myDict[i]->key[strlen(myDict[i]->key) - 1] - '0';
                         if(x != derefCnt && derefCnt > 0 && x > 0 && x < 10) {
@@ -902,7 +915,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
         if (parametersLength - 1 != i && strcmp(parameters[i], "")) {
             strcat(function, ",");
         }
-        printf("%s %s paraLength: %i i:%i\n", parameters[i], function, parametersLength, i);
+        //printf("%s %s paraLength: %i i:%i\n", parameters[i], function, parametersLength, i);
     }
     if(function[strlen(function) - 1] == ',') { 
         function[strlen(function) - 1] = '\0';
