@@ -454,7 +454,7 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, cha
         strcpy(newDict->val, str2);
         myDict[*myDictLen] = newDict;
         (*myDictLen)++;
-        printf("myDict1: %s myDict2: %s\n", str1, str2);
+        //printf("myDict1: %s myDict2: %s\n", str1, str2);
         if (DEBUG) {
             printf("myDict1: %s myDict2: %s\n", str1, str2);
         }
@@ -702,10 +702,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                     paraCpy = subString(parameters[parametersLength], '-');
                     trimAllButLetter(paraCpy);
                     for(int i=0; i<*myDictLen; i++) {
-                        //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                        printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                         if(!strcmp(myDict[i]->val, paraCpy)) {
                             for(int j=0; j<*mySDictLength; j++) {
-                                //printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
+                                printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
                                 if(!strcmp(mySDict[j]->objectName, myDict[i]->key)) {
                                     char *dataType;
                                     char *statementCopy = malloc(1000*sizeof(char));
@@ -718,11 +718,15 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                                     }
                                     dataType = subString(statementCopy, ' ');
 
-                                    char *tmp = subStringPostLastOccurance(mySDict[j]->statement, ' ');
+                                    char *tmp = subString(mySDict[j]->statement, '=');
                                     trim(tmp);
-                                    //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
+                                    while(strstr(tmp, " ")) {
+                                        tmp = postSubString(tmp, ' ');
+                                    }
+
+                                    printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                     if(!strcmp(tmp, paraName)) {
-                                        //printf("MATCH %s %s\n", tmp, paraName);
+                                        printf("MATCH %s %s\n", tmp, paraName);
                                         strcat(functionName, dataType);
                                         break;
                                     }
@@ -824,10 +828,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                 paraCpy = subString(parameters[parametersLength], '-');
                 trimAllButLetter(paraCpy);
                 for(int i=0; i<*myDictLen; i++) {
-                    //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                    printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                     if(!strcmp(myDict[i]->val, paraCpy)) {
                         for(int j=0; j<*mySDictLength; j++) {
-                            //printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
+                            printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
                             if(!strcmp(mySDict[j]->objectName, myDict[i]->key)) {
                                 char *dataType;
                                 char *statementCopy = malloc(1000*sizeof(char));
@@ -840,11 +844,15 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                                 }
                                 dataType = subString(statementCopy, ' ');
 
-                                char *tmp = subStringPostLastOccurance(mySDict[j]->statement, ' ');
+                                char *tmp = subString(mySDict[j]->statement, '=');
                                 trim(tmp);
-                                //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
+                                while(strstr(tmp, " ")) {
+                                    tmp = postSubString(tmp, ' ');
+                                }
+
+                                printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                 if(!strcmp(tmp, paraName)) {
-                                    //printf("MATCH %s %s\n", tmp, paraName);
+                                    printf("MATCH %s %s\n", tmp, paraName);
                                     strcat(functionName, dataType);
                                     break;
                                 }

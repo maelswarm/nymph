@@ -3,8 +3,8 @@
 #include "main.n"
 
 obj Rect {
-    int height = 3;
-    int width = 3;
+    int height;
+    int width;
 }
 
 pub void print(Rect *this) {

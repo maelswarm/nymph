@@ -1,9 +1,6 @@
 #include "box.h"
 #include <stdlib.h>
 #include <stdio.h>
-double  cm_to_inchesdouble(double cm) {return cm / 2.54;
-}
-
 
 static int  addintint(int a, int b) {return a + b;}
 
