@@ -15,9 +15,9 @@ int main(int argc, const char * argv[]) {
     myBoxes[0] = myBox;
 
     volatile unsigned int *a = new int;
-    int c = add(*a, 5);
-    printBox(myBoxes[0]);
-    printRect(myRect);
+    int c = add(5, *a);
+    print(myBoxes[0]);
+    print(myRect);
 
     free(myBox);
     free(myBoxes);

@@ -16,6 +16,6 @@ int add(int a, int b) {
   return a + b;
 }
 
-pub void printBox(Box *this) {
+pub void print(Box *this) {
     printf("%i\n", add(this->width, this->height));
 }

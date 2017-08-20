@@ -134,7 +134,7 @@ void trimAllButAlphaAndStar(char* str) {
     while(len-1 > 0 && (isspace(ptr[len-1]) || (ispunct(ptr[len-1]) && ptr[len-1] != '*')))
         ptr[--len] = 0;
     
-    while(*ptr && (isspace(*ptr) || (ispunct(*ptr) && ptr[len-1] != '*')))
+    while(*ptr && (isspace(*ptr) || (ispunct(*ptr) && *ptr != '*')))
         ++ptr, --len;
     
     memmove(str, ptr, len + 1);
@@ -330,8 +330,8 @@ char *rightAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, s
         }
     }
     str1 = str_replace(str1, " ", "");
- //   str1 = str_replace(str1, "*", "1"); //overload
-    str1 = str_replace(str1, "*", "");
+    str1 = str_replace(str1, "*", "1"); //overload
+ //   str1 = str_replace(str1, "*", "");
     trim(str1);
     strcpy(origStr2, str2);
     trimAllButAlphaAndStar(origStr2);
@@ -429,7 +429,7 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, cha
             str2[i-strlen(str1)+1] = '\0';
         }
     }
-    printf("String1: %s String2: %s\n", str1, str2);
+    //printf("String1: %s String2: %s\n", str1, str2);
     if(strcmp(str2, "") & strcmp(str2, "=")) {
         strcpy(currentVar, str2);
         trimAllButLetterAndStar(currentVar);
@@ -441,10 +441,10 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, cha
     }
     //printf("CURRENTVAR: %s\n", str1);
     str1 = str_replace(str1, " ", "");
-    // int numOfStar = numberOfcharInString(str1, '*');
-    // char *starStr = malloc(sizeof(char));
-    // snprintf(starStr, sizeof(int), "%i", numOfStar);
-    // strcat(str1, starStr);
+    int numOfStar = numberOfcharInString(str1, '*'); //overload
+    char *starStr = malloc(sizeof(char));
+    snprintf(starStr, sizeof(int), "%i", numOfStar);
+    strcat(str1, starStr);
     str1 = str_replace(str1, "*", "");
     trim(str1);
     trimAllButAlpha(str2);
@@ -511,6 +511,10 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         para += strlen(dataType) + 1;
         char *varName = subString(para, ' ');
         trim(dataType);
+
+        char *varNameCopy = malloc(1000*sizeof(char));
+        strcpy(varNameCopy, varName);
+        trimAllButAlphaAndStar(varNameCopy);
         trimAllButAlpha(varName);
 
         struct dict *newDict = malloc(sizeof(struct dict));
@@ -519,10 +523,11 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         myDict[*myDictLen] = newDict;
         (*myDictLen)++;
 
-        // int numOfStar = numberOfcharInString(varName, '*');
-        // for (int i = 0; i < numOfStar; i++) {
-        //     strcat(dataType, "1");
-        // }
+        int numOfStar = numberOfcharInString(varNameCopy, '*'); //overload
+        for (int i = 0; i < numOfStar; i++) {
+            strcat(dataType, "1");
+        }
+
         if (strstr(functionName, "main") == NULL) {
             strcat(functionName, dataType);
         }
@@ -537,6 +542,10 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     para += strlen(dataType) + 1;
     char *varName = subString(para, ' ');
     trim(dataType);
+
+    char *varNameCopy = malloc(1000*sizeof(char));
+    strcpy(varNameCopy, varName);
+    trimAllButAlphaAndStar(varNameCopy);
     trimAllButAlpha(varName);
 
     struct dict *newDict = malloc(sizeof(struct dict));
@@ -545,10 +554,10 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     myDict[*myDictLen] = newDict;
     (*myDictLen)++;
 
-    // int numOfStar = numberOfcharInString(varName, '*');
-    // for (int i = 0; i < numOfStar; i++) {
-    //     strcat(dataType, "1");
-    // }
+    int numOfStar = numberOfcharInString(varNameCopy, '*'); //overload
+    for (int i = 0; i < numOfStar; i++) {
+        strcat(dataType, "1");
+    }
     if (strstr(functionName, "main") == NULL) {
         strcat(functionName, dataType);
     }
@@ -645,10 +654,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                     paraCpy = subString(parameters[parametersLength], '-');
                     trimAllButLetter(paraCpy);
                     for(int i=0; i<*myDictLen; i++) {
-                        printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                        //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                         if(!strcmp(myDict[i]->val, paraCpy)) {
                             for(int j=0; j<*mySDictLength; j++) {
-                                printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
+                                //printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
                                 if(!strcmp(mySDict[j]->objectName, myDict[i]->key)) {
                                     char *dataType;
                                     char *statementCopy = malloc(1000*sizeof(char));
@@ -663,9 +672,9 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
 
                                     char *tmp = subStringPostLastOccurance(mySDict[j]->statement, ' ');
                                     trim(tmp);
-                                    printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
+                                    //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                     if(!strcmp(tmp, paraName)) {
-                                        printf("MATCH %s %s\n", tmp, paraName);
+                                        //printf("MATCH %s %s\n", tmp, paraName);
                                         strcat(functionName, dataType);
                                         break;
                                     }
@@ -678,10 +687,27 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                     char *paraCpy = malloc(1000*sizeof(char));
                     strcpy(paraCpy, parameters[parametersLength]);
                     trimAllButLetter(paraCpy);
+
+                    int derefCnt = numberOfcharInString(parameters[parametersLength], '*');
+                    derefCnt += numberOfcharInString(parameters[parametersLength], '[');
+                    derefCnt -= numberOfcharInString(parameters[parametersLength], '&');
+
                     for(int i=0; i<*myDictLen; i++) {
-                        printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                    printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                         if(!strcmp(myDict[i]->val, paraCpy)) {
-                            strcat(functionName, myDict[i]->key);
+                            int x = myDict[i]->key[strlen(myDict[i]->key) - 1] - '0';
+                            printf("my x:%i\n", x);
+                            if(x != derefCnt && derefCnt > 0 && x > 0 && x < 10) {
+                                char *keyCpy = malloc(1000*sizeof(char));
+                                strcpy(keyCpy, myDict[i]->key);
+                                trimAllButLetter(keyCpy);
+                                char *dref = malloc(1000*sizeof(char));
+                                snprintf(dref, sizeof(int), "%i", derefCnt);
+                                strcat(keyCpy, dref);
+                                strcat(functionName, keyCpy);
+                            } else {
+                                strcat(functionName, myDict[i]->key);
+                            }
                             break;
                         }
                     }
@@ -731,10 +757,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                 paraCpy = subString(parameters[parametersLength], '-');
                 trimAllButLetter(paraCpy);
                 for(int i=0; i<*myDictLen; i++) {
-                    printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
+                    //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                     if(!strcmp(myDict[i]->val, paraCpy)) {
                         for(int j=0; j<*mySDictLength; j++) {
-                            printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
+                            //printf("4:%s 5:%s 6:%s\n", mySDict[j]->objectName, myDict[i]->key, paraCpy);
                             if(!strcmp(mySDict[j]->objectName, myDict[i]->key)) {
                                 char *dataType;
                                 char *statementCopy = malloc(1000*sizeof(char));
@@ -749,9 +775,9 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
 
                                 char *tmp = subStringPostLastOccurance(mySDict[j]->statement, ' ');
                                 trim(tmp);
-                                printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
+                                //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                 if(!strcmp(tmp, paraName)) {
-                                    printf("MATCH %s %s\n", tmp, paraName);
+                                    //printf("MATCH %s %s\n", tmp, paraName);
                                     strcat(functionName, dataType);
                                     break;
                                 }
@@ -764,10 +790,26 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                 char *paraCpy = malloc(1000*sizeof(char));
                 strcpy(paraCpy, parameters[parametersLength]);
                 trimAllButLetter(paraCpy);
+
+                int derefCnt = numberOfcharInString(parameters[parametersLength], '*');
+                derefCnt += numberOfcharInString(parameters[parametersLength], '[');
+                derefCnt -= numberOfcharInString(parameters[parametersLength], '&');
+
                 for(int i=0; i<*myDictLen; i++) {
                     printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                     if(!strcmp(myDict[i]->val, paraCpy)) {
-                        strcat(functionName, myDict[i]->key);
+                        int x = myDict[i]->key[strlen(myDict[i]->key) - 1] - '0';
+                        if(x != derefCnt && derefCnt > 0 && x > 0 && x < 10) {
+                            char *keyCpy = malloc(1000*sizeof(char));
+                            strcpy(keyCpy, myDict[i]->key);
+                            trimAllButLetter(keyCpy);
+                            char *dref = malloc(1000*sizeof(char));
+                            snprintf(dref, sizeof(int), "%i", derefCnt);
+                            strcat(keyCpy, dref);
+                            strcat(functionName, keyCpy);
+                        } else {
+                            strcat(functionName, myDict[i]->key);
+                        }
                         break;
                     }
                 }
