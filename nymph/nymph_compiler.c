@@ -479,9 +479,35 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     } else {
         accessType = "pri";
     }
-    char *returnType = subString(token, ' ');
-    token += strlen(returnType) + 1;
+
+    char *returnType = malloc(1000*sizeof(char));
+    int flag = 0;
     trim(returnType);
+    for(int i=0; i<strlen(token); i++) {
+        if(isspace(token[i]) || token[i] == '*') {
+            flag = 1;
+        }
+        if(flag && isalpha(token[i])) {
+            break;
+        }
+        returnType[i] = token[i];
+        returnType[i+1] = '\0';
+    }
+
+    char *returnTypeCopy = malloc(1000*sizeof(char));
+    strcpy(returnTypeCopy, returnType);
+    char *numOfSStr = malloc(1000*sizeof(char));
+    int numOfS = numberOfcharInString(returnTypeCopy, '*');
+    trimAllButAlpha(returnTypeCopy);
+    if (numOfS > 0 && numOfS < 10) {
+        snprintf(numOfSStr, sizeof(int), "%i", numOfS);
+        strcat(returnTypeCopy, numOfSStr);
+    }
+
+    token += strlen(returnType);
+    // char *returnType = subString(token, ' ');
+    // token += strlen(returnType) + 1;
+    // trim(returnType);
 
     char *functionName = subString(token, '(');
     token += strlen(functionName) + 1;
@@ -496,7 +522,7 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     functions[*functionsLength]->name = malloc(1000*sizeof(char));
     functions[*functionsLength]->returnType = malloc(1000*sizeof(char));
     strcpy(functions[*functionsLength]->name, functionName);
-    strcpy(functions[*functionsLength]->returnType, returnType);
+    strcpy(functions[*functionsLength]->returnType, returnTypeCopy);
     (*functionsLength)++;
 
     char *functionInner = subString(token, ')');
@@ -543,6 +569,8 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     char *varName = subString(para, ' ');
     trim(dataType);
 
+    functionInner = subString(token, ')');
+
     char *varNameCopy = malloc(1000*sizeof(char));
     strcpy(varNameCopy, varName);
     trimAllButAlphaAndStar(varNameCopy);
@@ -568,14 +596,14 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     strcat(function, functionName);
     strcat(function, "(");
 
-    for (int i = 0; i < parametersLength; ++i) {
-        strcat(function, parameters[i]);
-        if (parametersLength-1 != i) {
-            strcat(function, ",");
-        }
-    }
+    // for (int i = 0; i < parametersLength; ++i) {
+    //     strcat(function, parameters[i]);
+    //     if (parametersLength-1 != i) {
+    //         strcat(function, ",");
+    //     }
+    // }
 
-    //strcat(function, functionInner);
+    strcat(function, functionInner);
     strcat(function, ") {");
 
     if (strstr(accessType, "pub")) {
@@ -583,13 +611,13 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         strcat(functionH, " ");
         strcat(functionH, functionName);
         strcat(functionH, "(");
-        for (int i = 0; i < parametersLength; ++i) {
-            strcat(functionH, parameters[i]);
-            if (parametersLength-1 != i) {
-                strcat(functionH, ",");
-            }
-        }
-        //strcat(functionH, functionInner);
+        // for (int i = 0; i < parametersLength; ++i) {
+        //     strcat(functionH, parameters[i]);
+        //     if (parametersLength-1 != i) {
+        //         strcat(functionH, ",");
+        //     }
+        // }
+        strcat(functionH, functionInner);
         strcat(functionH, ");\n");
         fwrite(functionH , 1 , strlen(functionH) , outputHFP);
     }
@@ -612,7 +640,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
             break;
         }
     }
-
+    printf("HERE\n");
     while (strstr(token, ",") != NULL) {
         char *parameter = subString(token, ',');
         if (strstr(parameter, "(") != NULL) {
@@ -820,23 +848,21 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
     }
 
 
-
-
     strcat(function, functionName);
     strcat(function, "(");
     for (int i=0; i<parametersLength; i++) {
         strcat(function, parameters[i]);
-        if (parametersLength - 1 != i) {
+        if (parametersLength - 1 != i && strcmp(parameters[i], "")) {
             strcat(function, ",");
         }
-        printf("%s\n", function);
+        printf("%s %s paraLength: %i i:%i\n", parameters[i], function, parametersLength, i);
     }
-    if(function[strlen(function) - 1] == ',') { //prevent leading ',''
+    if(function[strlen(function) - 1] == ',') { 
         function[strlen(function) - 1] = '\0';
-}
-strcat(function, ");");
+    }
+    strcat(function, ");");
 
-return function;
+    return function;
 
 }
 
