@@ -640,25 +640,41 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
             break;
         }
     }
-    printf("HERE\n");
+
     while (strstr(token, ",") != NULL) {
         char *parameter = subString(token, ',');
+        trim(parameter);
         if (strstr(parameter, "(") != NULL) {
+
+            char *caster = NULL;
+            parameters[parametersLength] = malloc(1000*sizeof(char));
+            if (parameter[0] == '(') {
+                caster = subString(token, ')');
+                token += strlen(caster) + 1;
+                strcat(parameters[parametersLength], caster);
+                strcat(parameters[parametersLength], ")");
+            }
+
             char *nxtFunction = lastPtheses(token);
             strcat(nxtFunction, ";");
-            parameters[parametersLength] = parse(nxtFunction, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
+            strcat(parameters[parametersLength], parse(nxtFunction, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
 
             parameters[parametersLength] = str_replace(parameters[parametersLength],";", "");
             nxtFunction = str_replace(nxtFunction, ";", "");
             token += strlen(nxtFunction);
 
             if(renameCatch) {
-                char *funcName = subString(parameters[parametersLength], '(');
-                for(int i=0; i<*functionsLength; i++) {
-                    if(!strcmp(functions[i]->name, funcName)) {
-                        strcat(functionName, functions[i]->returnType);
-                        break;
+                if (caster == NULL) {
+                    char *funcName = subString(parameters[parametersLength], '(');
+                    for(int i=0; i<*functionsLength; i++) {
+                        if(!strcmp(functions[i]->name, funcName)) {
+                            strcat(functionName, functions[i]->returnType);
+                            break;
+                        }
                     }
+                } else {
+                    trimAllButAlpha(caster);
+                    strcat(functionName, caster);
                 }
             }
 
@@ -675,6 +691,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
             if(renameCatch) {
                 if(isdigit(parameters[parametersLength][0])) {
                     strcat(functionName, "int");
+                } else if(strstr(parameters[parametersLength], "\"")) {
+                    strcat(functionName, "char1");
+                } else if(strstr(parameters[parametersLength], "\'")) {
+                    strcat(functionName, "char");
                 } else if(strstr(parameters[parametersLength], "->") != NULL) {
                     char *paraCpy = malloc(1000*sizeof(char));
                     char *paraName = malloc(1000*sizeof(char));
@@ -747,21 +767,36 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
     }
     char *parameter = subString(token, ')');
     if (strstr(parameter, "(") != NULL) {
+
+        char *caster = NULL;
+        parameters[parametersLength] = malloc(1000*sizeof(char));
+        if (parameter[0] == '(') {
+            caster = subString(token, ')');
+            token += strlen(caster) + 1;
+            strcat(parameters[parametersLength], caster);
+            strcat(parameters[parametersLength], ")");
+        }
+
         char *nxtFunction = lastPtheses(token);
         strcat(nxtFunction, ";");
-        parameters[parametersLength] = parse(nxtFunction, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
+        strcat(parameters[parametersLength], parse(nxtFunction, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
 
         parameters[parametersLength] = str_replace(parameters[parametersLength],";", "");
         nxtFunction = str_replace(nxtFunction, ";", "");
         token += strlen(nxtFunction);
 
         if(renameCatch) {
-            char *funcName = subString(parameters[parametersLength], '(');
-            for(int i=0; i<*functionsLength; i++) {
-                if(!strcmp(functions[i]->name, funcName)) {
-                    strcat(functionName, functions[i]->returnType);
-                    break;
+            if (caster == NULL) {
+                char *funcName = subString(parameters[parametersLength], '(');
+                for(int i=0; i<*functionsLength; i++) {
+                    if(!strcmp(functions[i]->name, funcName)) {
+                        strcat(functionName, functions[i]->returnType);
+                        break;
+                    }
                 }
+            } else {
+                trimAllButAlpha(caster);
+                strcat(functionName, caster);
             }
         }
 
@@ -778,6 +813,10 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
         if(renameCatch) {
             if(isdigit(parameters[parametersLength][0])) {
                 strcat(functionName, "int");
+            } else if(strstr(parameters[parametersLength], "\"")) {
+                strcat(functionName, "char1");
+            } else if(strstr(parameters[parametersLength], "\'")) {
+                strcat(functionName, "char");
             } else if(strstr(parameters[parametersLength], "->") != NULL) {
                 char *paraCpy = malloc(1000*sizeof(char));
                 char *paraName = malloc(1000*sizeof(char));

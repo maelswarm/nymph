@@ -2,12 +2,12 @@
 #include "box.n"
 #include "rect.n"
 
-int add(int a, char *hi, int b) {
+int add(int a, int hi, int b) {
     return a+b;
 }
 
-char *returnHello() {
-  return "Hello";
+char returnH() {
+  return 'H';
 }
 
 int main(int argc, const char * argv[]) {
@@ -19,7 +19,7 @@ int main(int argc, const char * argv[]) {
     myBoxes[0] = myBox;
 
     volatile unsigned int *a = new int;
-    int c = add(*a, returnHello(), 5);
+    int c = add(*a, (int)returnH(), 5);
     print(myBoxes[0]);
     print(myRect);
 
