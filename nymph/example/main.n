@@ -2,12 +2,18 @@
 #include "box.n"
 #include "rect.n"
 
-int add(unsigned long a, int hi, int b) {
+proto int add(long a, int hi, int b);
+
+int add(long a, int hi, int b) {
     return (int)a+b;
 }
 
 char returnH() {
   return 'H';
+}
+
+int subtract(int a, int b) {
+  return a - b;
 }
 
 int main(int argc, const char * argv[]) {
@@ -18,7 +24,8 @@ int main(int argc, const char * argv[]) {
     myRect = new Rect;
     myBoxes[0] = myBox;
 
-    volatile unsigned long *a = new long;
+    volatile long *a = new long;
+    int b = subtract(1, 2);
     int c = add(*a, (int)returnH(), 5);
     print(myBoxes[0]);
     print(myRect);

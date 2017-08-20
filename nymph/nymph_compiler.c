@@ -463,6 +463,168 @@ void leftAssignmentCreate(char *token, struct dict **myDict, int *myDictLen, cha
     free(str2);
 }
 
+char *protoCreate(char *token, FILE *outputHFP, struct dict **myDict, int *myDictLen, struct functions **functions, int *functionsLength) {
+    char *function = malloc(1000*sizeof(char));
+    char **parameters = malloc(100*sizeof(char *));
+    int parametersLength = 0;
+    char functionH[1000];
+    memset(functionH, '\0', sizeof(functionH));
+    strcat(function, "\n");
+
+    char *protoDec = subString(token, ' ');
+    token += strlen(protoDec) + 1;
+
+    char *accessType;
+    if (strstr(token, "pub")) {    
+        accessType = subString(token, ' ');
+        token += strlen(accessType) + 1;
+        trim(accessType);
+    } else {
+        accessType = "pri";
+    }
+
+    char *returnType = malloc(1000*sizeof(char));
+    int flag = 0;
+    for(int i=0; i<strlen(token); i++) {
+        if(isspace(token[i]) || token[i] == '*') {
+            flag = 1;
+        }
+        if(flag && isalpha(token[i])) {
+            break;
+        }
+        returnType[i] = token[i];
+        returnType[i+1] = '\0';
+    }
+    trim(returnType);
+
+    char *returnTypeCopy = malloc(1000*sizeof(char));
+    strcpy(returnTypeCopy, returnType);
+    char *numOfSStr = malloc(1000*sizeof(char));
+    int numOfS = numberOfcharInString(returnTypeCopy, '*');
+    trimAllButAlpha(returnTypeCopy);
+    if (numOfS > 0 && numOfS < 10) {
+        snprintf(numOfSStr, sizeof(int), "%i", numOfS);
+        strcat(returnTypeCopy, numOfSStr);
+    }
+
+    token += strlen(returnType);
+    // char *returnType = subString(token, ' ');
+    // token += strlen(returnType) + 1;
+    // trim(returnType);
+
+    char *functionName = subString(token, '(');
+    token += strlen(functionName) + 1;
+
+    trim(functionName);
+
+    if (!strcmp(accessType, "pri") && strcmp(functionName, "main")) {
+        strcat(function, "static ");
+    }
+
+    functions[*functionsLength] = malloc(sizeof(struct functions));
+    functions[*functionsLength]->name = malloc(1000*sizeof(char));
+    functions[*functionsLength]->returnType = malloc(1000*sizeof(char));
+    strcpy(functions[*functionsLength]->name, functionName);
+    strcpy(functions[*functionsLength]->returnType, returnTypeCopy);
+    (*functionsLength)++;
+
+    char *functionInner = subString(token, ')');
+
+    while (strstr(functionInner, ",") != NULL) {
+        parameters[parametersLength] = malloc(1000*sizeof(char));
+        char *para = subString(functionInner, ',');
+        trim(para);
+        functionInner += strlen(para) + 1;
+        strcpy(parameters[parametersLength], para);
+
+        char *dataType = subStringLastOccurance(para, ' ');
+        trim(dataType);
+        para += strlen(dataType) + 1;
+        while(strstr(dataType, " ") != NULL) {
+            dataType = postSubString(dataType, ' ');
+        }
+
+        char *varName = subString(para, ' ');
+        trim(dataType);
+
+        char *varNameCopy = malloc(1000*sizeof(char));
+        strcpy(varNameCopy, varName);
+        trimAllButAlphaAndStar(varNameCopy);
+        trimAllButAlpha(varName);
+
+        struct dict *newDict = malloc(sizeof(struct dict));
+        strcpy(newDict->key, dataType);
+        strcpy(newDict->val, varName);
+        myDict[*myDictLen] = newDict;
+        (*myDictLen)++;
+
+        int numOfStar = numberOfcharInString(varNameCopy, '*'); //overload
+        for (int i = 0; i < numOfStar; i++) {
+            strcat(dataType, "1");
+        }
+
+        if (strstr(functionName, "main") == NULL) {
+            strcat(functionName, dataType);
+        }
+        parametersLength++;
+    }
+    parameters[parametersLength] = malloc(1000*sizeof(char));
+    char *para = subString(functionInner, ')');
+    trim(para);
+    functionInner += strlen(para) + 1;
+    strcpy(parameters[parametersLength], para);
+    
+    char *dataType = subStringLastOccurance(para, ' ');
+    trim(dataType);
+    para += strlen(dataType) + 1;
+    while(strstr(dataType, " ") != NULL) {
+        dataType = postSubString(dataType, ' ');
+    }
+
+    char *varName = subString(para, ' ');
+    trim(dataType);
+
+    functionInner = subString(token, ')');
+
+    char *varNameCopy = malloc(1000*sizeof(char));
+    strcpy(varNameCopy, varName);
+    trimAllButAlphaAndStar(varNameCopy);
+    trimAllButAlpha(varName);
+
+    struct dict *newDict = malloc(sizeof(struct dict));
+    strcpy(newDict->key, dataType);
+    strcpy(newDict->val, varName);
+    myDict[*myDictLen] = newDict;
+    (*myDictLen)++;
+
+    int numOfStar = numberOfcharInString(varNameCopy, '*'); //overload
+    for (int i = 0; i < numOfStar; i++) {
+        strcat(dataType, "1");
+    }
+    if (strstr(functionName, "main") == NULL) {
+        strcat(functionName, dataType);
+    }
+    parametersLength++;
+
+    strcat(function, returnType);
+    strcat(function, " ");
+    trim(functionName);
+    strcat(function, functionName);
+    strcat(function, "(");
+
+    // for (int i = 0; i < parametersLength; ++i) {
+    //     strcat(function, parameters[i]);
+    //     if (parametersLength-1 != i) {
+    //         strcat(function, ",");
+    //     }
+    // }
+
+    strcat(function, functionInner);
+    strcat(function, ");");
+
+    return function;
+}
+
 char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *myDictLen, struct functions **functions, int *functionsLength) {
     char *function = malloc(1000*sizeof(char));
     char **parameters = malloc(100*sizeof(char *));
@@ -482,7 +644,6 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
 
     char *returnType = malloc(1000*sizeof(char));
     int flag = 0;
-    trim(returnType);
     for(int i=0; i<strlen(token); i++) {
         if(isspace(token[i]) || token[i] == '*') {
             flag = 1;
@@ -493,6 +654,7 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
         returnType[i] = token[i];
         returnType[i+1] = '\0';
     }
+    trim(returnType);
 
     char *returnTypeCopy = malloc(1000*sizeof(char));
     strcpy(returnTypeCopy, returnType);
@@ -761,7 +923,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
                     //printf("1:%s 2:%s 3:%s\n", myDict[i]->key, myDict[i]->val, paraCpy);
                         if(!strcmp(myDict[i]->val, paraCpy)) {
                             int x = myDict[i]->key[strlen(myDict[i]->key) - 1] - '0';
-                            printf("my x:%i\n", x);
+                            //printf("my x:%i\n", x);
                             if(x != derefCnt && derefCnt > 0 && x > 0 && x < 10) {
                                 char *keyCpy = malloc(1000*sizeof(char));
                                 strcpy(keyCpy, myDict[i]->key);
@@ -865,7 +1027,7 @@ char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, stru
 
                                 //printf("7:%s 8:%s 9:%s\n", tmp, paraName, paraCpy);
                                 if(!strcmp(tmp, paraName)) {
-                                    printf("MATCH %s %s\n", tmp, paraName);
+                                    //printf("MATCH %s %s\n", tmp, paraName);
                                     strcat(functionName, dataType);
                                     break;
                                 }
@@ -992,7 +1154,7 @@ int findNearestSymbol(char *token, int *pos) {
     for(int i=0; i<strlen(token); i++,(*pos)++) {
         char tmp[1000];
         memset(tmp, '\0', sizeof(tmp));
-        strncpy(tmp, &token[i], 3*sizeof(char));
+        strncpy(tmp, &token[i], 5*sizeof(char));
         if(token[i] == '=') {
             return 0;
         } else if(token[i] == ';' && i != 0) {
@@ -1023,8 +1185,12 @@ int findNearestSymbol(char *token, int *pos) {
                     return -1;
                 }
             }
-        } else if(!strcmp(tmp, "obj")) {
+        } else if(strstr(tmp, "obj") != NULL) {
             return 6;
+        } else if(strstr(tmp, "proto") != NULL) {
+            char *tmp = subString(token, ';');
+            *pos += strlen(tmp);
+            return 7;
         }
     }
     return 5;
@@ -1117,19 +1283,17 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
         if (DEBUG) {
             printf("String: %s\n", token);
         }
-            //token = str_replace(token, "object", "struct");
         char *myStruct = createStruct(token, outputHFP, mySDict, mySDictLength);
-            //strcat(output, myStruct);
         break;
-//        case 6: //object
-//            strncpy(str, token, *pos*sizeof(char));
-//            if (DEBUG) {
-//                printf("String: %s\n", str);
-//            }
-//            char *forStatement = createForStatement(str, outputHFP, mySDict, mySDictLength);
-//            strcat(output, forStatement);
-//            strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
-//            break;
+        case 7: //object
+        strncpy(str, token, *pos*sizeof(char));
+        if (DEBUG) {
+            printf("String: %s\n", token);
+        }
+        char *proto = protoCreate(str, outputHFP, myDict, myDictLen, functions, functionsLength);
+        strcat(output, proto);
+        strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
+        break;
     }
     return output;
 }
