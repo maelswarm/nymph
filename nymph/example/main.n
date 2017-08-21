@@ -22,9 +22,11 @@ int main(int argc, const char * argv[]) {
 
     volatile long *a = new long;
     int b = subtract(2, 1);
-    int d;
-    if((d = subtract(2, 1))) {
-    int c = add(*a, (int)returnH(), 5);
+    int d = (b == subtract(2, 1));
+    for(int i =subtract(2, 1); i<subtract(2, 1);i++) {
+      if((d = subtract(2, 1))) {
+        int c = add(*a, (int)returnH(), 5);
+      }
     }
     print(myBoxes[0]);
     print(myRect);

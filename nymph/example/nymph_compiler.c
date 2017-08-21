@@ -669,7 +669,11 @@ char *conditionalStatment(char *token, int *pos, FILE *outputCFP, FILE *outputHF
     for(int i=0; i<openPCnt; i++) {
         strcat(statement, ")");
     }
-    strcat(statement, ") {");
+    if (strstr(token, ";")) {
+        strcat(statement, ");");
+    } else {
+        strcat(statement, ") {");
+    }
     return statement;
 }
 
@@ -1200,12 +1204,16 @@ int findNearestSymbol(char *token, int *pos) {
     int hashFlag = 0;
     int dotFlag = 0;
     *pos = 0;
-    
     for(int i=0; i<strlen(token); i++,(*pos)++) {
         char tmp[1000];
         memset(tmp, '\0', sizeof(tmp));
         strncpy(tmp, &token[i], 5*sizeof(char));
         if(token[i] == '=' && token[i+1] != '=' && token[i-1] != '=') {
+            char *tmp = subString(token, ';');
+            if (strstr(tmp, "==") != NULL || strstr(tmp, "||") != NULL || strstr(tmp, "&&") || strstr(tmp, ">") || strstr(tmp, "<")) {
+                *pos += strlen(tmp);
+                return 8;
+            }
             return 0;
         } else if(token[i] == ';' && i != 0) {
             if(openParaFlag == 2) {
@@ -1355,7 +1363,7 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
         }
         char *cond = conditionalStatment(str, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
         strcat(output, cond);
-        strcat(output, parse(token+strlen(str), pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
+        strcat(output, parse(token+strlen(cond), pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
         break;
     }
     return output;
