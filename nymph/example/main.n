@@ -4,10 +4,6 @@
 
 proto int add(long a, int hi, int b);
 
-int add(long a, int hi, int b) {
-    return (int)a+b;
-}
-
 char returnH() {
   return 'H';
 }
@@ -25,8 +21,11 @@ int main(int argc, const char * argv[]) {
     myBoxes[0] = myBox;
 
     volatile long *a = new long;
-    int b = subtract(1, 2);
+    int b = subtract(2, 1);
+    int d;
+    if((d = subtract(2, 1))) {
     int c = add(*a, (int)returnH(), 5);
+    }
     print(myBoxes[0]);
     print(myRect);
 
@@ -35,4 +34,8 @@ int main(int argc, const char * argv[]) {
     free(myRect);
 
     return 0;
+}
+
+int add(long a, int hi, int b) {
+    return (int)a+b;
 }

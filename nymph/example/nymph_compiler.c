@@ -625,6 +625,54 @@ char *protoCreate(char *token, FILE *outputHFP, struct dict **myDict, int *myDic
     return function;
 }
 
+char *conditionalStatment(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict **myDict, int *myDictLen, struct sDict **mySDict, int *mySDictLength, char *currentVar, char **filesCompiled, int *filesCompiledLength, struct functions **functions, int *functionsLength) {
+    char *statement = malloc(1000*sizeof(char));
+    char **func = malloc(100*sizeof(char *));
+    int funcLength = 0;
+
+    char *start = subString(token, '(');
+    token += strlen(start) + 1;
+    strcat(statement, start);
+    strcat(statement, "(");
+    int pCnt = 0;
+    int pCntFlag = 0;
+    int openPCnt = 0;
+    while(strstr(token, "=") != NULL || strstr(token, "!=") != NULL || strstr(token, ">") != NULL || strstr(token, "<") != NULL || strstr(token, "|") != NULL) {
+        int i = 0;
+        char a[2];
+        for (; i < strlen(token); i++) {
+            if((!isalnum(token[i]) && token[i] != '&' && token[i] != '*' && token[i] != '(' && token[i] != ')' && token[i] != ',' && token[i] != ' ') || (token[i] == '=' && (token[i+1] != ' ' && !isalpha(token[i+1])))) {
+                a[0] = token[i];
+                a[1] = '\0';
+                break;
+            }
+            if(token[i] == '(') {
+                openPCnt++;
+            }
+        }
+        char *tmp = malloc(1000*sizeof(char));
+        strncpy(tmp, token, i*sizeof(char));
+        token += strlen(tmp) + 1;
+        strcat(tmp, ";");
+
+        char *eval = parse(tmp, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
+        eval = str_replace(eval, ";", "");
+        strcat(statement, eval);
+        strcat(statement, a);
+    }
+
+    char *tmp = lastPtheses(token);
+    strcat(tmp, ";");
+    char *eval = parse(tmp, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
+    eval = str_replace(eval, ";", "");
+    strcat(statement, eval);
+    for(int i=0; i<openPCnt; i++) {
+        strcat(statement, ")");
+    }
+    strcat(statement, ") {");
+    return statement;
+}
+
 char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *myDictLen, struct functions **functions, int *functionsLength) {
     char *function = malloc(1000*sizeof(char));
     char **parameters = malloc(100*sizeof(char *));
@@ -798,6 +846,8 @@ char *functionCreate(char *token, FILE *outputHFP, struct dict **myDict, int *my
     }
     return function;
 }
+
+
 
 char *functionCall(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict **myDict, int *myDictLen, struct sDict **mySDict, int *mySDictLength, char *currentVar, char **filesCompiled, int *filesCompiledLength, struct functions **functions, int *functionsLength) {
     char *function = malloc(1000*sizeof(char));
@@ -1155,7 +1205,7 @@ int findNearestSymbol(char *token, int *pos) {
         char tmp[1000];
         memset(tmp, '\0', sizeof(tmp));
         strncpy(tmp, &token[i], 5*sizeof(char));
-        if(token[i] == '=') {
+        if(token[i] == '=' && token[i+1] != '=' && token[i-1] != '=') {
             return 0;
         } else if(token[i] == ';' && i != 0) {
             if(openParaFlag == 2) {
@@ -1187,6 +1237,10 @@ int findNearestSymbol(char *token, int *pos) {
             }
         } else if(strstr(tmp, "obj") != NULL) {
             return 6;
+        } else if(strstr(tmp, "if") != NULL || strstr(tmp, "else") != NULL) {
+            char *tmp = subString(token, '{');
+            *pos += strlen(tmp);
+            return 8;
         } else if(strstr(tmp, "proto") != NULL) {
             char *tmp = subString(token, ';');
             *pos += strlen(tmp);
@@ -1293,6 +1347,15 @@ char *parse(char *token, int *pos, FILE *outputCFP, FILE *outputHFP, struct dict
         char *proto = protoCreate(str, outputHFP, myDict, myDictLen, functions, functionsLength);
         strcat(output, proto);
         strcat(output, parse(token+*pos, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
+        break;
+        case 8: //object
+        strncpy(str, token, *pos*sizeof(char));
+        if (DEBUG) {
+            printf("String: %s\n", token);
+        }
+        char *cond = conditionalStatment(str, pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength);
+        strcat(output, cond);
+        strcat(output, parse(token+strlen(str), pos, outputCFP, outputHFP, myDict, myDictLen, mySDict, mySDictLength, currentVar, filesCompiled, filesCompiledLength, functions, functionsLength));
         break;
     }
     return output;
