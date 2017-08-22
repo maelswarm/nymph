@@ -660,24 +660,24 @@ char *parseFunction(char *function, FILE *hFile) {
         pubFlag = 1;
     }
     addFunctionToFunctions(function);
-    if (strstr(function, "main") == NULL) {
-        char *functionFront = malloc(1000*sizeof(char));
-        char *functionBack = malloc(1000*sizeof(char));
-        functionFront = nSubString(function, "(");
-        functionBack = nPostSubString(function, "(");
-        for (int i=0; i<functions[functionsLen-1]->parametersLen; i++) {
-            strcat(functionFront, functions[functionsLen-1]->parameters[i]->dataType);
-        }
-        strcat(functionFront, "(");
-        strcat(functionFront, functionBack);
-        function = functionFront;
-    }
+    //    if (strstr(function, "main") == NULL) { //for function overloading
+    //        char *functionFront = malloc(1000*sizeof(char));
+    //        char *functionBack = malloc(1000*sizeof(char));
+    //        functionFront = nSubString(function, "(");
+    //        functionBack = nPostSubString(function, "(");
+    //        for (int i=0; i<functions[functionsLen-1]->parametersLen; i++) {
+    //            strcat(functionFront, functions[functionsLen-1]->parameters[i]->dataType);
+    //        }
+    //        strcat(functionFront, "(");
+    //        strcat(functionFront, functionBack);
+    //        function = functionFront;
+    //    }
     if (pubFlag) {
         strcpy(str, function);
         strcat(str, ";");
         fwrite(str, 1, strlen(str), hFile);
     }
-    printf("Parsing Function\n%s\n\n", function);
+    //printf("Parsing Function\n%s\n\n", function);
     return function;
 }
 
@@ -708,29 +708,29 @@ char *parseForLoopFunction(char *function, FILE *hFile) {
 }
 
 char *parseLeftStatement(char *statement, FILE *hFile) {
-    printf("Parsing Left\n%s\n", statement);
-    if(strstr(statement, "(") != NULL) {
-        trim(statement);
-        char *functionName = nSubString(statement, "(");
-        for (int i=0; i<functionsLen; i++) {
-            printf("%s %s\n", functions[i]->name, functionName);
-            if(!strcmp(functions[i]->name, functionName)) {
-                char *newName = malloc(1000*sizeof(char));
-                strcat(newName, functionName);
-                for (int j=0; j<functions[i]->parametersLen; j++) {
-                    strcat(newName, functions[i]->parameters[j]->dataType);
-                }
-                newName = str_replace(newName, " ", "");
-                printf("NewName: %s\n", newName);
-                char *newStatement = malloc(1000*sizeof(char));
-                strcat(newStatement, newName);
-                strcat(newStatement, "(");
-                strcat(newStatement, nPostSubString(statement, "("));
-                statement = newStatement;
-                break;
-            }
-        }
-    }
+    //printf("Parsing Left\n%s\n", statement);
+    //    if(strstr(statement, "(") != NULL) { //for function overloading
+    //        trim(statement);
+    //        char *functionName = nSubString(statement, "(");
+    //        for (int i=0; i<functionsLen; i++) {
+    //            printf("%s %s\n", functions[i]->name, functionName);
+    //            if(!strcmp(functions[i]->name, functionName)) {
+    //                char *newName = malloc(1000*sizeof(char));
+    //                strcat(newName, functionName);
+    //                for (int j=0; j<functions[i]->parametersLen; j++) {
+    //                    strcat(newName, functions[i]->parameters[j]->dataType);
+    //                }
+    //                newName = str_replace(newName, " ", "");
+    //                printf("NewName: %s\n", newName);
+    //                char *newStatement = malloc(1000*sizeof(char));
+    //                strcat(newStatement, newName);
+    //                strcat(newStatement, "(");
+    //                strcat(newStatement, nPostSubString(statement, "("));
+    //                statement = newStatement;
+    //                break;
+    //            }
+    //        }
+    //    }
     if (numberOfcharInString(statement, '(') > 1) {
         char *newStatement = malloc(1000*sizeof(char));
         newStatement = nSubString(statement, "(");
@@ -747,28 +747,28 @@ char *parseLeftStatement(char *statement, FILE *hFile) {
 }
 
 char *parseRightStatement(char *statement, FILE *hFile) {
-    printf("Parsing Right\n%s\n", statement);
-    if(strstr(statement, "(") != NULL) {
-        trim(statement);
-        char *functionName = nSubString(statement, "(");
-        for (int i=0; i<functionsLen; i++) {
-            //printf("%s %s\n", functions[i]->name, functionName);
-            if(!strcmp(functions[i]->name, functionName)) {
-                char *newName = malloc(1000*sizeof(char));
-                strcat(newName, functionName);
-                for (int j=0; j<functions[i]->parametersLen; j++) {
-                    strcat(newName, functions[i]->parameters[j]->dataType);
-                }
-                newName = str_replace(newName, " ", "");
-                printf("NewName: %s\n", newName);
-                char *newStatement = malloc(1000*sizeof(char));
-                strcat(newStatement, newName);
-                strcat(newStatement, "(");
-                strcat(newStatement, nPostSubString(statement, "("));
-                statement = newStatement;
-            }
-        }
-    }
+    //printf("Parsing Right\n%s\n", statement);
+    //    if(strstr(statement, "(") != NULL) { // for function overloading
+    //        trim(statement);
+    //        char *functionName = nSubString(statement, "(");
+    //        for (int i=0; i<functionsLen; i++) {
+    //            //printf("%s %s\n", functions[i]->name, functionName);
+    //            if(!strcmp(functions[i]->name, functionName)) {
+    //                char *newName = malloc(1000*sizeof(char));
+    //                strcat(newName, functionName);
+    //                for (int j=0; j<functions[i]->parametersLen; j++) {
+    //                    strcat(newName, functions[i]->parameters[j]->dataType);
+    //                }
+    //                newName = str_replace(newName, " ", "");
+    //                printf("NewName: %s\n", newName);
+    //                char *newStatement = malloc(1000*sizeof(char));
+    //                strcat(newStatement, newName);
+    //                strcat(newStatement, "(");
+    //                strcat(newStatement, nPostSubString(statement, "("));
+    //                statement = newStatement;
+    //            }
+    //        }
+    //    }
     if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL || strstr(statement, ",") != NULL || strstr(statement, "^") != NULL) { //add other ones
         return parseStatement(statement, hFile);
     } else if(strstr(statement, "alloc") != NULL) { //this should really be reworked doesn't detect <someNumber>*sizeof(...)
