@@ -62,6 +62,8 @@ int functionsLen;
 
 int status;
 
+char *currentVar;
+
 char *str_replace(char *orig, char *rep, char *with) {
     char *result; // the return string
     char *ins;    // the next insert point
@@ -555,6 +557,8 @@ char *parseLeftStatement(char *statement, FILE *hFile) {
     if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL) { //add other ones
         return parseStatement(statement, hFile);
     }
+    trim(statement);
+    strcpy(currentVar, statement);
     return statement;
 }
 
@@ -578,6 +582,20 @@ char *parseRightStatement(char *statement, FILE *hFile) {
         strcat(newStatement, dataType);
         strcat(newStatement, "));\n");
         printf("New detected %s %s\n", dataType, size);
+        
+        for (int i=0; i<objectsLen; i++) {
+            if(!strcmp(objects[i]->name, dataType)) {
+                for(int j=0;j<objects[i]->propertiesLen; j++) {
+                    strcat(newStatement, currentVar);
+                    strcat(newStatement, "->");
+                    strcat(newStatement, objects[i]->properties[j]->name);
+                    strcat(newStatement, "=");
+                    strcat(newStatement, objects[i]->properties[j]->value);
+                    strcat(newStatement, ";");
+                }
+                break;
+            }
+        }
         
         return newStatement;
     }
@@ -1007,6 +1025,8 @@ void compileFile(const char *inputName, const char *outputName) {
 }
 
 int main(int argc, const char * argv[]) {
+    
+    currentVar = malloc(1000*sizeof(char));
     
     filesCompiled = malloc(1000*sizeof(char *));
     filesCompiledLen = 0;
