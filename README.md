@@ -56,10 +56,10 @@ main.n
 
     int main(int argc, const char * argv[]) {
 
-        Box **myBoxes = new Box*10;
-        Box *myBox = new Box;
+        Box **myBoxes = malloc(10*sizeof(Box));
+        Box *myBox = malloc(sizeof(Box));
         myBoxes[0] = myBox;
-        Rect *myRect = new Rect;
+        Rect *myRect = malloc(sizeof(Rect));
 
         printBox(myBoxes[0]);
         printRect(myRect);
