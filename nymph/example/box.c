@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static int addintint(int a, int b) {return a + b;}
 
-void printBox1(Box *this) {printf("%i\n",addintint(this->width,this->height));}
+int add(int a, int b){return a+ b;}
+
+ void printBox(Box *this){printf("%i\n",add(this->width,this->height));}

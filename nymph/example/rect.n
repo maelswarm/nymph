@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include "main.n"
 
-obj Rect {
-    int height;
-    int width;
+pub obj Rect {
+    int height = 1;
+    int width = 1;
 }
 
-pub void print(Rect *this) {
+pub void printRect(Rect *this) {
     printf("%i %i\n", this->height, this->width);
 }

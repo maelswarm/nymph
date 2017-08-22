@@ -2,8 +2,6 @@
 #include "box.n"
 #include "rect.n"
 
-proto int add(long a, int hi, int b);
-
 char returnH() {
   return 'H';
 }
@@ -13,23 +11,21 @@ int subtract(int a, int b) {
 }
 
 int main(int argc, const char * argv[]) {
-    Box **myBoxes = new Box*10;
+    Box **myBoxes = malloc(10*sizeof(Box *));
     Box *myBox;
     Rect *myRect;
-    myBox = new Box;
-    myRect = new Rect;
+    myBox = malloc(sizeof(Box));
+    myRect = malloc(sizeof(Rect));
     myBoxes[0] = myBox;
 
-    volatile long *a = new long;
     int b = subtract(2, 1);
     int d = (b == subtract(2, 1));
     for(int i =subtract(2, 1); i<subtract(2, 1);i++) {
       if((d = subtract(2, 1))) {
-        int c = add(*a, (int)returnH(), 5);
       }
     }
-    print(myBoxes[0]);
-    print(myRect);
+    printBox(myBoxes[0]);
+    printRect(myRect);
 
     free(myBox);
     free(myBoxes);
@@ -38,6 +34,3 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-int add(long a, int hi, int b) {
-    return (int)a+b;
-}

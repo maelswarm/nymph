@@ -186,7 +186,7 @@ void trimAllButNumbers(char* str)
     while(len-1 > 0 && (!isdigit(ptr[len-1])))
         ptr[--len] = 0;
     
-    while(*ptr && (!isdigit(ptr[len-1])))
+    while(*ptr && (!isdigit(*ptr)))
         ++ptr, --len;
     
     memmove(str, ptr, len + 1);
@@ -521,15 +521,21 @@ char *parseSUE(char *buffer, FILE *hFile) { //struct union enum
 }
 
 char *parseConditionalFunction(char *function, FILE *hFile) {
-    // printf("Parsing Conditional\n%s\n",function);
+    printf("Parsing Conditional\n%s\n",function);
     char *str = malloc(100000*sizeof(char));
     strcat(str, "if(");
     strcat(str, nPostSubString(function, "("));
-    strcat(str, ")");
     return parseStatement(str, hFile);
 }
 
 char *parseFunction(char *function, FILE *hFile) {
+    char *str = malloc(1000*sizeof(char));
+    if (strstr(function, "pub") != NULL) {
+        function = str_replace(function, "pub", "");
+        strcpy(str, function);
+        strcat(str, ";");
+        fwrite(str, 1, strlen(str), hFile);
+    }
     // printf("Parsing Function\n%s\n\n", function);
     return function;
 }
@@ -554,7 +560,7 @@ char *parseLoopFunction(char *function, FILE *hFile) {
 
 char *parseLeftStatement(char *statement, FILE *hFile) {
     // printf("Parsing Left\n%s\n", statement);
-    if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL) { //add other ones
+    if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL || strstr(statement, ",") != NULL || strstr(statement, "^") != NULL) { //add other ones
         return parseStatement(statement, hFile);
     }
     trim(statement);
@@ -564,24 +570,15 @@ char *parseLeftStatement(char *statement, FILE *hFile) {
 
 char *parseRightStatement(char *statement, FILE *hFile) {
     // printf("Parsing Right\n%s\n", statement);
-    if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL) { //add other ones
+    if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL || strstr(statement, ",") != NULL || strstr(statement, "^") != NULL) { //add other ones
         return parseStatement(statement, hFile);
-    } else if(strstr(statement, "new")) {
-        char *dataType = nPostSubString(statement, "w");
-        char *size = malloc(1000*sizeof(char));
-        strcpy(size, dataType);
+    } else if(strstr(statement, "alloc") != NULL) {
+        char *dataType = nPostSubString(statement, "sizeof(");
+        dataType = nSubString(dataType, ")");
         trimAllButLetterAndStar(dataType);
-        trimAllButNumbers(size);
         char *newStatement = malloc(1000*sizeof(char));
-        strcat(newStatement, "malloc(");
-        if (strcmp(size, "")) {
-            strcat(newStatement, size);
-            strcat(newStatement, "*");
-        }
-        strcat(newStatement, "sizeof(");
-        strcat(newStatement, dataType);
-        strcat(newStatement, "));\n");
-        printf("New detected %s %s\n", dataType, size);
+        strcat(newStatement, statement);
+        printf("New detected %s\n", dataType);
         
         for (int i=0; i<objectsLen; i++) {
             if(!strcmp(objects[i]->name, dataType)) {
@@ -716,6 +713,15 @@ char *parseStatement(char *statement, FILE *hFile) {
         strcat(str, ">>=");
         strcat(str, right);
         return str;
+    } else if(strstr(statement, "^=") != NULL) {
+        left = nSubString(statement, "^=");
+        left = parseLeftStatement(left, hFile);
+        right = nPostSubString(statement, "^=");
+        right = parseRightStatement(right, hFile);
+        strcat(str, left);
+        strcat(str, "^=");
+        strcat(str, right);
+        return str;
     } else if(strstr(statement, ">>") != NULL) {
         left = nSubString(statement, ">>");
         right = nPostSubString(statement, ">>");
@@ -734,22 +740,13 @@ char *parseStatement(char *statement, FILE *hFile) {
         strcat(str, "<<");
         strcat(str, right);
         return str;
-    } else if(strstr(statement, "+") != NULL) {
-        left = nSubString(statement, "+");
-        right = nPostSubString(statement, "+");
+    } else if(strstr(statement, ",") != NULL) {
+        left = nSubString(statement, ",");
+        right = nPostSubString(statement, ",");
         left = parseLeftStatement(left, hFile);
         right = parseRightStatement(right, hFile);
         strcat(str, left);
-        strcat(str, "+");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "-") != NULL) {
-        left = nSubString(statement, "-");
-        right = nPostSubString(statement, "-");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "-");
+        strcat(str, ",");
         strcat(str, right);
         return str;
     } else if(strstr(statement, "/") != NULL) {
@@ -770,6 +767,24 @@ char *parseStatement(char *statement, FILE *hFile) {
         strcat(str, "*");
         strcat(str, right);
         return str;
+    } else if(strstr(statement, "+") != NULL) {
+        left = nSubString(statement, "+");
+        right = nPostSubString(statement, "+");
+        left = parseLeftStatement(left, hFile);
+        right = parseRightStatement(right, hFile);
+        strcat(str, left);
+        strcat(str, "+");
+        strcat(str, right);
+        return str;
+    } else if(strstr(statement, "-") != NULL) {
+        left = nSubString(statement, "-");
+        right = nPostSubString(statement, "-");
+        left = parseLeftStatement(left, hFile);
+        right = parseRightStatement(right, hFile);
+        strcat(str, left);
+        strcat(str, "-");
+        strcat(str, right);
+        return str;
     } else if(strstr(statement, "<") != NULL) {
         left = nSubString(statement, "<");
         left = parseLeftStatement(left, hFile);
@@ -786,6 +801,15 @@ char *parseStatement(char *statement, FILE *hFile) {
         right = parseRightStatement(right, hFile);
         strcat(str, left);
         strcat(str, ">");
+        strcat(str, right);
+        return str;
+    } else if(strstr(statement, "^") != NULL) {
+        left = nSubString(statement, "^");
+        left = parseLeftStatement(left, hFile);
+        right = nPostSubString(statement, "^");
+        right = parseRightStatement(right, hFile);
+        strcat(str, left);
+        strcat(str, "^");
         strcat(str, right);
         return str;
     } else if(strstr(statement, "=") != NULL) {
@@ -823,21 +847,25 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
         statement++;
         statement = nSubString(statement, ";");
         if (status == OBJPUBDEC) {
-            printf("PUB: %s\n", statement);
+            //printf("PUB: %s\n", statement);
             addStatementToObjects(statement);
-            statement = nSubString(statement, "=");
+            if (strstr(statement, "=") != NULL) {
+                statement = nSubString(statement, "=");
+            }
             trim(statement);
             strcat(statement, ";\n");
             fwrite(statement, 1, strlen(statement), hFile);
         } else if(status == OBJDEC) {
-            printf("PRI: %s\n", statement);
+            //printf("PRI: %s\n", statement);
             addStatementToObjects(statement);
-            statement = nSubString(statement, "=");
+            if (strstr(statement, "=") != NULL) {
+                statement = nSubString(statement, "=");
+            }
             trim(statement);
             strcat(statement, ";");
             strcat(str, parseStatement(statement, hFile));
         } else {
-            printf("NO OBJ: %s\n", statement);
+            //printf("NO OBJ: %s\n", statement);
             strcat(statement, ";");
             strcat(str, parseStatement(statement, hFile));
         }
@@ -850,8 +878,7 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
         strcat(str, "}");
     }
     if (strstr(buffer, ")") != NULL) {
-        char *function = nSubString(buffer, ")");
-        strcat(function, ")");
+        char *function = lastPtheses(buffer);
         if (strstr(function, "if") != NULL || strstr(function, "else") != NULL || strstr(function, "while") != NULL) {
             strcat(str, parseConditionalFunction(function, hFile));
         } else if(strstr(function, "for") != NULL) {
@@ -892,8 +919,6 @@ char *parseLevel1Pre(char *buffer, FILE *hFile) {
     while(strstr(buffer, "#include") != NULL) {
         char *inputname = malloc(1000*sizeof(char));
         char *outputname = nSubString(buffer, "\n");
-        strcat(str, outputname);
-        strcat(str, "\n");
         buffer += strlen(outputname) + 1;
         if(strstr(outputname, "\"") != NULL) {
             outputname = nPostSubString(outputname, "\"");
@@ -913,6 +938,13 @@ char *parseLevel1Pre(char *buffer, FILE *hFile) {
             } else {
                 printf("File %s already compiling/compiled\n", inputname);
             }
+            strcat(outputname, ".h");
+            strcat(str, "#include \"");
+            strcat(str, outputname);
+            strcat(str, "\"\n");
+        } else {
+            strcat(outputname, "\n");
+            strcat(str, outputname);
         }
     }
     while(strstr(buffer, ";") != NULL) { //remember to add def
