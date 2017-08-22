@@ -2,17 +2,13 @@
 Let's see what we can achieve by reworking C syntax.
 
 ## Updates
-A new parser has been implemented.
+Version 3 of the parser has been implemented.
 
 Default object member values implemented.
 
-Function overloading implemented!
-
-Prototypes have been polished.
-
 ## Goals
 
-Namespace?
+Finish new function overloading with the v3 parser.
 
 ## Documentation
 
@@ -34,7 +30,7 @@ box.n
       return a + b;
     }
 
-    pub void print(Box *this) {
+    pub void printBox(Box *this) {
         printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
     }
 
@@ -48,7 +44,7 @@ rect.n
         int width = 3;
     }
 
-    pub void print(Rect *this) {
+    pub void printRect(Rect *this) {
         printf("%i %i\n", this->height, this->width);
     }
 
@@ -65,8 +61,8 @@ main.n
         myBoxes[0] = myBox;
         Rect *myRect = new Rect;
 
-        print(myBoxes[0]);
-        print(myRect);
+        printBox(myBoxes[0]);
+        printRect(myRect);
 
         free(myBox);
         free(myBoxes);
