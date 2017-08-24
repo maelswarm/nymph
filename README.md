@@ -6,7 +6,7 @@ Let's see what we can achieve by reworking C syntax.
 
 Nymph is a simple C like programming language.
 
-This repository contains a program compiled from file "nymph_compiler.c". This program acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
+This repository contains a program compiled from file "nymph_pp.c". This program acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
 
 ## Quick start
 
@@ -95,7 +95,7 @@ main.n
 makefile
 ```make
     nymph: nymph_compiler.c box.n rect.n main.n
-            gcc -std=c11 nymph_compiler.c -o nymph
+            gcc -std=c11 nymph_pp.c -o nymph
             ./nymph main.n main
             gcc -std=c11 -c box.c box.h
             gcc -std=c11 -c rect.c rect.h
