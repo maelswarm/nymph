@@ -10,7 +10,7 @@ Function overloading first draft implemented.
 
 ## Goals
 
-Finish new function overloading with the v3 parser.
+Polish function overloading with the v3 parser.
 
 ## Documentation
 
