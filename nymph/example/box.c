@@ -3,6 +3,6 @@
 #include <stdio.h>
 
 
-int add(int a, int b){return a+ b;}
+int addintint(int a, int b){  return a + b;}
 
- void printBox(Box *this){printf("%i\n",add(this->width,this->height));}
+ void printBoxBox1(Box *this){printf("%i\n",addintint(this->width,this->height));}

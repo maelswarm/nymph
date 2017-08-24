@@ -5,4 +5,4 @@ int width;
 };
 
 
- void printRect(Rect *this);
+ void printRectRect1(Rect *this);

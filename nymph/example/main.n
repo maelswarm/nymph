@@ -18,10 +18,11 @@ int main(int argc, const char *argv[]) {
     myRect = malloc(sizeof(Rect));
     myBoxes[0] = myBox;
 
-    int b = subtract(2, 1);
-    int d = (b == subtract(subtract(subtract(2, 1), subtract(2, 1)), subtract(2, 1)));
+    int b = subtract(2, subtract(2, 1));
+    int d = (b == subtract(1, 2) + subtract(2, 1));
     for(int i =subtract(2, 1); i<subtract(2, 1);i++) {
-      if((d = subtract(2, 1))) {
+      if(subtract(2, 1)) {
+        int z;
       }
     }
     printBox(myBoxes[0]);

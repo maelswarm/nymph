@@ -28,6 +28,8 @@ char *parseStatement(char *statement, FILE *hFile);
 
 void compileFile(const char *inputName, const char *outputName);
 
+char *checkFunctionCall(char *statement);
+
 struct variable {
     char *dataType;
     char *name;
@@ -63,6 +65,7 @@ int functionsLen;
 int status;
 
 char *currentVar;
+char *currentFunction;
 
 char *str_replace(char *orig, char *rep, char *with) {
     char *result; // the return string
@@ -307,6 +310,30 @@ char *lastPtheses(char *str) {
     return nSubString;
 }
 
+char *postLastPtheses(char *str) {
+    int flag = 0;
+    int cnt = 0;
+    int j = 0;
+    char *nSubString = (char *)malloc(1000*sizeof(char));
+    for (int i=0; i<strlen(str); i++) {
+        if (str[i] == '(' && flag != 2) {
+            flag = 1;
+            cnt++;
+        } else if(str[i] == ')' && flag != 2) {
+            cnt--;
+        }
+        if (flag == 1 && cnt == 0) {
+            flag = 2;
+        }
+        if (flag == 2) {
+            nSubString[j] = str[i];
+            nSubString[j+1] = '\0';
+            j++;
+        }
+    }
+    return nSubString;
+}
+
 char *lastBracket(char *str) {
     int flag = 0;
     int cnt = 0;
@@ -515,6 +542,27 @@ char *getFunctionName(char *statement) {
     return name;
 }
 
+char *getParameterName(char *statement) {
+    char *dataType = malloc(1000*sizeof(char));
+    int flag = 0;
+    int i = strlen(statement) - 1;
+    for(; i > -1; i--) {
+        if (statement[i] == '*') {
+            break;
+        } else if(isspace(statement[i])) {
+            break;
+        }
+    }
+    i++;
+    int k = 0;
+    for(int j = i; j<strlen(statement); j++, k++) {
+        dataType[k] = statement[j];
+        dataType[k+1] = '\0';
+    }
+    trim(dataType);
+    return dataType;
+}
+
 char *getParameterDataType(char *statement) {
     char *dataType = malloc(1000*sizeof(char));
     int flag = 0;
@@ -543,10 +591,11 @@ void getFunctionParameters(char *function) {
     while (strstr(innerStr, ",") != NULL) {
         char *str = nSubString(innerStr, ",");
         innerStr += strlen(str) + 1;
+        trim(str);
         char *dataType = getParameterDataType(str);
         dataType = str_replace(dataType, "*", "1");
         dataType = str_replace(dataType, " ", "");
-        char *name = nPostSubString(str, " ");
+        char *name = getParameterName(str);
         struct variable *parameter = malloc(sizeof(struct variable));
         parameter->dataType = dataType;
         parameter->name = name;
@@ -555,10 +604,11 @@ void getFunctionParameters(char *function) {
     }
     char *str = nSubString(innerStr, ")");
     innerStr += strlen(str) + 1;
+    trim(str);
     char *dataType = getParameterDataType(str);
     dataType = str_replace(dataType, "*", "1");
     dataType = str_replace(dataType, " ", "");
-    char *name = nPostSubString(str, " ");
+    char *name = getParameterName(str);
     struct variable *parameter = malloc(sizeof(struct variable));
     parameter->dataType = dataType;
     parameter->name = name;
@@ -572,6 +622,7 @@ void addFunctionToFunctions(char *function) {
     functions[functionsLen] = malloc(sizeof(struct function));
     functions[functionsLen]->returnDataType = getFunctionDataType(function);
     functions[functionsLen]->name = getFunctionName(function);
+    currentFunction = functions[functionsLen]->name;
     getFunctionParameters(function);
     //printf("Function noted: %s %s\n", functions[functionsLen]->returnDataType, functions[functionsLen]->name);
     for (int i=0; i<functions[functionsLen]->parametersLen; i++) {
@@ -630,26 +681,18 @@ char *parseSUE(char *buffer, FILE *hFile) { //struct union enum
 
 char *parseIfConditionalFunction(char *function, FILE *hFile) {
     //printf("Parsing Conditional\n%s\n",function);
-    char *str = malloc(100000*sizeof(char));
-    strcat(str, "if(");
-    strcat(str, nPostSubString(function, "("));
-    return parseStatement(str, hFile);
+    return function;
 }
 
 char *parseElseIfConditionalFunction(char *function, FILE *hFile) {
     //printf("Parsing Conditional\n%s\n",function);
-    char *str = malloc(100000*sizeof(char));
-    strcat(str, "else if("); //
-    strcat(str, nPostSubString(function, "("));
-    return parseStatement(str, hFile);
+    return function;
 }
 
 char *parseElseConditionalFunction(char *function, FILE *hFile) {
     //printf("Parsing Conditional\n%s\n",function);
-    char *str = malloc(100000*sizeof(char));
-    strcat(str, "else(");
-    strcat(str, nPostSubString(function, "("));
-    return parseStatement(str, hFile);
+    
+    return function;
 }
 
 char *parseFunction(char *function, FILE *hFile) {
@@ -660,18 +703,18 @@ char *parseFunction(char *function, FILE *hFile) {
         pubFlag = 1;
     }
     addFunctionToFunctions(function);
-    //    if (strstr(function, "main") == NULL) { //for function overloading
-    //        char *functionFront = malloc(1000*sizeof(char));
-    //        char *functionBack = malloc(1000*sizeof(char));
-    //        functionFront = nSubString(function, "(");
-    //        functionBack = nPostSubString(function, "(");
-    //        for (int i=0; i<functions[functionsLen-1]->parametersLen; i++) {
-    //            strcat(functionFront, functions[functionsLen-1]->parameters[i]->dataType);
-    //        }
-    //        strcat(functionFront, "(");
-    //        strcat(functionFront, functionBack);
-    //        function = functionFront;
-    //    }
+    if (strstr(function, "main") == NULL) { //for function overloading
+        char *functionFront = malloc(1000*sizeof(char));
+        char *functionBack = malloc(1000*sizeof(char));
+        functionFront = nSubString(function, "(");
+        functionBack = nPostSubString(function, "(");
+        for (int i=0; i<functions[functionsLen-1]->parametersLen; i++) {
+            strcat(functionFront, functions[functionsLen-1]->parameters[i]->dataType);
+        }
+        strcat(functionFront, "(");
+        strcat(functionFront, functionBack);
+        function = functionFront;
+    }
     if (pubFlag) {
         strcpy(str, function);
         strcat(str, ";");
@@ -683,10 +726,7 @@ char *parseFunction(char *function, FILE *hFile) {
 
 char *parseWhileLoopFunction(char *function, FILE *hFile) {
     //printf("Parsing While Loop\n%s\n",function);
-    char *str = malloc(100000*sizeof(char));
-    strcat(str, "while(");
-    strcat(str, nPostSubString(function, "("));
-    return parseStatement(str, hFile);
+    return function;
 }
 
 char *parseForLoopFunction(char *function, FILE *hFile) {
@@ -698,351 +738,463 @@ char *parseForLoopFunction(char *function, FILE *hFile) {
         char *statement = nSubString(function, ";");
         function += strlen(statement) + 1;
         strcat(statement, ";");
-        strcat(str, parseStatement(statement, hFile));
+        //strcat(str, parseStatement(statement, hFile));
+        strcat(str, statement);
     }
     char *statement = nSubString(function, ")");
-    strcat(str, parseStatement(statement, hFile));
+    //strcat(str, parseStatement(statement, hFile));
+    strcat(str, statement);
     strcat(str, ")");
     
     return str;
 }
 
-char *parseLeftStatement(char *statement, FILE *hFile) {
-    //printf("Parsing Left\n%s\n", statement);
-    //    if(strstr(statement, "(") != NULL) { //for function overloading
-    //        trim(statement);
-    //        char *functionName = nSubString(statement, "(");
-    //        for (int i=0; i<functionsLen; i++) {
-    //            printf("%s %s\n", functions[i]->name, functionName);
-    //            if(!strcmp(functions[i]->name, functionName)) {
-    //                char *newName = malloc(1000*sizeof(char));
-    //                strcat(newName, functionName);
-    //                for (int j=0; j<functions[i]->parametersLen; j++) {
-    //                    strcat(newName, functions[i]->parameters[j]->dataType);
-    //                }
-    //                newName = str_replace(newName, " ", "");
-    //                printf("NewName: %s\n", newName);
-    //                char *newStatement = malloc(1000*sizeof(char));
-    //                strcat(newStatement, newName);
-    //                strcat(newStatement, "(");
-    //                strcat(newStatement, nPostSubString(statement, "("));
-    //                statement = newStatement;
-    //                break;
-    //            }
-    //        }
-    //    }
-    if (numberOfcharInString(statement, '(') > 1) {
-        char *newStatement = malloc(1000*sizeof(char));
-        newStatement = nSubString(statement, "(");
-        strcat(newStatement, "(");
-        strcat(newStatement, parseStatement(nPostSubString(statement, "("), hFile));
-        statement = newStatement;
+char *getVariableName(char *statement) {
+    char *name = malloc(1000*sizeof(char));
+    int i = strlen(statement) - 1;
+    for(; i > -1; i--) {
+        if (isspace(statement[i]) || statement[i] == '*') {
+            break;
+        }
     }
-    if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL || strstr(statement, ",") != NULL || strstr(statement, "^") != NULL) { //add other ones
-        return parseStatement(statement, hFile);
+    i++;
+    int k = 0;
+    for(int j = i;j<strlen(statement); j++, k++) {
+        name[k] = statement[j];
+        name[k+1] = '\0';
     }
-    trim(statement);
-    strcpy(currentVar, statement);
-    return statement;
+    trim(name);
+    return name;
 }
 
-char *parseRightStatement(char *statement, FILE *hFile) {
-    //printf("Parsing Right\n%s\n", statement);
-    //    if(strstr(statement, "(") != NULL) { // for function overloading
-    //        trim(statement);
-    //        char *functionName = nSubString(statement, "(");
-    //        for (int i=0; i<functionsLen; i++) {
-    //            //printf("%s %s\n", functions[i]->name, functionName);
-    //            if(!strcmp(functions[i]->name, functionName)) {
-    //                char *newName = malloc(1000*sizeof(char));
-    //                strcat(newName, functionName);
-    //                for (int j=0; j<functions[i]->parametersLen; j++) {
-    //                    strcat(newName, functions[i]->parameters[j]->dataType);
-    //                }
-    //                newName = str_replace(newName, " ", "");
-    //                printf("NewName: %s\n", newName);
-    //                char *newStatement = malloc(1000*sizeof(char));
-    //                strcat(newStatement, newName);
-    //                strcat(newStatement, "(");
-    //                strcat(newStatement, nPostSubString(statement, "("));
-    //                statement = newStatement;
-    //            }
-    //        }
-    //    }
-    if (strstr(statement, "=") != NULL || strstr(statement, "&&") != NULL || strstr(statement, "||") != NULL || strstr(statement, "<") != NULL || strstr(statement, ">") != NULL || strstr(statement, ",") != NULL || strstr(statement, "^") != NULL) { //add other ones
-        return parseStatement(statement, hFile);
-    } else if(strstr(statement, "alloc") != NULL) { //this should really be reworked doesn't detect <someNumber>*sizeof(...)
-        char *dataType = nPostSubString(statement, "sizeof(");
-        //printf("New detected %s\n", statement);
-        dataType = nSubString(dataType, ")");
-        //trimAllButLetterAndStar(dataType);
-        char *newStatement = malloc(1000*sizeof(char));
-        strcat(newStatement, statement);
-        //printf("New detected %s\n", dataType);
+char *getVariableDataType(char *statement) {
+    char *dataType = malloc(1000*sizeof(char));
+    int i = strlen(statement) - 1;
+    for(; i > -1; i--) {
+        if (isspace(statement[i]) || statement[i] == '*') {
+            i++;
+            break;
+        }
+    }
+    for(int j = 0; j<i; j++) {
+        dataType[j] = statement[j];
+        dataType[j+1] = '\0';
+    }
+    trim(dataType);
+    return dataType;
+}
+
+void addVariable(char *statement) {
+    trim(statement);
+    struct variable *newVar = malloc(sizeof(struct variable));
+    newVar->name = getVariableName(statement);
+    newVar->dataType = getVariableDataType(statement);
+    newVar->dataType = str_replace(newVar->dataType, " ", "");
+    newVar->dataType = str_replace(newVar->dataType, "*", "1");
+    if (strcmp(newVar->dataType, "") && strcmp(newVar->name, "")) {
+        variables[variablesLen] = newVar;
+        variablesLen++;
+    }
+}
+
+char *addDefaultObjectValues(char *statement) {
+    currentVar = nSubString(statement, "=");
+    trim(currentVar);
+    char *dataType = nPostSubString(statement, "sizeof(");
+    dataType = nSubString(dataType, ")");
+    char *newStatement = malloc(1000*sizeof(char));
+    strcat(newStatement, statement);
+    strcat(newStatement, ";");
+    
+    for (int i=0; i<objectsLen; i++) {
+        if(!strcmp(objects[i]->name, dataType)) {
+            for(int j=0;j<objects[i]->propertiesLen; j++) {
+                strcat(newStatement, currentVar);
+                strcat(newStatement, "->");
+                strcat(newStatement, objects[i]->properties[j]->name);
+                strcat(newStatement, "=");
+                strcat(newStatement, objects[i]->properties[j]->value);
+                strcat(newStatement, ";");
+            }
+            break;
+        }
+    }
+    return newStatement;
+}
+
+char *postPrepareFunction(char *statement) {
+    char *tmp = strstr(statement, "(") - 1;
+    for (; isalpha(tmp[0]) != 0; tmp--) {}
+    tmp++;
+    char *function = malloc(1000*sizeof(char));
+    for(int i = 0; i<strlen(tmp); i++) {
+        function[i] = tmp[i];
+        function[i+1] = '\0';
+    }
+    //trim(function);
+    //printf("POST: %s\n", function);
+    return function;
+}
+
+char *prePrepareFunction(char *statement) {
+    char *function = malloc(1000*sizeof(char));
+    strcpy(function, statement);
+    int i = strlen(function) - 1;
+    for (; isalpha(function[i]); i--) {}
+    strcpy(function, statement);
+    function[i+1] = '\0';
+    trim(function);
+    return function;
+}
+
+char *parseFunctionCall(char *statement) {
+    char *returnStr = malloc(1000*sizeof(char));
+    char *statementCopy = malloc(1000*sizeof(char));
+    strcpy(statementCopy, statement);
+    while(strstr(statementCopy, "(") != NULL) {
+        int flag = 0;
+        char **parameters = malloc(100*sizeof(char*));
+        int parametersLen = 0;
         
-        for (int i=0; i<objectsLen; i++) {
-            if(!strcmp(objects[i]->name, dataType)) {
-                for(int j=0;j<objects[i]->propertiesLen; j++) {
-                    strcat(newStatement, currentVar);
-                    strcat(newStatement, "->");
-                    strcat(newStatement, objects[i]->properties[j]->name);
-                    strcat(newStatement, "=");
-                    strcat(newStatement, objects[i]->properties[j]->value);
-                    strcat(newStatement, ";");
+        strcat(returnStr, prePrepareFunction(nSubString(statementCopy, "(")));
+        char *str = postPrepareFunction(statementCopy);
+        char *postName = malloc(1000*sizeof(char));
+        strcat(postName, lastPtheses(statementCopy));
+        postName = nPostSubString(postName, "(");
+        //printf("Statement to parse: %s\n", str);
+        
+        char *functionName = nSubString(str, "(");
+        char *funcName = nSubString(str, "(");
+        if (!strcmp(functionName, "for") || !strcmp(functionName, "while")) { //prevent for statements!!!
+            strcpy(returnStr, statementCopy);
+            return returnStr;
+        }
+        
+        char *functionParams = lastPtheses(str);
+        str += strlen(functionParams) + 1;
+        functionParams = nPostSubString(functionParams, "(");
+        //printf("Function Params: %s\n", functionParams);
+        
+        char *param;
+        
+        while (strstr(functionParams, ",") != NULL) {
+            if (strstr(functionParams, "(") != NULL && strstr(functionParams, ",") > strstr(functionParams, "(")) {
+                param = lastPtheses(functionParams);
+            } else {
+                param = nSubString(functionParams, ",");
+            }
+            functionParams += strlen(param) + 1;
+            trim(param);
+            //printf("Param: %s\n", param);
+            
+            if (isdigit(param[0])) {
+                strcat(functionName, "int");
+            } else if(param[0] == '\"') {
+                strcat(functionName, "char1");
+            } else if(param[0] == '\'') {
+                strcat(functionName, "char");
+            } else if(strstr(param, "(") != NULL) {
+                char *paramFunctionName = nSubString(param, "(");
+                for (int i=0; i<functionsLen; i++) {
+                    if(!strcmp(functions[i]->name, paramFunctionName)) {
+                        //printf("Function Match!\n");
+                        strcat(functionName, functions[i]->returnDataType);
+                        param = checkFunctionCall(param);
+                        flag = 1;
+                        break;
+                    }
                 }
-                break;
+            } else if(strstr(param, "->") != NULL) {
+                char *objectValue = nPostSubString(param, ">");
+                trimAllButAlpha(objectValue);
+                char *var = nSubString(param, "-");
+                trimAllButAlpha(var);
+                
+                for (int i=0; i<functionsLen; i++) {
+                    if (!strcmp(functions[i]->name, currentFunction)) {
+                        for (int j = 0; j<functions[i]->parametersLen; j++) {
+                            //printf("FUNCTION PARAMETER: %s\n", functions[i]->parameters[j]->name);
+                            if (!strcmp(functions[i]->parameters[j]->name, var)) {
+                                for (int k = 0; k<objectsLen; k++) {
+                                    char *dt = malloc(1000*sizeof(char));
+                                    strcpy(dt, functions[i]->parameters[j]->dataType);
+                                    dt = str_replace(dt, "1", "");
+                                    if (!strcmp(objects[k]->name, dt)) {
+                                        for (int m = 0; m<objects[k]->propertiesLen; m++) {
+                                            //printf("AAOAOAOAAOOAOAAOAOAOAOAOAOAOOAOAO: %s %s\n",objects[k]->properties[m]->name, objectValue);
+                                            if (!strcmp(objects[k]->properties[m]->name, objectValue)) {
+                                                //printf("HOLYSHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                                                strcat(functionName, objects[k]->properties[m]->dataType);
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                
+            } else if(isalpha(param[0])) {
+                char *paramFunctionName = nSubString(param, "(");
+                int derefCnt = 0;
+                if (strstr(paramFunctionName, "[") != NULL) {
+                    paramFunctionName = nSubString(paramFunctionName, "[");
+                    derefCnt++;
+                }
+                if (strstr(paramFunctionName, "*") != NULL) {
+                    paramFunctionName = str_replace(paramFunctionName, "*", "");
+                    derefCnt++;
+                }
+                for (int i=0; i<variablesLen; i++) {
+                    if(!strcmp(variables[i]->name, paramFunctionName)) {
+                        char *dType = malloc(1000*sizeof(char));
+                        strcpy(dType, variables[i]->dataType);
+                        for (int i=0; i<derefCnt; i++) {
+                            dType[strlen(dType) - 1] = '\0';
+                        }
+                        strcat(functionName, dType);
+                        break;
+                    }
+                }
+            }
+            if (strcmp(param, "")) {
+                parameters[parametersLen] = param;
+                parametersLen++;
             }
         }
         
-        return newStatement;
+        param = lastPtheses(functionParams);
+        functionParams += strlen(param) + 1;
+        trim(param);
+        //printf("Param: %s\n", param);
+        
+        if (isdigit(param[0])) {
+            strcat(functionName, "int");
+        } else if(param[0] == '\"') {
+            strcat(functionName, "char1");
+        } else if(param[0] == '\'') {
+            strcat(functionName, "char");
+        } else if(strstr(param, "(") != NULL) {
+            char *paramFunctionName = nSubString(param, "(");
+            for (int i=0; i<functionsLen; i++) {
+                if(!strcmp(functions[i]->name, paramFunctionName)) {
+                    //printf("Function Match1!\n");
+                    strcat(functionName, functions[i]->returnDataType);
+                    param = checkFunctionCall(param);
+                    flag = 1;
+                    break;
+                }
+            }
+        } else if(strstr(param, "->") != NULL) {
+            char *objectValue = nPostSubString(param, ">");
+            trimAllButAlpha(objectValue);
+            char *var = nSubString(param, "-");
+            trimAllButAlpha(var);
+            
+            for (int i=0; i<functionsLen; i++) {
+                if (!strcmp(functions[i]->name, currentFunction)) {
+                    for (int j = 0; j<functions[i]->parametersLen; j++) {
+                        //printf("FUNCTION PARAMETER: %s\n", functions[i]->parameters[j]->name);
+                        if (!strcmp(functions[i]->parameters[j]->name, var)) {
+                            for (int k = 0; k<objectsLen; k++) {
+                                char *dt = malloc(1000*sizeof(char));
+                                strcpy(dt, functions[i]->parameters[j]->dataType);
+                                dt = str_replace(dt, "1", "");
+                                if (!strcmp(objects[k]->name, dt)) {
+                                    for (int m = 0; m<objects[k]->propertiesLen; m++) {
+                                        //printf("AAOAOAOAAOOAOAAOAOAOAOAOAOAOOAOAO: %s %s\n",objects[k]->properties[m]->name, objectValue);
+                                        if (!strcmp(objects[k]->properties[m]->name, objectValue)) {
+                                            //printf("HOLYSHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                                            strcat(functionName, objects[k]->properties[m]->dataType);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            
+        } else if(isalpha(param[0])) {
+            char *paramFunctionName = nSubString(param, "(");
+            int derefCnt = 0;
+            if (strstr(paramFunctionName, "[") != NULL) {
+                paramFunctionName = nSubString(paramFunctionName, "[");
+                derefCnt++;
+            }
+            if (strstr(paramFunctionName, "*") != NULL) {
+                paramFunctionName = str_replace(paramFunctionName, "*", "");
+                derefCnt++;
+            }
+            for (int i=0; i<variablesLen; i++) {
+                if(!strcmp(variables[i]->name, paramFunctionName)) {
+                    char *dType = malloc(1000*sizeof(char));
+                    strcpy(dType, variables[i]->dataType);
+                    for (int i=0; i<derefCnt; i++) {
+                        dType[strlen(dType) - 1] = '\0';
+                    }
+                    strcat(functionName, dType);
+                    break;
+                }
+            }
+        }
+        if (strcmp(param, "")) {
+            parameters[parametersLen] = param;
+            parametersLen++;
+        }
+        
+        strcat(functionName, "(");
+        for (int i=0; i<parametersLen; i++) {
+            strcat(functionName, parameters[i]);
+            if (parametersLen - 1 != i) {
+                strcat(functionName, ",");
+            }
+        }
+        
+        if (flag) {
+            strcat(functionName, ")");
+        }
+        
+        //strcat(functionName, postName);
+        strcat(returnStr, functionName);
+        statementCopy += strlen(lastPtheses(statementCopy)) + 1;
+        //printf("New Function: %s\n", returnStr);
+        //printf("Function to parse: %s\n", returnStr);
     }
-    return statement;
+    return returnStr;
 }
 
-char *parseStatement(char *statement, FILE *hFile) {
-    //printf("STATEMENT: %s\n", statement);
-    trim(statement);
-    char *str = malloc(100000*sizeof(char));
-    char *left = malloc(1000*sizeof(char));
-    char *right = malloc(1000*sizeof(char));
-    if(strstr(statement, "==") != NULL) { //1. what if these are in strings? 2. Must take comma into account
-        left = nSubString(statement, "==");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "==");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "==");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "!=") != NULL) {
-        left = nSubString(statement, "!=");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "!=");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "!=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "<=") != NULL) {
-        left = nSubString(statement, "<=");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "<=");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "<=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, ">=") != NULL) {
-        left = nSubString(statement, ">=");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, ">=");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, ">=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "&&") != NULL) {
-        left = nSubString(statement, "&&");
-        right = nPostSubString(statement, "&&");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "&&");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "||") != NULL) {
-        left = nSubString(statement, "||");
-        right = nPostSubString(statement, "||");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "||");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "+=") != NULL) {
-        left = nSubString(statement, "+=");
-        right = nPostSubString(statement, "+=");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "+=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "-=") != NULL) {
-        left = nSubString(statement, "-=");
-        right = nPostSubString(statement, "-=");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "-=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "/=") != NULL) {
-        left = nSubString(statement, "/=");
-        right = nPostSubString(statement, "/=");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "/=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "*=") != NULL) {
-        left = nSubString(statement, "*=");
-        right = nPostSubString(statement, "*=");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "*=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "<<=") != NULL) {
-        left = nSubString(statement, "<<=");
-        right = nPostSubString(statement, "<<=");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "<<=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, ">>=") != NULL) {
-        left = nSubString(statement, ">>=");
-        right = nPostSubString(statement, ">>=");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, ">>=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "^=") != NULL) {
-        left = nSubString(statement, "^=");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "^=");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "^=");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, ">>") != NULL) {
-        left = nSubString(statement, ">>");
-        right = nPostSubString(statement, ">>");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, ">>");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "<<") != NULL) {
-        left = nSubString(statement, "<<");
-        right = nPostSubString(statement, "<<");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "<<");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, ",") != NULL) {
-        left = nSubString(statement, ",");
-        right = nPostSubString(statement, ",");
-        //if (strchr(statement, '(') != NULL) {
-        //if (!isalpha(*(strchr(statement, '(')-1))) {
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        //}
-        //}
-        strcat(str, left);
-        strcat(str, ",");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "/") != NULL) {
-        left = nSubString(statement, "/");
-        right = nPostSubString(statement, "/");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "/");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "*") != NULL) {
-        left = nSubString(statement, "*");
-        right = nPostSubString(statement, "*");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "*");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "+") != NULL) {
-        left = nSubString(statement, "+");
-        right = nPostSubString(statement, "+");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "+");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "-") != NULL) {
-        left = nSubString(statement, "-");
-        right = nPostSubString(statement, "-");
-        left = parseLeftStatement(left, hFile);
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "-");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "<") != NULL) {
-        left = nSubString(statement, "<");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "<");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "<");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, ">") != NULL) {
-        left = nSubString(statement, ">");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, ">");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, ">");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "^") != NULL) {
-        left = nSubString(statement, "^");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "^");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "^");
-        strcat(str, right);
-        return str;
-    } else if(strstr(statement, "=") != NULL) {
-        left = nSubString(statement, "=");
-        left = parseLeftStatement(left, hFile);
-        right = nPostSubString(statement, "=");
-        right = parseRightStatement(right, hFile);
-        strcat(str, left);
-        strcat(str, "=");
-        strcat(str, right);
-        return str;
-    } else {
-        if (strstr(statement, ";") != NULL) {
-            left = nSubString(statement, ";");
-            left = parseLeftStatement(left, hFile);
-            strcat(str, left);
-            strcat(str, ";");
+char *checkFunctionCall(char *statement) {
+    
+    char *returnStr = malloc(1000*sizeof(char));
+    char *statementCopy = malloc(1000*sizeof(char));
+    strcpy(statementCopy, statement);
+    int cnt = 0;
+    while(strstr(statementCopy, "(") != NULL) {
+        if (!isalpha(*(strstr(statementCopy, "(") - 1))) {
+            strcat(returnStr, nSubString(statementCopy, "("));
+            strcat(returnStr, "(");
+            statementCopy = nPostSubString(statementCopy, "(");
+            cnt++;
         } else {
-            left = parseLeftStatement(statement, hFile);
-            strcat(str, left);
+            printf("This statement has function calls. %s\n", statementCopy);
+            char *functionName = nSubString(postPrepareFunction(statementCopy), "(");
+            trim(functionName);
+            int flag = 0;
+            int flag2 = 1;
+            for (int i=0; i<functionsLen; i++) {
+                if(!strcmp(functions[i]->name, functionName)) {
+                    char *function = parseFunctionCall(statementCopy);
+                    for (int i=0; i<cnt; i++) {
+                        strcat(function, ")");
+                    }
+                    strcat(returnStr, function);
+                    statementCopy += strlen(function);
+                    flag = 1;
+                    break;
+                }
+            }
+            if (!flag) {
+                char *param;
+                char **parameters = malloc(100*sizeof(char*));
+                int parametersLen = 0;
+                trim(statementCopy);
+                strcat(returnStr, nSubString(statementCopy, "("));
+                strcat(returnStr, "(");
+                statementCopy = nPostSubString(statementCopy, "(");
+                while (strstr(statementCopy, ",") != NULL) {
+                    if (strstr(statementCopy, "(") != NULL && strstr(statementCopy, ",") > strstr(statementCopy, "(")) {
+                        param = lastPtheses(statementCopy);
+                    } else {
+                        param = nSubString(statementCopy, ",");
+                    }
+                    
+                    statementCopy += strlen(param) + 1;
+                    trim(param);
+                    printf("Param: %s\n", param);
+                    
+                    if (strstr(param, "=") != NULL) {
+                        strcat(returnStr, nSubString(param, "="));
+                        strcat(returnStr, "=");
+                        param = nPostSubString(param, "=");
+                        flag2 = 0;
+                    }
+                    
+                    if(strstr(param, "(") != NULL) {
+                        char *paramFunctionName = nSubString(param, "(");
+                        for (int i=0; i<functionsLen; i++) {
+                            if(!strcmp(functions[i]->name, paramFunctionName)) {
+                                printf("Function Match!\n");
+                                strcat(functionName, functions[i]->returnDataType);
+                                param = checkFunctionCall(param);
+                                flag = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (strcmp(param, "")) {
+                        parameters[parametersLen] = param;
+                        parametersLen++;
+                    }
+                }
+                
+                param = lastPtheses(statementCopy);
+                statementCopy += strlen(param) + 1;
+                trim(param);
+                //printf("Param: %s\n", param);
+                
+                if (strstr(param, "=") != NULL) {
+                    strcat(returnStr, nSubString(param, "="));
+                    strcat(returnStr, "=");
+                    param = nPostSubString(param, "=");
+                    flag2 = 0;
+                }
+                
+                if(strstr(param, "(") != NULL) {
+                    char *paramFunctionName = nSubString(param, "(");
+                    for (int i=0; i<functionsLen; i++) {
+                        if(!strcmp(functions[i]->name, paramFunctionName)) {
+                            //printf("Function Match!\n");
+                            strcat(functionName, functions[i]->returnDataType);
+                            param = checkFunctionCall(param);
+                            flag = 1;
+                            break;
+                        }
+                    }
+                }
+                
+                if (strcmp(param, "")) {
+                    parameters[parametersLen] = param;
+                    parametersLen++;
+                }
+                
+                for (int i=0; i<parametersLen; i++) {
+                    strcat(returnStr, parameters[i]);
+                    if (parametersLen - 1 != i) {
+                        strcat(returnStr, ",");
+                    }
+                }
+                if (flag && flag2) {
+                    strcat(returnStr, ")");
+                }
+            }
+            break;
         }
-        return str;
     }
-    return NULL;
+    return returnStr;
 }
 
 char *parseLevel2Pre(char *buffer, FILE *hFile) {
     char *str = malloc(100000*sizeof(char));
-    
+    //printf("Buffer: %s\n", buffer);
     while(strstr(buffer, ";") != NULL) {
         char *statement = strchr(buffer, ';');
         buffer = statement + 1;
@@ -1065,37 +1217,58 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
             }
             trim(statement);
             strcat(statement, ";");
-            strcat(str, parseStatement(statement, hFile));
+            //strcat(str, parseStatement(statement, hFile));
+            strcat(str, statement);
         } else {
+            if (strstr(statement, "&") == NULL && strstr(statement, "/") == NULL && strstr(statement, "+") == NULL && strstr(statement, "-") == NULL && strstr(statement, "<") == NULL && strstr(statement, ">") == NULL && strstr(statement, "return") == NULL) {
+                if (strstr(statement, "=") != NULL) { //filter out junk
+                    addVariable(nSubString(statement, "="));
+                } else {
+                    addVariable(statement);
+                }
+            }
+            if(strstr(statement, "alloc")) {
+                statement = addDefaultObjectValues(statement);
+            } else {
+                if (strstr(statement, "(") != NULL) {
+                    statement = checkFunctionCall(statement);
+                }
+            }
             strcat(statement, ";");
-            strcat(str, parseStatement(statement, hFile));
+            //strcat(str, parseStatement(statement, hFile));
+            strcat(str, statement);
         }
+    }
+    if (strstr(buffer, "(") != NULL && strstr(buffer, ";") == NULL) {
+        trim(buffer);
+        strcat(str, checkFunctionCall(buffer));
+        printf("AAAAAAAAAAAAAAAAAAAAAA: %s\n", str);
     }
     if (status == OBJPUBDEC) {
         fwrite("};\n", 1, 3, hFile);
     }
-    status = -1;
     if (strstr(buffer, "}") != NULL) { // what if } is in a string?
-        strcat(str, "}");
+        if (status == OBJDEC) {
+            strcat(str, "};");
+        }
+        else {
+            strcat(str, "}");
+        }
     }
+    status = -1;
     if (strstr(buffer, ")") != NULL) {
         char *function = lastPtheses(buffer);
-        if (strstr(function, "else if") != NULL) {
-            strcat(str, parseElseIfConditionalFunction(function, hFile));
-        } else if (strstr(function, "if") != NULL) {
-            strcat(str, parseIfConditionalFunction(function, hFile));
-        } else if(strstr(function, "else") != NULL) {
-            strcat(str, parseElseConditionalFunction(function, hFile));
-        } else if(strstr(function, "while") != NULL) {
+        if(strstr(function, "while") != NULL) {
             strcat(str, parseWhileLoopFunction(function, hFile));
         } else if(strstr(function, "for") != NULL) {
             strcat(str, parseForLoopFunction(function, hFile));
         } else if(strstr(function, "(") != NULL) {
-            strcat(str, parseFunction(function, hFile));
+            //strcat(str, parseFunction(function, hFile));
         } else { //not actually a function
             strcat(str, function);
         }
     }
+    printf("ijijijijijjiijjijijiijij: %s\n", str);
     return str;
 }
 
@@ -1164,7 +1337,8 @@ char *parseLevel1Pre(char *buffer, FILE *hFile) {
         statement++;
         statement = nSubString(statement, ";");
         strcat(statement, ";");
-        strcat(str, parseStatement(statement, hFile));
+        //strcat(str, parseStatement(statement, hFile));
+        strcat(str, statement);
     }
     
     if (strstr(buffer, ")") != NULL) {
@@ -1268,6 +1442,8 @@ void compileFile(const char *inputName, const char *outputName) {
 int main(int argc, const char * argv[]) {
     
     currentVar = malloc(1000*sizeof(char));
+    
+    currentFunction = malloc(1000*sizeof(char));
     
     filesCompiled = malloc(1000*sizeof(char *));
     filesCompiledLen = 0;

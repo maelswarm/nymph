@@ -3,8 +3,8 @@
 #include "box.h"
 #include "rect.h"
 
-char returnH(){return 'H';}
+char returnH(){  return 'H';}
 
-int subtract(int a, int b){return a- b;}
+int subtractintint(int a, int b){  return a - b;}
 
-int main(int argc, const char *argv[]){Box**myBoxes= malloc(10*sizeof(Box *));Box*myBox;Rect*myRect;myBox= malloc(sizeof(Box));myBox->width=1;myBox->height=1;myBox->depth=1;myRect= malloc(sizeof(Rect));myRect->height=1;myRect->width=1;myBoxes[0]= myBox;int b= subtract(2, 1);int d= (b==subtract(subtract(subtract(2,1),subtract(2,1)),subtract(2, 1)));for(int i=subtract(2, 1);i<subtract(2, 1);i++) {if((d= subtract(2, 1))){}}printBox(myBoxes[0]);printRect(myRect);free(myBox);free(myBoxes);free(myRect);return 0;}
+int main(int argc, const char *argv[]){    Box **myBoxes = malloc(10*sizeof(Box *));;Box *myBox;Rect *myRect;    myBox = malloc(sizeof(Box));myBox->width=1;myBox->height=1;myBox->depth=1;;    myRect = malloc(sizeof(Rect));myRect->height=1;myRect->width=1;;    myBoxes[0] = myBox;int b =subtractintint(2,subtractintint(2,1));    int d = (b ==subtractintint(1,2)+subtractintint(2,1));for(int i =subtractintint(2,1);i<subtractintint(2,1);i++) {if(subtractintint(2,1)){int z;}}printBoxBox1(myBoxes[0]);printRectRect1(myRect);free(myBox);free(myBoxes);free(myRect);    return 0;}
