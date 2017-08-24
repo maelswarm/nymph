@@ -6,6 +6,8 @@ Version 3 of the parser has been implemented.
 
 Default object member values implemented.
 
+Function overloading first draft implemented.
+
 ## Goals
 
 Finish new function overloading with the v3 parser.
@@ -30,7 +32,7 @@ box.n
       return a + b;
     }
 
-    pub void printBox(Box *this) {
+    pub void print(Box *this) {
         printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
     }
 
@@ -44,7 +46,7 @@ rect.n
         int width = 3;
     }
 
-    pub void printRect(Rect *this) {
+    pub void print(Rect *this) {
         printf("%i %i\n", this->height, this->width);
     }
 
@@ -61,8 +63,8 @@ main.n
         myBoxes[0] = myBox;
         Rect *myRect = malloc(sizeof(Rect));
 
-        printBox(myBoxes[0]);
-        printRect(myRect);
+        print(myBoxes[0]);
+        print(myRect);
 
         free(myBox);
         free(myBoxes);
