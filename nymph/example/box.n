@@ -7,10 +7,12 @@ pub obj Box {
   int depth = 1;
 }
 
-int add(int a, int b) {
-  return a + b;
-}
+int add(int a, int b);
 
 pub void printBox(Box *this) {
     printf("%i\n", add(this->width, this->height));
+}
+
+int add(int a, int b) {
+  return a + b;
 }

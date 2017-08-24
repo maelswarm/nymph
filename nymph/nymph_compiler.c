@@ -585,6 +585,7 @@ char *getParameterDataType(char *statement) {
 
 void getFunctionParameters(char *function) {
     struct variable **parameters = malloc(1000*sizeof(struct variable*));
+    functions[functionsLen]->parametersLen = 0;
     char *innerStr = malloc(1000*sizeof(char));
     innerStr = nPostSubString(function, "(");
     
@@ -1328,10 +1329,16 @@ char *parseLevel1Pre(char *buffer, FILE *hFile) {
         statement--;
         for(;statement[0] != '\n' && statement[0] != ';'; statement--) {}
         statement++;
-        statement = nSubString(statement, ";");
-        strcat(statement, ";");
-        //strcat(str, parseStatement(statement, hFile));
-        strcat(str, statement);
+        if (strstr(statement, ")") != NULL) {
+            char *function = nSubString(statement, ")");
+            strcat(function, ")");
+            strcat(str, parseFunction(function, hFile));
+            strcat(str, ";");
+        } else {
+            statement = nSubString(statement, ";");
+            strcat(statement, ";");
+            strcat(str, statement);
+        }
     }
     
     if (strstr(buffer, ")") != NULL) {
