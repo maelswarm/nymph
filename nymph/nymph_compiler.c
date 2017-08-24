@@ -1189,6 +1189,9 @@ char *checkFunctionCall(char *statement) {
             break;
         }
     }
+    if (!strcmp(returnStr, "")) {
+        strcat(returnStr, statementCopy);
+    }
     return returnStr;
 }
 
@@ -1243,6 +1246,9 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
         trim(buffer);
         strcat(str, checkFunctionCall(buffer));
     }
+    if (strstr(buffer, ")") != NULL && strstr(buffer, "(") == NULL) {
+        strcat(str, checkFunctionCall(buffer));
+    }
     if (status == OBJPUBDEC) {
         fwrite("};\n", 1, 3, hFile);
     }
@@ -1255,9 +1261,7 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
         }
     }
     status = -1;
-    if (strstr(buffer, ")") != NULL && strstr(buffer, "(") == NULL) {
-        strcat(str, buffer);
-    }
+    
     return str;
 }
 
