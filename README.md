@@ -2,7 +2,7 @@
 Let's see what we can achieve by reworking C syntax.
 
 ## Updates
-Version 3 of the parser has been implemented.
+v3 parser has been implemented.
 
 Default object member values implemented.
 
