@@ -1,4 +1,4 @@
-![Imgur](http://i.imgur.com/bfLuyWP.gifv) ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
+![Imgur](http://i.imgur.com/bfLuyWP.gif) ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
 Let's see what we can achieve by reworking C syntax.
 
 ## Overview
