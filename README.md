@@ -1,5 +1,6 @@
-![Imgur](http://i.imgur.com/bfLuyWP.gif) ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
-Let's see what we can achieve by reworking C syntax.
+![Imgur](http://i.imgur.com/bfLuyWP.gif)
+
+<br/>Let's see what we can achieve by reworking C syntax.
 
 ## Overview
 
