@@ -1,6 +1,14 @@
 # nymph ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
 Let's see what we can achieve by reworking C syntax.
 
+Nymph is a simple C like program which is directly processed into C code.
+
+## Features
+
+* Object Oriented
+
+* Function Overloading
+
 ## Quick start
 
 * [Download the repo](https://github.com/roecrew/nymph/archive/master.zip)
