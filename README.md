@@ -15,9 +15,9 @@ This repository contains a preprocessor program compiled from file "nymph_compil
 
 ## Features
 
-* Object Oriented
+* [Object Oriented](https://en.wikipedia.org/wiki/Object-oriented_programming)
 
-* Function Overloading
+* [Function Overloading](https://en.wikipedia.org/wiki/Function_overloading)
 
 ## Updates
 * v3 parser has been implemented.
