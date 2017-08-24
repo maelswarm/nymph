@@ -7,17 +7,17 @@ Nymph is a simple C like programming language.
 
 This repository contains a preprocessor program compiled from file "nymph_compiler.c". This program acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
 
-## Features
-
-* Object Oriented
-
-* Function Overloading
-
 ## Quick start
 
 * [Download the repo](https://github.com/roecrew/nymph/archive/master.zip)
 
 * Clone the repo: git clone ht&#8203;tps://git@github.com:roecrew/nymph.git
+
+## Features
+
+* Object Oriented
+
+* Function Overloading
 
 ## Updates
 * v3 parser has been implemented.
