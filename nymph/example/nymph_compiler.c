@@ -889,11 +889,24 @@ char *parseFunctionCall(char *statement) {
         int pFlag = 0;
         int ppFlag = 0;
         while (strstr(functionParams, ",") != NULL) {
-            if (strstr(functionParams, "(") != NULL && strstr(functionParams, ",") > strstr(functionParams, "(")) {
+            
+            char *preParam = malloc(1000*sizeof(char));
+            
+            if (strstr(functionParams, "(") != NULL && strstr(functionParams, ",") > strstr(functionParams, "(") && functionParams[0] != '(') {
+                if (!isalnum(*(strstr(functionParams, "(")-1))) {
+                    param = lastPtheses(functionParams);
+                    strcat(preParam, param);
+                    functionParams += strlen(param);
+                }
                 param = lastPtheses(functionParams);
                 functionParams += strlen(param);
                 pFlag = 0;
             } else {
+                if (functionParams[0] == '(') {
+                    param = lastPtheses(functionParams);
+                    strcat(preParam, param);
+                    functionParams += strlen(param);
+                }
                 param = nSubString(functionParams, ",");
                 functionParams += strlen(param) + 1;
                 pFlag = 1;
@@ -903,7 +916,6 @@ char *parseFunctionCall(char *statement) {
             printf("Param: %s\n", param);
             printf("functionParams: %s\n", functionParams);
             
-            char *preParam = malloc(1000*sizeof(char));
             if (strstr(param, "+") != NULL || strstr(param, "-") != NULL || strstr(param, "-") != NULL || strstr(param, "*") != NULL || strstr(param, "/") != NULL || strstr(param, "%") != NULL) {
                 if (strstr(param, "+") < strstr(param, "(")) {
                     preParam = nSubString(param, "+");
