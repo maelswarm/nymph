@@ -5,6 +5,8 @@ Let's see what we can achieve by reworking C syntax.
 
 Nymph is a simple C like programming language.
 
+This repository contains a preprocessor program called nymph_compiler. It acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
+
 ## Features
 
 * Object Oriented
