@@ -1268,6 +1268,18 @@ char *checkFunctionCall(char *statement) {
     return returnStr;
 }
 
+/* parse level 2 Pre. */
+/*
+ 
+ int add() {
+ **************************
+ **************************
+ **************************
+ **************************
+ **************************
+ }
+ */
+
 char *parseLevel2Pre(char *buffer, FILE *hFile) {
     char *str = malloc(100000*sizeof(char));
     //printf("Buffer: %s\n", buffer);
@@ -1338,9 +1350,39 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
     return str;
 }
 
+/* parse level 2 Post. */
+/*
+ int add() {
+ ...
+ }
+ **************************
+ **************************
+ **************************
+ **************************
+ */
+
 char *parseLevel2Post(char *buffer, FILE *hFile) {
     return parseLevel2(buffer, hFile);
 }
+
+/* parse level 2. */
+/*
+ 
+ #include <stdlib.c>
+ 
+ 
+ int main() {
+ **************************
+ }
+ 
+ int subtract() {
+ ...
+ }
+ 
+ int add() {
+ ...
+ }
+ */
 
 char *parseLevel2(char *buffer, FILE *hFile) {
     char *str = malloc(100000*sizeof(char));
@@ -1361,6 +1403,25 @@ char *parseLevel2(char *buffer, FILE *hFile) {
     }
     return str;
 }
+
+/* parse level 1 Pre. */
+/*
+ **************************
+ #include <stdlib.c>
+ **************************
+ **************************
+ int main() {
+ 
+ }
+ 
+ int subtract() {
+ ...
+ }
+ 
+ int add() {
+ ...
+ }
+ */
 
 char *parseLevel1Pre(char *buffer, FILE *hFile) {
     char *str = malloc(100000*sizeof(char));
@@ -1433,6 +1494,25 @@ char *parseLevel1Post(char *buffer, FILE *hFile) {
     return parseLevel1(buffer, hFile);
 }
 
+/* parse level 1. */
+/*
+ **************************
+ #include <stdlib.c>
+ **************************
+ **************************
+ int main() {
+ 
+ }
+ **************************
+ int subtract() {
+ ...
+ }
+ **************************
+ int add() {
+ ...
+ }
+ */
+
 char *parseLevel1(char *buffer, FILE *hFile) {
     char *str = malloc(100000*sizeof(char));
     char *pre;
@@ -1462,6 +1542,8 @@ char *parseLevel1(char *buffer, FILE *hFile) {
     
     return str;
 }
+
+/* compile a file when found. */
 
 void compileFile(const char *inputName, const char *outputName) {
     
@@ -1510,6 +1592,8 @@ void compileFile(const char *inputName, const char *outputName) {
     fclose(outputHFP);
     
 }
+
+/* main */
 
 int main(int argc, const char * argv[]) {
     
