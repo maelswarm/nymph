@@ -1,6 +1,12 @@
 # nymph ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
 Let's see what we can achieve by reworking C syntax.
 
+## Quick start
+
+* [Download the repo](https://github.com/roecrew/nymph/archive/master.zip)
+
+* Clone the repo: git clone ht&#8203;tps://git@github.com:roecrew/nymph.git
+
 ## Updates
 v3 parser has been implemented.
 
