@@ -1119,7 +1119,7 @@ char *checkFunctionCall(char *statement) {
                     
                     statementCopy += strlen(param) + 1;
                     trim(param);
-                    printf("Param: %s\n", param);
+                    //printf("Param: %s\n", param);
                     
                     if (strstr(param, "=") != NULL) {
                         strcat(returnStr, nSubString(param, "="));
@@ -1132,7 +1132,7 @@ char *checkFunctionCall(char *statement) {
                         char *paramFunctionName = nSubString(param, "(");
                         for (int i=0; i<functionsLen; i++) {
                             if(!strcmp(functions[i]->name, paramFunctionName)) {
-                                printf("Function Match!\n");
+                                //printf("Function Match!\n");
                                 strcat(functionName, functions[i]->returnDataType);
                                 param = checkFunctionCall(param);
                                 flag = 1;
@@ -1242,7 +1242,6 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
     if (strstr(buffer, "(") != NULL && strstr(buffer, ";") == NULL) {
         trim(buffer);
         strcat(str, checkFunctionCall(buffer));
-        printf("AAAAAAAAAAAAAAAAAAAAAA: %s\n", str);
     }
     if (status == OBJPUBDEC) {
         fwrite("};\n", 1, 3, hFile);
@@ -1256,19 +1255,9 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
         }
     }
     status = -1;
-    if (strstr(buffer, ")") != NULL) {
-        char *function = lastPtheses(buffer);
-        if(strstr(function, "while") != NULL) {
-            strcat(str, parseWhileLoopFunction(function, hFile));
-        } else if(strstr(function, "for") != NULL) {
-            strcat(str, parseForLoopFunction(function, hFile));
-        } else if(strstr(function, "(") != NULL) {
-            //strcat(str, parseFunction(function, hFile));
-        } else { //not actually a function
-            strcat(str, function);
-        }
+    if (strstr(buffer, ")") != NULL && strstr(buffer, "(") == NULL) {
+        strcat(str, buffer);
     }
-    printf("ijijijijijjiijjijijiijij: %s\n", str);
     return str;
 }
 
