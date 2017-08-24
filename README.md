@@ -8,15 +8,15 @@ Let's see what we can achieve by reworking C syntax.
 * Clone the repo: git clone ht&#8203;tps://git@github.com:roecrew/nymph.git
 
 ## Updates
-v3 parser has been implemented.
+* v3 parser has been implemented.
 
-Default object member values implemented.
+* Default object member values implemented.
 
-Function overloading first draft implemented.
+* Function overloading first draft implemented.
 
 ## Goals
 
-Polish function overloading with the v3 parser.
+* Polish function overloading with the v3 parser.
 
 ## Documentation
 
