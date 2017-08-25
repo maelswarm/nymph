@@ -1217,6 +1217,8 @@ char *parseFunctionCall(char *statement) {
     return returnStr;
 }
 
+/* check the balance of two chars. i.e '(' and ')' */
+
 int balanceOfCharsInString(char *string, char open, char close) {
     int cnt = 0;
     for (int i=0; i<strlen(string); i++) {
@@ -1232,6 +1234,8 @@ int balanceOfCharsInString(char *string, char open, char close) {
     return cnt;
 }
 
+/* check statement for functions to transform */
+
 char *checkFunctionCall(char *statement) {
     
     char *returnStr = malloc(1000*sizeof(char));
@@ -1239,22 +1243,22 @@ char *checkFunctionCall(char *statement) {
     strcpy(statementCopy, statement);
     int cnt = 0;
     while(strstr(statementCopy, "(") != NULL) {
-        if (!isalpha(*(strstr(statementCopy, "(") - 1))) {
+        if (!isalpha(*(strstr(statementCopy, "(") - 1))) { //not a function, move on
             strcat(returnStr, nSubString(statementCopy, "("));
             strcat(returnStr, "(");
             statementCopy = nPostSubString(statementCopy, "(");
         } else {
-            printf("This statement has function calls. %s\n", statementCopy);
-            char *functionName = nSubString(postPrepareFunction(statementCopy), "(");
+            printf("This statement has function calls. %s\n", statementCopy); //function calls detected
+            char *functionName = nSubString(postPrepareFunction(statementCopy), "("); // get function name
             trim(functionName);
             int flag = 0;
             int flag2 = 1;
             for (int i=0; i<functionsLen; i++) {
-                if(!strcmp(functions[i]->name, functionName)) {
-                    cnt += balanceOfCharsInString(statementCopy, '(', ')');
-                    char *function = parseFunctionCall(statementCopy);
+                if(!strcmp(functions[i]->name, functionName)) { //see if function needs to be transformed
+                    cnt += balanceOfCharsInString(statementCopy, '(', ')'); //take note of any trailing ')'
+                    char *function = parseFunctionCall(statementCopy); //transform function
                     for (int i=0; i<cnt; i++) {
-                        strcat(function, ")");
+                        strcat(function, ")"); //add back trailing ')'
                     }
                     strcat(returnStr, function);
                     statementCopy += strlen(function);
@@ -1262,8 +1266,7 @@ char *checkFunctionCall(char *statement) {
                     break;
                 }
             }
-            if (!flag) {
-                printf("HEEEEEEEEEEEEEEEEEEEERE\n");
+            if (!flag) { //first function detected didn't need to be transformed, let's move on to the other functions
                 char *param;
                 char **parameters = malloc(100*sizeof(char*));
                 int parametersLen = 0;
@@ -1271,7 +1274,7 @@ char *checkFunctionCall(char *statement) {
                 strcat(returnStr, nSubString(statementCopy, "("));
                 strcat(returnStr, "(");
                 statementCopy = nPostSubString(statementCopy, "(");
-                while (strstr(statementCopy, ",") != NULL) {
+                while (strstr(statementCopy, ",") != NULL) { //advance past ','
                     if (strstr(statementCopy, "(") != NULL && strstr(statementCopy, ",") > strstr(statementCopy, "(")) {
                         param = lastPtheses(statementCopy);
                     } else {
@@ -1292,7 +1295,7 @@ char *checkFunctionCall(char *statement) {
                     if(strstr(param, "(") != NULL) {
                         char *paramFunctionName = nSubString(param, "(");
                         for (int i=0; i<functionsLen; i++) {
-                            if(!strcmp(functions[i]->name, paramFunctionName)) {
+                            if(!strcmp(functions[i]->name, paramFunctionName)) { //see if function needs to be transformed
                                 //printf("Function Match!\n");
                                 strcat(functionName, functions[i]->returnDataType);
                                 param = checkFunctionCall(param);
@@ -1306,7 +1309,7 @@ char *checkFunctionCall(char *statement) {
                         parametersLen++;
                     }
                 }
-                
+                // do the last parameter
                 param = lastPtheses(statementCopy);
                 statementCopy += strlen(param) + 1;
                 trim(param);
@@ -1322,7 +1325,7 @@ char *checkFunctionCall(char *statement) {
                 if(strstr(param, "(") != NULL) {
                     char *paramFunctionName = nSubString(param, "(");
                     for (int i=0; i<functionsLen; i++) {
-                        if(!strcmp(functions[i]->name, paramFunctionName)) {
+                        if(!strcmp(functions[i]->name, paramFunctionName)) { //see if function needs to be transformed
                             //printf("Function Match!\n");
                             strcat(functionName, functions[i]->returnDataType);
                             param = checkFunctionCall(param);
@@ -1343,7 +1346,7 @@ char *checkFunctionCall(char *statement) {
                         strcat(returnStr, ",");
                     }
                 }
-                if (flag && flag2) {
+                if (flag && flag2) { //consider removal
                     strcat(returnStr, ")");
                 }
             }
