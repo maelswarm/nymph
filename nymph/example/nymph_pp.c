@@ -397,20 +397,288 @@ int numberOfcharInString(char* str, char c) {
     return cnt;
 }
 
-//---------------------------------------------------------------------------------------------
+int isVal(char *str) { //not full proof
+    if(str[0] == '\"') {
+        if (2 == numberOfcharInString(str, '\"') && str[strlen(str)-1] == '\"') {
+            return 1;
+        }
+    } else if(str[0] == '\'') {
+        if (2 == numberOfcharInString(str, '\'') && str[strlen(str)-1] == '\'') {
+            return 1;
+        }
+    } else if(isdigit(str[0])) {
+        for (int i = 0; i<strlen(str); i++) {
+            if (!isdigit(str[i])) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
 
-int isDataType(char *str) {
+int isReturn(char *str) { //not full proof
+    if (!strcmp(str, "return")) {
+        return 1;
+    }
+    return 0;
+}
+
+int isOper(char *str) { //not full proof
+    if (!strcmp(str, "=") || !strcmp(str, "+") || !strcmp(str, "-") || !strcmp(str, "*") || !strcmp(str, "/") || !strcmp(str, "%") || !strcmp(str, "+=") || !strcmp(str, "-=") || !strcmp(str, "*=") || !strcmp(str, "/=") || !strcmp(str, "%=") || !strcmp(str, "<") || !strcmp(str, ">") || !strcmp(str, "<=") || !strcmp(str, ">=")) {
+        return 1;
+    }
+    return 0;
+}
+
+int isStorageC(char *str) { //not full proof
+    if (!strcmp(str, "static") || !strcmp(str, "extern") || !strcmp(str, "auto") || !strcmp(str, "register")) {
+        return 1;
+    }
+    return 0;
+}
+
+int isFuncCall(char *str) { //not full proof
+    if(strstr(str, "(") == NULL || strstr(str, ")") == NULL || !isalnum(*(strstr(str, "(")-1))) {
+        return 0;
+    }
+    return 1;
+}
+
+int isVar(char *str) { //not full proof
+    for (int i = 0; i<strlen(str); i++) {
+        if (!isalnum(str[i]) && str[i] != '&' && str[i] != '*') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int isDataType(char *str) { //not full proof
     if (!strcmp(str, "int") || !strcmp(str, "char") || !strcmp(str, "long") || !strcmp(str, "double") || !strcmp(str, "float") || !strcmp(str, "short") || !strcmp(str, "unsigned") || !strcmp(str, "signed") || !strcmp(str, "void")) {
         return 1;
     }
     return 0;
 }
 
-int containsDataType(char *str) {
+int containsDataType(char *str) { //not full proof
     if (strstr(str, "int") != NULL || strstr(str, "char") != NULL || strstr(str, "long") != NULL || strstr(str, "double") != NULL || strstr(str, "float") != NULL || strstr(str, "short") != NULL || strstr(str, "unsigned") != NULL || strstr(str, "signed") != NULL || strstr(str, "void") != NULL) {
         return 1;
     }
     return 0;
+}
+
+enum tokType{string, chr, num, var, oper, func};
+
+char *getToken(char *str) {
+    if (strlen(str) == 0) {
+        return NULL;
+    }
+    
+    int paraCnt = 0;
+    
+    char *token = malloc(1000*sizeof(char));
+    token[0] = '\0';
+    int chrFlag = 0;
+    int strFlag = 0;
+    for (int i = 0; i<strlen(str); i++) {
+        
+        if (str[i] == '\'' && paraCnt == 0) {
+            if (chrFlag) {
+                chrFlag = 0;
+            } else {
+                chrFlag = 1;
+            }
+        }
+        
+        if (str[i] == '\"' && paraCnt == 0) {
+            if (strFlag) {
+                strFlag = 0;
+            } else {
+                strFlag = 1;
+            }
+        }
+        
+        if((str[i] == '=' || str[i] == '+' || str[i] == '-' || (str[i] == '*' && !isalpha(str[i+1])) || str[i] == '/' || str[i] == '%' || str[i] == '<' || str[i] == '>' || str[i] == '^') && paraCnt == 0) {
+            if (i == 0) {
+                token[i] = str[i];
+                token[i+1] = '\0';
+                i++;
+                for (; i<strlen(str); i++) {
+                    if (isalnum(str[i]) || str[i] == '&' || str[i] == '*' || str[i] == ' ') {
+                        break;
+                    }
+                    token[i] = str[i];
+                    token[i+1] = '\0';
+                }
+            }
+            break;
+        }
+        
+        if (!chrFlag && !strFlag && paraCnt == 0) {
+            if(str[i] == ' ') {
+                break;
+            }
+        }
+        token[i] = str[i];
+        token[i+1] = '\0';
+        if (str[i] == '(') {
+            paraCnt++;
+        }
+        if (str[i] == ')') {
+            paraCnt--;
+        }
+    }
+    //printf("Word: !%s!\n", token);
+    return token;
+}
+
+//Begin Error Checking Functions---------------------------------------------------------------------------------------------
+
+/* check the balance of two chars. i.e '(' and ')' */
+
+int checkBalanceOfChars(char *string, char open, char close) {
+    int cnt = 0;
+    for (int i=0; i<strlen(string); i++) {
+        if (string[i] == open) {
+            cnt++;
+        } else if(string[i] == close) {
+            cnt--;
+        }
+    }
+    return cnt;
+}
+
+int checkStatement(char *statement) {
+    
+    char *stmt = malloc(1000*sizeof(char));
+    strcpy(stmt, statement);
+    trim(stmt);
+    //printf("orig stmt: !%s!\n", stmt);
+    int statementArr[1000];
+    int statementArrLen = 0;
+    char *word;
+    word = getToken(stmt);
+    if (word != NULL) {
+        stmt+=strlen(word);
+        trim(stmt);
+    }
+    //printf("stmt: !%s!\n", stmt);
+    trim(word);
+    while(word != NULL) {
+        if (isDataType(word)) {
+            statementArr[statementArrLen] = 0;
+        } else if(isStorageC(word)) {
+            statementArr[statementArrLen] = 3;
+        } else if(isOper(word)) {
+            statementArr[statementArrLen] = 4;
+        } else if(isVal(word)) {
+            statementArr[statementArrLen] = 5;
+        } else if(isReturn(word)) {
+            statementArr[statementArrLen] = 6;
+        } else if(isFuncCall(word)) {
+            statementArr[statementArrLen] = 2;
+        } else if(isVar(word)) {
+            statementArr[statementArrLen] = 1;
+        }
+        
+        statementArrLen++;
+        
+        word = getToken(stmt);
+        if (word != NULL) {
+            //printf("prestmt: !%s! len:%i\n", stmt, strlen(word));
+            stmt+=strlen(word);
+            trim(stmt);
+        }
+        //printf("stmt: !%s!\n", stmt);
+        trim(word);
+    }
+    
+    for (int i = 0; i< statementArrLen; i++) {
+        //printf("%i ", statementArr[i]);
+    }
+    //printf("\n");
+    
+    for (int i = 0; i<statementArrLen; i++) {
+        
+        if (statementArr[i] == 0) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 1) {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else if (statementArr[i] == 1) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 4 && statementArr[i+1] != 1) {
+                    return 0;
+                }
+            } else {
+                return 1;
+            }
+        } else if (statementArr[i] == 2) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 4) {
+                    return 0;
+                }
+            } else {
+                return 1;
+            }
+        } else if (statementArr[i] == 3) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 0) {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else if (statementArr[i] == 4) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 1 && statementArr[i+1] != 2 && statementArr[i+1] != 5) {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else if (statementArr[i] == 5) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 4) {
+                    return 0;
+                }
+            } else {
+                return 1;
+            }
+        } else if (statementArr[i] == 6) {
+            if (i+1 < statementArrLen) {
+                if (statementArr[i+1] != 2 && statementArr[i+1] != 1 && statementArr[i+1] != 5) {
+                    return 0;
+                }
+            } else {
+                return 1;
+            }
+        }
+    }
+    return 1;
+}
+
+//Begin Transformation Functions---------------------------------------------------------------------------------------------
+
+/* check the balance of two chars. i.e '(' and ')' */
+
+int balanceOfCharsInString(char *string, char open, char close) {
+    int cnt = 0;
+    for (int i=0; i<strlen(string); i++) {
+        if (string[i] == open) {
+            cnt++;
+        } else if(string[i] == close) {
+            cnt--;
+        }
+    }
+    if (cnt < 0) {
+        cnt *= -1;
+    }
+    return cnt;
 }
 
 char *getObjectStatementDataType(char *statement) {
@@ -903,7 +1171,7 @@ char *parseFunctionCall(char *statement) {
         char *functionParams = lastPtheses(str);
         str += strlen(functionParams) + 1;
         functionParams = nPostSubString(functionParams, "(");
-        printf("Function Params: %s\n", functionParams);
+        //printf("Function Params: %s\n", functionParams);
         
         char *param;
         int pFlag = 0;
@@ -933,8 +1201,8 @@ char *parseFunctionCall(char *statement) {
             }
             //printf("functionParams: %s\n", functionParams);
             //trim(param);
-            printf("Param: %s\n", param);
-            printf("functionParams: %s\n", functionParams);
+            //printf("Param: %s\n", param);
+            //printf("functionParams: %s\n", functionParams);
             
             if (strstr(param, "+") != NULL || strstr(param, "-") != NULL || strstr(param, "-") != NULL || strstr(param, "*") != NULL || strstr(param, "/") != NULL || strstr(param, "%") != NULL) {
                 if (strstr(param, "+") < strstr(param, "(")) {
@@ -969,7 +1237,7 @@ char *parseFunctionCall(char *statement) {
                     
                 }
             }
-            printf("PPPARAM: %s, %i\n", param, ppFlag);
+            //printf("PPPARAM: %s, %i\n", param, ppFlag);
             if (isdigit(param[0])) {
                 if (numOfParam > ppFlag) {
                     strcat(functionName, "int");
@@ -1097,7 +1365,7 @@ char *parseFunctionCall(char *statement) {
         param = lastPtheses(functionParams);
         functionParams += strlen(param) + 1;
         trim(param);
-        printf("Param2: %s\n", param);
+        //printf("Param2: %s\n", param);
         
         if (isdigit(param[0])) {
             strcat(functionName, "int");
@@ -1217,23 +1485,6 @@ char *parseFunctionCall(char *statement) {
     return returnStr;
 }
 
-/* check the balance of two chars. i.e '(' and ')' */
-
-int balanceOfCharsInString(char *string, char open, char close) {
-    int cnt = 0;
-    for (int i=0; i<strlen(string); i++) {
-        if (string[i] == open) {
-            cnt++;
-        } else if(string[i] == close) {
-            cnt--;
-        }
-    }
-    if (cnt < 0) {
-        cnt *= -1;
-    }
-    return cnt;
-}
-
 /* check statement for functions to transform */
 
 char *checkFunctionCall(char *statement) {
@@ -1248,7 +1499,7 @@ char *checkFunctionCall(char *statement) {
             strcat(returnStr, "(");
             statementCopy = nPostSubString(statementCopy, "(");
         } else {
-            printf("This statement has function calls. %s\n", statementCopy); //function calls detected
+            //printf("This statement has function calls. %s\n", statementCopy); //function calls detected
             char *functionName = nSubString(postPrepareFunction(statementCopy), "("); // get function name
             trim(functionName);
             int flag = 0;
@@ -1381,6 +1632,14 @@ char *parseLevel2Pre(char *buffer, FILE *hFile) {
         for(;statement[0] != '\n' && statement[0] != ';'; statement--) {}
         statement++;
         statement = nSubString(statement, ";");
+        
+        int check = checkStatement(statement);
+        if (check) {
+            //printf("\"%s\" is a valid statment.\n", statement);
+        } else {
+            printf("\x1B[31m ERROR:\x1B[37m\n \"%s\" is not a valid statment.\n\n", statement);
+        }
+        
         if (status == OBJPUBDEC) {
             addStatementToObjects(statement);
             if (strstr(statement, "=") != NULL) {
@@ -1670,14 +1929,14 @@ void compileFile(const char *inputName, const char *outputName) {
     
     char *output = parseLevel1(buffer, outputHFP);
     
-    printf("Listing all variables.\n");
+    //printf("Listing all variables.\n");
     for(int i=0; i< variablesLen; i++) {
-        printf("%s %s = %s\n", variables[i]->dataType, variables[i]->name, variables[i]->value);
+        //printf("%s %s = %s\n", variables[i]->dataType, variables[i]->name, variables[i]->value);
     }
     
-    printf("Listing all objects.\n");
+    //printf("Listing all objects.\n");
     for(int i=0; i< objectsLen; i++) {
-        printf("%s\n", objects[i]->name);
+        //printf("%s\n", objects[i]->name);
     }
     
     fwrite(output, 1, strlen(output), outputCFP);
