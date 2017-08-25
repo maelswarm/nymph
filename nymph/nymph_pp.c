@@ -798,8 +798,28 @@ void addVariable(char *statement) {
     }
 }
 
+char *getCurrentVar(char *statement) {
+    char *curVar = malloc(1000*sizeof(char));
+    int i = strlen(statement) - 1;
+    int k = 0;
+    trim(statement);
+    for(; i > -1; i--) {
+        if (isspace(statement[i]) || statement[i] == '*') {
+            break;
+        }
+    }
+    i++;
+    int end = strlen(statement);
+    for(int j = i; j<end; j++, k++) {
+        curVar[k] = statement[j];
+        curVar[k+1] = '\0';
+    }
+    trim(curVar);
+    return curVar;
+}
+
 char *addDefaultObjectValues(char *statement) {
-    currentVar = nSubString(statement, "=");
+    currentVar = getCurrentVar(nSubString(statement, "="));
     trim(currentVar);
     char *dataType = nPostSubString(statement, "sizeof(");
     dataType = nSubString(dataType, ")");
@@ -980,6 +1000,8 @@ char *parseFunctionCall(char *statement) {
                 char *var = nSubString(param, "-");
                 trimAllButAlpha(var);
                 
+                int foundFlag = 0;
+                
                 for (int i=0; i<functionsLen; i++) {
                     if (!strcmp(functions[i]->name, currentFunction)) {
                         for (int j = 0; j<functions[i]->parametersLen; j++) {
@@ -994,6 +1016,7 @@ char *parseFunctionCall(char *statement) {
                                                 if (numOfParam > ppFlag) {
                                                     strcat(functionName, objects[k]->properties[m]->dataType);
                                                 }
+                                                foundFlag = 1;
                                                 break;
                                             }
                                         }
@@ -1004,6 +1027,29 @@ char *parseFunctionCall(char *statement) {
                             }
                         }
                         break;
+                    }
+                }
+                if (!foundFlag) {
+                    for (int i=0; i<variablesLen; i++) {
+                        if (!strcmp(variables[i]->name, var)) {
+                            char *dt = malloc(1000*sizeof(char));
+                            strcpy(dt, variables[i]->dataType);
+                            dt = str_replace(dt, "1", "");
+                            for (int j = 0; j<objectsLen; j++) {
+                                if (!strcmp(objects[j]->name, dt)) {
+                                    for (int k = 0; k<objects[j]->propertiesLen; k++) {
+                                        if (!strcmp(objects[j]->properties[k]->name, objectValue)) {
+                                            if (numOfParam > ppFlag) {
+                                                strcat(functionName, objects[j]->properties[k]->dataType);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            break;
+                        }
                     }
                 }
                 
@@ -1075,6 +1121,8 @@ char *parseFunctionCall(char *statement) {
             char *var = nSubString(param, "-");
             trimAllButAlpha(var);
             
+            int foundFlag = 0;
+            
             for (int i=0; i<functionsLen; i++) {
                 if (!strcmp(functions[i]->name, currentFunction)) {
                     for (int j = 0; j<functions[i]->parametersLen; j++) {
@@ -1097,6 +1145,30 @@ char *parseFunctionCall(char *statement) {
                         }
                     }
                     break;
+                }
+            }
+            
+            if (!foundFlag) {
+                for (int i=0; i<variablesLen; i++) {
+                    if (!strcmp(variables[i]->name, var)) {
+                        char *dt = malloc(1000*sizeof(char));
+                        strcpy(dt, variables[i]->dataType);
+                        dt = str_replace(dt, "1", "");
+                        for (int j = 0; j<objectsLen; j++) {
+                            if (!strcmp(objects[j]->name, dt)) {
+                                for (int k = 0; k<objects[j]->propertiesLen; k++) {
+                                    if (!strcmp(objects[j]->properties[k]->name, objectValue)) {
+                                        if (numOfParam > ppFlag) {
+                                            strcat(functionName, objects[j]->properties[k]->dataType);
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
                 }
             }
             
@@ -1547,6 +1619,10 @@ char *parseLevel1(char *buffer, FILE *hFile) {
 
 void compileFile(const char *inputName, const char *outputName) {
     
+    variables = malloc(1000*sizeof(struct variable*));
+    
+    variablesLen = 0;
+    
     FILE *inputFP;
     FILE *outputCFP;
     FILE *outputHFP;
@@ -1604,11 +1680,9 @@ int main(int argc, const char * argv[]) {
     filesCompiled = malloc(1000*sizeof(char *));
     filesCompiledLen = 0;
     
-    variables = malloc(1000*sizeof(struct variable*));
     objects = malloc(1000*sizeof(struct object*));
     functions = malloc(1000*sizeof(struct function*));
     
-    variablesLen = 0;
     objectsLen = 0;
     functionsLen = 0;
     
