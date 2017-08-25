@@ -1217,6 +1217,21 @@ char *parseFunctionCall(char *statement) {
     return returnStr;
 }
 
+int balanceOfCharsInString(char *string, char open, char close) {
+    int cnt = 0;
+    for (int i=0; i<strlen(string); i++) {
+        if (string[i] == open) {
+            cnt++;
+        } else if(string[i] == close) {
+            cnt--;
+        }
+    }
+    if (cnt < 0) {
+        cnt *= -1;
+    }
+    return cnt;
+}
+
 char *checkFunctionCall(char *statement) {
     
     char *returnStr = malloc(1000*sizeof(char));
@@ -1228,7 +1243,6 @@ char *checkFunctionCall(char *statement) {
             strcat(returnStr, nSubString(statementCopy, "("));
             strcat(returnStr, "(");
             statementCopy = nPostSubString(statementCopy, "(");
-            cnt++;
         } else {
             printf("This statement has function calls. %s\n", statementCopy);
             char *functionName = nSubString(postPrepareFunction(statementCopy), "(");
@@ -1237,6 +1251,7 @@ char *checkFunctionCall(char *statement) {
             int flag2 = 1;
             for (int i=0; i<functionsLen; i++) {
                 if(!strcmp(functions[i]->name, functionName)) {
+                    cnt += balanceOfCharsInString(statementCopy, '(', ')');
                     char *function = parseFunctionCall(statementCopy);
                     for (int i=0; i<cnt; i++) {
                         strcat(function, ")");
@@ -1248,6 +1263,7 @@ char *checkFunctionCall(char *statement) {
                 }
             }
             if (!flag) {
+                printf("HEEEEEEEEEEEEEEEEEEEERE\n");
                 char *param;
                 char **parameters = malloc(100*sizeof(char*));
                 int parametersLen = 0;
