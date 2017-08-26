@@ -1,11 +1,3 @@
-//
-//  main.c
-//  nymph
-//
-//  Created by fairy-slipper on 7/13/17.
-//  Copyright © 2017 fairy-slipper. All rights reserved.
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
