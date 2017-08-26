@@ -31,6 +31,8 @@ This repository contains a program compiled from file "nymph_pp.c". This program
 
 * Polish function overloading with the v3 parser.
 
+* Add Constructors and Destructors.
+
 ## Documentation
 
 ![https://github.com/roecrew/nymph/wiki](https://github.com/roecrew/nymph/wiki)
