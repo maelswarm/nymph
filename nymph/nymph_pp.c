@@ -1105,7 +1105,8 @@ char *addDefaultObjectValues(char *statement) {
 
 char *postPrepareFunction(char *statement) {
     char *tmp = strstr(statement, "(") - 1;
-    for (; isalnum(tmp[0]) != 0; tmp--) {}
+    while (statement - tmp >= 0 && isalnum(tmp[0]) != 0)
+		tmp--;
     tmp++;
     char *function = malloc(1000*sizeof(char));
     for(int i = 0; i<strlen(tmp); i++) {
