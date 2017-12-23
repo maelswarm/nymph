@@ -92,7 +92,7 @@ main.n
 
 makefile
 ```make
-    nymph: nymph_compiler.c box.n rect.n main.n
+    nymph: error_checking.c error_checking.h helper_func.c helper_func.h nymph_pp.c main.n
             gcc -std=c11 -c helper_func.c helper_func.h
             gcc -std=c11 -c error_checking.c error_checking.h
             gcc -std=c11 -c nymph_pp.c
