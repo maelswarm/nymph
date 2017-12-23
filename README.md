@@ -22,7 +22,9 @@ This repository contains a program compiled from file "nymph_pp.c". This program
 
 ## Goals
 
-* Add Constructors and Destructors.
+* Constructors and Destructors.
+
+* Type Inference.
 
 ## Example
 box.n
