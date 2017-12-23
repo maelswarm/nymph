@@ -29,8 +29,6 @@ This repository contains a program compiled from file "nymph_pp.c". This program
 
 ## Goals
 
-* Polish function overloading with the v3 parser.
-
 * Add Constructors and Destructors.
 
 ## Example
