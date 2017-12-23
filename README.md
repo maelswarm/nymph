@@ -20,13 +20,6 @@ This repository contains a program compiled from file "nymph_pp.c". This program
 
 * [Function Overloading](https://en.wikipedia.org/wiki/Function_overloading)
 
-## Updates
-* v3 parser has been implemented.
-
-* Default object member values implemented.
-
-* Function overloading first draft implemented.
-
 ## Goals
 
 * Add Constructors and Destructors.
