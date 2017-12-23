@@ -73,7 +73,7 @@ main.n
 
     int main(int argc, const char * argv[]) {
 
-        Box **myBoxes = malloc(10*sizeof(Box));
+        Box **myBoxes = malloc(10*sizeof(Box*));
         Box *myBox = malloc(sizeof(Box));
         myBoxes[0] = myBox;
         Rect *myRect = malloc(sizeof(Rect));
