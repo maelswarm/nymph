@@ -34,17 +34,17 @@ box.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    obj Box {
+    obj Box { //like a struct, but with initializers.
         int height = 1;
         int width = 1;
         int depth = 1;
     }
 
-    int add(int a, int b) {
+    int add(int a, int b) { //private function
       return a + b;
     }
 
-    pub void print(Box *this) {
+    pub void print(Box *this) { //public function
         printf("%i %i %i\n",1+add(2+this->height+2, this->height)+2, 2+this->width+2, this->depth);
     }
 
@@ -53,12 +53,12 @@ rect.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    obj Rect {
+    obj Rect { //like a struct, but with initializers.
         int height = 3;
         int width = 3;
     }
 
-    pub void print(Rect *this) {
+    pub void print(Rect *this) { //public function
         printf("%i %i\n", this->height, this->width);
     }
 
@@ -75,8 +75,8 @@ main.n
         myBoxes[0] = myBox;
         Rect *myRect = malloc(sizeof(Rect));
 
-        print(myBoxes[0]);
-        print(myRect);
+        print(myBoxes[0]); //function overloading is happening here
+        print(myRect); //function overloading is happening here
 
         free(myBox);
         free(myBoxes);
