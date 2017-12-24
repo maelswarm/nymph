@@ -1,4 +1,8 @@
-# Nymph ![logo](http://icons.iconarchive.com/icons/iron-devil/ids-game-world/32/Fairy-icon.png)
+<p align="center"><img src="https://cdn.pixabay.com/photo/2013/07/12/12/13/fairy-145352_960_720.png" width="auto" height="200" /></p>
+
+<h1 align=center>Nymph</h1>
+
+#
 
 Let's see what we can achieve by reworking C syntax.
 
