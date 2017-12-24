@@ -2,9 +2,7 @@
 
 <h1 align=center>Nymph</h1>
 
-#
-
-Let's see what we can achieve by reworking C syntax.
+<p align="center">Let's see what we can achieve by reworking C syntax.</p>
 
 ## Overview
 
