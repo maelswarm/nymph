@@ -10,6 +10,8 @@ Nymph is a simple C like programming language.
 
 This repository contains a program compiled from file "nymph_pp.c". This program acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
 
+This project is very much in development... Please submit a issue if you see something that's worrisome (there are many things).
+
 ## Quick start
 
 * [Download the repo](https://github.com/roecrew/nymph/archive/master.zip)
