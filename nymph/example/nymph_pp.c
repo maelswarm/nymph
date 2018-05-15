@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <regex.h>
 
 #include "error_checking.h"
 #include "helper_func.h"
@@ -61,6 +62,40 @@ int status;
 char *currentVar;
 char *currentFunction;
 
+struct chain {
+    struct chain *next;
+    void *thing;
+};
+
+struct chain *master_chain;
+
+void *chain_malloc(int size) {
+    struct chain *newChain = malloc(sizeof(struct chain));
+    newChain->thing = malloc(size);
+    newChain->next = NULL;
+    struct chain *tmp = master_chain;
+    while(tmp->next != NULL) {
+        tmp = tmp->next;
+    }
+    tmp->next = newChain;
+
+    return newChain->thing;
+}
+
+void free_chain() {
+    struct chain *chain = master_chain;
+    while (chain != NULL) {
+        struct chain *next = chain->next;
+        if(chain != NULL) {
+            if(chain->thing != NULL) {
+                free(chain->thing);
+            }
+            free(chain);
+        }
+        chain = next;
+    }
+}
+
 //Begin Transformation Functions---------------------------------------------------------------------------------------------
 
 /* check the balance of two chars. i.e '(' and ')' */
@@ -81,7 +116,7 @@ int balanceOfCharsInString(char *string, char open, char close) {
 }
 
 char *getObjectStatementDataType(char *statement) {
-    char *dataType = malloc(1000*sizeof(char));
+    char *dataType = chain_malloc(1000*sizeof(char));
     int flag = 0;
     int i = strlen(statement)-1;
     for(; i > -1; i--) {
@@ -106,7 +141,7 @@ char *getObjectStatementDataType(char *statement) {
 }
 
 char *getObjectStatementName(char *statement) {
-    char *name = malloc(1000*sizeof(char));
+    char *name = chain_malloc(1000*sizeof(char));
     int flag = 0;
     int i = strlen(statement)-1;
     int j = 0;
@@ -133,7 +168,7 @@ char *getObjectStatementName(char *statement) {
 }
 
 char *getObjectStatementValue(char *statement) {
-    char *value = malloc(1000*sizeof(char));
+    char *value = chain_malloc(1000*sizeof(char));
     int i = strlen(statement)-1;
     int j = 0;
     for(; i > -1; i--) {
@@ -153,7 +188,7 @@ char *getObjectStatementValue(char *statement) {
 void addStatementToObjects(char *statement) {
     for (int i=0; i<objectsLen; i++) {
         if (!strcmp(objects[i]->name, currentObj)) {
-            objects[i]->properties[objects[i]->propertiesLen] = malloc(1000*sizeof(char));
+            objects[i]->properties[objects[i]->propertiesLen] = chain_malloc(1000*sizeof(char));
             objects[i]->properties[objects[i]->propertiesLen]->dataType = getObjectStatementDataType(statement);
             objects[i]->properties[objects[i]->propertiesLen]->name = getObjectStatementName(statement);
             objects[i]->properties[objects[i]->propertiesLen]->value = getObjectStatementValue(statement);
@@ -165,7 +200,7 @@ void addStatementToObjects(char *statement) {
 }
 
 char *getFunctionDataType(char *statement) {
-    char *dataType = malloc(1000*sizeof(char));
+    char *dataType = chain_malloc(1000*sizeof(char));
     int flag = 0;
     int i = strlen(statement) - 1;
     for(; i > -1; i--) {
@@ -187,7 +222,7 @@ char *getFunctionDataType(char *statement) {
 }
 
 char *getFunctionName(char *statement) {
-    char *name = malloc(1000*sizeof(char));
+    char *name = chain_malloc(1000*sizeof(char));
     int flag = 0;
     int i = strlen(statement) - 1;
     for(; i > -1; i--) {
@@ -210,7 +245,7 @@ char *getFunctionName(char *statement) {
 }
 
 char *getParameterName(char *statement) {
-    char *dataType = malloc(1000*sizeof(char));
+    char *dataType = chain_malloc(1000*sizeof(char));
     int flag = 0;
     int i = strlen(statement) - 1;
     for(; i > -1; i--) {
@@ -231,7 +266,7 @@ char *getParameterName(char *statement) {
 }
 
 char *getParameterDataType(char *statement) {
-    char *dataType = malloc(1000*sizeof(char));
+    char *dataType = chain_malloc(1000*sizeof(char));
     int flag = 0;
     int i = strlen(statement) - 1;
     for(; i > -1; i--) {
@@ -251,9 +286,9 @@ char *getParameterDataType(char *statement) {
 }
 
 void getFunctionParameters(char *function) {
-    struct variable **parameters = malloc(1000*sizeof(struct variable*));
+    struct variable **parameters = chain_malloc(1000*sizeof(struct variable*));
     functions[functionsLen]->parametersLen = 0;
-    char *innerStr = malloc(1000*sizeof(char));
+    char *innerStr = chain_malloc(1000*sizeof(char));
     innerStr = nPostSubString(function, "(");
     
     while (strstr(innerStr, ",") != NULL) {
@@ -264,7 +299,7 @@ void getFunctionParameters(char *function) {
         dataType = str_replace(dataType, "*", "1");
         dataType = str_replace(dataType, " ", "");
         char *name = getParameterName(str);
-        struct variable *parameter = malloc(sizeof(struct variable));
+        struct variable *parameter = chain_malloc(sizeof(struct variable));
         parameter->dataType = dataType;
         parameter->name = name;
         parameters[functions[functionsLen]->parametersLen] = parameter;
@@ -277,7 +312,7 @@ void getFunctionParameters(char *function) {
     dataType = str_replace(dataType, "*", "1");
     dataType = str_replace(dataType, " ", "");
     char *name = getParameterName(str);
-    struct variable *parameter = malloc(sizeof(struct variable));
+    struct variable *parameter = chain_malloc(sizeof(struct variable));
     parameter->dataType = dataType;
     parameter->name = name;
     parameters[functions[functionsLen]->parametersLen] = parameter;
@@ -287,7 +322,7 @@ void getFunctionParameters(char *function) {
 }
 
 void addFunctionToFunctions(char *function) {
-    functions[functionsLen] = malloc(sizeof(struct function));
+    functions[functionsLen] = chain_malloc(sizeof(struct function));
     functions[functionsLen]->returnDataType = getFunctionDataType(function);
     functions[functionsLen]->name = getFunctionName(function);
     currentFunction = functions[functionsLen]->name;
@@ -307,13 +342,13 @@ char *parseObj(char *buffer, FILE *hFile) { //struct union enum
         name = nPostSubString(name," ");
         trim(name);
         currentObj = name;
-        objects[objectsLen] = malloc(sizeof(struct object));
+        objects[objectsLen] = chain_malloc(sizeof(struct object));
         objects[objectsLen]->name = name;
-        objects[objectsLen]->properties = malloc(1000*sizeof(struct variable*));
+        objects[objectsLen]->properties = chain_malloc(1000*sizeof(struct variable*));
         objects[objectsLen]->propertiesLen = 0;
         objectsLen++;
         
-        char *str = malloc(1000*sizeof(char));
+        char *str = chain_malloc(1000*sizeof(char));
         strcat(str, "typedef struct ");
         strcat(str, name);
         strcat(str, " ");
@@ -328,7 +363,7 @@ char *parseObj(char *buffer, FILE *hFile) { //struct union enum
     } else {
         status = OBJDEC;
         char *name = nPostSubString(buffer," ");
-        char *str = malloc(1000*sizeof(char));
+        char *str = chain_malloc(1000*sizeof(char));
         strcat(str, "typedef struct ");
         strcat(str, name);
         strcat(str, " ");
@@ -364,7 +399,7 @@ char *parseElseConditionalFunction(char *function, FILE *hFile) {
 }
 
 char *parseFunction(char *function, FILE *hFile) {
-    char *str = malloc(1000*sizeof(char));
+    char *str = chain_malloc(1000*sizeof(char));
     int pubFlag = 0;
     if (strstr(function, "pub") != NULL) {
         function = str_replace(function, "pub", "");
@@ -372,8 +407,8 @@ char *parseFunction(char *function, FILE *hFile) {
     }
     addFunctionToFunctions(function);
     if (strstr(function, "main") == NULL) { //for function overloading
-        char *functionFront = malloc(1000*sizeof(char));
-        char *functionBack = malloc(1000*sizeof(char));
+        char *functionFront = chain_malloc(1000*sizeof(char));
+        char *functionBack = chain_malloc(1000*sizeof(char));
         functionFront = nSubString(function, "(");
         functionBack = nPostSubString(function, "(");
         for (int i=0; i<functions[functionsLen-1]->parametersLen; i++) {
@@ -399,7 +434,7 @@ char *parseWhileLoopFunction(char *function, FILE *hFile) {
 
 char *parseForLoopFunction(char *function, FILE *hFile) {
     //printf("Parsing Loop\n%s\n\n", function);
-    char *str = malloc(100000*sizeof(char));
+    char *str = chain_malloc(100000*sizeof(char));
     strcat(str, "for(");
     function = nPostSubString(function, "(");
     while(strstr(function, ";") != NULL) { //remember to add def
@@ -418,7 +453,7 @@ char *parseForLoopFunction(char *function, FILE *hFile) {
 }
 
 char *getVariableName(char *statement) {
-    char *name = malloc(1000*sizeof(char));
+    char *name = chain_malloc(1000*sizeof(char));
     int i = strlen(statement) - 1;
     for(; i > -1; i--) {
         if (isspace(statement[i]) || statement[i] == '*') {
@@ -436,7 +471,7 @@ char *getVariableName(char *statement) {
 }
 
 char *getVariableDataType(char *statement) {
-    char *dataType = malloc(1000*sizeof(char));
+    char *dataType = chain_malloc(1000*sizeof(char));
     int i = strlen(statement) - 1;
     for(; i > -1; i--) {
         if (isspace(statement[i]) || statement[i] == '*') {
@@ -454,7 +489,7 @@ char *getVariableDataType(char *statement) {
 
 void addVariable(char *statement) {
     trim(statement);
-    struct variable *newVar = malloc(sizeof(struct variable));
+    struct variable *newVar = chain_malloc(sizeof(struct variable));
     newVar->name = getVariableName(statement);
     newVar->dataType = getVariableDataType(statement);
     newVar->dataType = str_replace(newVar->dataType, " ", "");
@@ -466,7 +501,7 @@ void addVariable(char *statement) {
 }
 
 char *getCurrentVar(char *statement) {
-    char *curVar = malloc(1000*sizeof(char));
+    char *curVar = chain_malloc(1000*sizeof(char));
     int i = strlen(statement) - 1;
     int k = 0;
     trim(statement);
@@ -490,7 +525,7 @@ char *addDefaultObjectValues(char *statement) {
     trim(currentVar);
     char *dataType = nPostSubString(statement, "sizeof(");
     dataType = nSubString(dataType, ")");
-    char *newStatement = malloc(1000*sizeof(char));
+    char *newStatement = chain_malloc(1000*sizeof(char));
     strcat(newStatement, statement);
     strcat(newStatement, ";");
     
@@ -514,7 +549,7 @@ char *postPrepareFunction(char *statement) {
     char *tmp = strstr(statement, "(") - 1;
     for (; isalnum(tmp[0]) != 0; tmp--) {}
     tmp++;
-    char *function = malloc(1000*sizeof(char));
+    char *function = chain_malloc(1000*sizeof(char));
     for(int i = 0; i<strlen(tmp); i++) {
         function[i] = tmp[i];
         function[i+1] = '\0';
@@ -525,7 +560,7 @@ char *postPrepareFunction(char *statement) {
 }
 
 char *prePrepareFunction(char *statement) {
-    char *function = malloc(1000*sizeof(char));
+    char *function = chain_malloc(1000*sizeof(char));
     strcpy(function, statement);
     int i = strlen(function) - 1;
     for (; isalnum(function[i]); i--) {}
@@ -536,8 +571,8 @@ char *prePrepareFunction(char *statement) {
 }
 
 char *parseFunctionCall(char *statement) {
-    char *returnStr = malloc(1000*sizeof(char));
-    char *statementCopy = malloc(1000*sizeof(char));
+    char *returnStr = chain_malloc(1000*sizeof(char));
+    char *statementCopy = chain_malloc(1000*sizeof(char));
     strcpy(statementCopy, statement);
     
     int numOfParam = 0;
@@ -550,12 +585,12 @@ char *parseFunctionCall(char *statement) {
     
     while(strstr(statementCopy, "(") != NULL) {
         
-        char **parameters = malloc(100*sizeof(char*));
+        char **parameters = chain_malloc(100*sizeof(char*));
         int parametersLen = 0;
         
         strcat(returnStr, prePrepareFunction(nSubString(statementCopy, "(")));
         char *str = postPrepareFunction(statementCopy);
-        char *postName = malloc(1000*sizeof(char));
+        char *postName = chain_malloc(1000*sizeof(char));
         strcat(postName, lastPtheses(statementCopy));
         postName = nPostSubString(postName, "(");
         //printf("Statement to parse: %s\n", str);
@@ -577,7 +612,7 @@ char *parseFunctionCall(char *statement) {
         int ppFlag = 0;
         while (strstr(functionParams, ",") != NULL) {
             
-            char *preParam = malloc(1000*sizeof(char));
+            char *preParam = chain_malloc(1000*sizeof(char));
             
             if (strstr(functionParams, "(") != NULL && strstr(functionParams, ",") > strstr(functionParams, "(") && functionParams[0] != '(') {
                 if (!isalnum(*(strstr(functionParams, "(")-1))) {
@@ -674,7 +709,7 @@ char *parseFunctionCall(char *statement) {
                         for (int j = 0; j<functions[i]->parametersLen; j++) {
                             if (!strcmp(functions[i]->parameters[j]->name, var)) {
                                 for (int k = 0; k<objectsLen; k++) {
-                                    char *dt = malloc(1000*sizeof(char));
+                                    char *dt = chain_malloc(1000*sizeof(char));
                                     strcpy(dt, functions[i]->parameters[j]->dataType);
                                     dt = str_replace(dt, "1", "");
                                     if (!strcmp(objects[k]->name, dt)) {
@@ -699,7 +734,7 @@ char *parseFunctionCall(char *statement) {
                 if (!foundFlag) {
                     for (int i=0; i<variablesLen; i++) {
                         if (!strcmp(variables[i]->name, var)) {
-                            char *dt = malloc(1000*sizeof(char));
+                            char *dt = chain_malloc(1000*sizeof(char));
                             strcpy(dt, variables[i]->dataType);
                             dt = str_replace(dt, "1", "");
                             for (int j = 0; j<objectsLen; j++) {
@@ -733,7 +768,7 @@ char *parseFunctionCall(char *statement) {
                 }
                 for (int i=0; i<variablesLen; i++) {
                     if(!strcmp(variables[i]->name, paramFunctionName)) {
-                        char *dType = malloc(1000*sizeof(char));
+                        char *dType = chain_malloc(1000*sizeof(char));
                         strcpy(dType, variables[i]->dataType);
                         for (int i=0; i<derefCnt; i++) {
                             dType[strlen(dType) - 1] = '\0';
@@ -746,7 +781,7 @@ char *parseFunctionCall(char *statement) {
                 }
             }
             if (strcmp(preParam, "")) {
-                char *tmp = malloc(1000*sizeof(char));
+                char *tmp = chain_malloc(1000*sizeof(char));
                 strcat(tmp, preParam);
                 strcat(tmp, param);
                 strcpy(param, tmp);
@@ -795,7 +830,7 @@ char *parseFunctionCall(char *statement) {
                     for (int j = 0; j<functions[i]->parametersLen; j++) {
                         if (!strcmp(functions[i]->parameters[j]->name, var)) {
                             for (int k = 0; k<objectsLen; k++) {
-                                char *dt = malloc(1000*sizeof(char));
+                                char *dt = chain_malloc(1000*sizeof(char));
                                 strcpy(dt, functions[i]->parameters[j]->dataType);
                                 dt = str_replace(dt, "1", "");
                                 if (!strcmp(objects[k]->name, dt)) {
@@ -818,7 +853,7 @@ char *parseFunctionCall(char *statement) {
             if (!foundFlag) {
                 for (int i=0; i<variablesLen; i++) {
                     if (!strcmp(variables[i]->name, var)) {
-                        char *dt = malloc(1000*sizeof(char));
+                        char *dt = chain_malloc(1000*sizeof(char));
                         strcpy(dt, variables[i]->dataType);
                         dt = str_replace(dt, "1", "");
                         for (int j = 0; j<objectsLen; j++) {
@@ -852,7 +887,7 @@ char *parseFunctionCall(char *statement) {
             }
             for (int i=0; i<variablesLen; i++) {
                 if(!strcmp(variables[i]->name, paramFunctionName)) {
-                    char *dType = malloc(1000*sizeof(char));
+                    char *dType = chain_malloc(1000*sizeof(char));
                     strcpy(dType, variables[i]->dataType);
                     for (int i=0; i<derefCnt; i++) {
                         dType[strlen(dType) - 1] = '\0';
@@ -888,8 +923,8 @@ char *parseFunctionCall(char *statement) {
 
 char *checkFunctionCall(char *statement) {
     
-    char *returnStr = malloc(1000*sizeof(char));
-    char *statementCopy = malloc(1000*sizeof(char));
+    char *returnStr = chain_malloc(1000*sizeof(char));
+    char *statementCopy = chain_malloc(1000*sizeof(char));
     strcpy(statementCopy, statement);
     int cnt = 0;
     while(strstr(statementCopy, "(") != NULL) {
@@ -918,7 +953,7 @@ char *checkFunctionCall(char *statement) {
             }
             if (!flag) { //first function detected didn't need to be transformed, let's move on to the other functions
                 char *param;
-                char **parameters = malloc(100*sizeof(char*));
+                char **parameters = chain_malloc(100*sizeof(char*));
                 int parametersLen = 0;
                 trim(statementCopy);
                 strcat(returnStr, nSubString(statementCopy, "("));
@@ -1022,7 +1057,7 @@ char *checkFunctionCall(char *statement) {
  */
 
 char *parseLevel2Pre(char *buffer, FILE *hFile) {
-    char *str = malloc(100000*sizeof(char));
+    char *str = chain_malloc(100000*sizeof(char));
     //printf("Buffer: %s\n", buffer);
     while(strstr(buffer, ";") != NULL) {
         char *statement = strchr(buffer, ';');
@@ -1134,7 +1169,7 @@ char *parseLevel2Post(char *buffer, FILE *hFile) {
  */
 
 char *parseLevel2(char *buffer, FILE *hFile) {
-    char *str = malloc(100000*sizeof(char));
+    char *str = chain_malloc(100000*sizeof(char));
     char *pre;
     char *body;
     char *post;
@@ -1173,9 +1208,9 @@ char *parseLevel2(char *buffer, FILE *hFile) {
  */
 
 char *parseLevel1Pre(char *buffer, FILE *hFile) {
-    char *str = malloc(100000*sizeof(char));
+    char *str = chain_malloc(100000*sizeof(char));
     while(strstr(buffer, "#include") != NULL) {
-        char *inputname = malloc(1000*sizeof(char));
+        char *inputname = chain_malloc(1000*sizeof(char));
         char *outputname = nSubString(buffer, "\n");
         buffer += strlen(outputname) + 1;
         if(strstr(outputname, "\"") != NULL) {
@@ -1263,7 +1298,7 @@ char *parseLevel1Post(char *buffer, FILE *hFile) {
  */
 
 char *parseLevel1(char *buffer, FILE *hFile) {
-    char *str = malloc(100000*sizeof(char));
+    char *str = chain_malloc(100000*sizeof(char));
     char *pre;
     char *body;
     char *post;
@@ -1296,7 +1331,7 @@ char *parseLevel1(char *buffer, FILE *hFile) {
 
 void compileFile(const char *inputName, const char *outputName) {
     
-    variables = malloc(1000*sizeof(struct variable*));
+    variables = chain_malloc(1000*sizeof(struct variable*));
     
     variablesLen = 0;
     
@@ -1350,15 +1385,19 @@ void compileFile(const char *inputName, const char *outputName) {
 
 int main(int argc, const char * argv[]) {
     
-    currentVar = malloc(1000*sizeof(char));
+    master_chain = malloc(sizeof(struct chain));
+    master_chain->thing = NULL;
+    master_chain->next = NULL;
+
+    currentVar = chain_malloc(1000*sizeof(char));
     
-    currentFunction = malloc(1000*sizeof(char));
+    currentFunction = chain_malloc(1000*sizeof(char));
     
-    filesCompiled = malloc(1000*sizeof(char *));
+    filesCompiled = chain_malloc(1000*sizeof(char *));
     filesCompiledLen = 0;
     
-    objects = malloc(1000*sizeof(struct object*));
-    functions = malloc(1000*sizeof(struct function*));
+    objects = chain_malloc(1000*sizeof(struct object*));
+    functions = chain_malloc(1000*sizeof(struct function*));
     
     objectsLen = 0;
     functionsLen = 0;
@@ -1370,11 +1409,12 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
     
-    filesCompiled[filesCompiledLen] = malloc(1000*sizeof(char));
+    filesCompiled[filesCompiledLen] = chain_malloc(1000*sizeof(char));
     strcpy(filesCompiled[filesCompiledLen], argv[1]);
     filesCompiledLen++;
     
     compileFile(argv[1], argv[2]);
     
+    free_chain();
     return 0;
 }
