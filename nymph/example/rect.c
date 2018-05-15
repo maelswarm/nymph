@@ -4,4 +4,4 @@
 #include "main.h"
 
 
- void printRectRect1(Rect *this){printf("%i %i\n",this->height,this->width);}
+ void printRect1(Rect *this){printf("%i %i\n",this->height,this->width);}

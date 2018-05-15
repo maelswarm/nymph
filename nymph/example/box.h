@@ -6,4 +6,4 @@ int depth;
 };
 
 
- void printBoxBox1(Box *this);
+ void printBox1(Box *this);

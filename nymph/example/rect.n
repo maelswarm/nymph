@@ -7,6 +7,6 @@ pub obj Rect {
     int width = 1;
 }
 
-pub void printRect(Rect *this) {
+pub void print(Rect *this) {
     printf("%i %i\n", this->height, this->width);
 }
