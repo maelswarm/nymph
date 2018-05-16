@@ -20,9 +20,15 @@ This project is very much in development... Please submit a issue if you see som
 
 ## Goals
 
-* Constructors and Destructors.
+* Constructors and Destructors?
 
-* Type Inference.
+* Type Inference?
+
+* Reflection?
+
+* Default function arguments?
+
+* Lambdas?
 
 ## Example
 box.n
