@@ -20,6 +20,14 @@ This project is very much in development... Please submit a issue if you see som
 
 ## Goals
 
+### Completed
+
+* Function Overloading
+
+* Basic Objects
+
+### Pending
+
 * Constructors and Destructors?
 
 * Type Inference?
