@@ -18,12 +18,6 @@ This project is very much in development... Please submit a issue if you see som
 
 * Clone the repo: git clone ht&#8203;tps://git@github.com:roecrew/nymph.git
 
-## Features
-
-* [Object Oriented](https://en.wikipedia.org/wiki/Object-oriented_programming)
-
-* [Function Overloading](https://en.wikipedia.org/wiki/Function_overloading)
-
 ## Goals
 
 * Constructors and Destructors.
