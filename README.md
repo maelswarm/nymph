@@ -24,7 +24,9 @@ This project is very much in development... Please submit a issue if you see som
 
 * Function Overloading
 
-* Basic Objects + Inheritance
+* Basic Objects
+
+* Basic Inheritance
 
 ### In Progress
 
