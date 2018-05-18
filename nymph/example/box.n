@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "rect.n"
 
 int add(int a, int b);
 
-pub obj Box {
-  int width = 1;
+pub obj Box:Rect {
+  int width = 20;
   int height = 1;
   int depth = 1;
 }

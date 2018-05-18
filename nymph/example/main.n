@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+
 #include "box.n"
 #include "rect.n"
 
@@ -17,9 +19,9 @@ int main(int argc, const char *argv[]) {
     myBox = malloc(sizeof(Box));
     myRect = malloc(sizeof(Rect));
     myBoxes[0] = myBox;
+    printf("myBox width: %i myRect width: %i\n", myBox->width, myRect->width);
 
     int q = subtract(1, 2) + subtract(2, 1);
-
     int b = subtract((int)2,1+(int)subtract(2, 1));
     int d = (b == subtract(1, 2) + subtract(2, 1));
     for(int i =subtract(2, 1); i<subtract(2, 1); i+=subtract(2,1)) {
