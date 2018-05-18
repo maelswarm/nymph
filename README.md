@@ -24,7 +24,7 @@ This project is very much in development... Please submit a issue if you see som
 
 * Function Overloading
 
-* Basic Objects
+* Basic Objects + Inheritance
 
 ### In Progress
 
@@ -47,11 +47,13 @@ box.n
 
     #include <stdlib.h>
     #include <stdio.h>
+    
+    #include "rect.n"
 
-    pub obj Box { //like a struct, but with initializers.
-        int height = 1;
-        int width = 1;
-        int depth = 1;
+    pub obj Box:Rect { //Inheriting object Rect
+        int height = 10; //overridden
+        int width = 20;  //overridden
+        int depth = 30;
     }
 
     int add(int a, int b) { //private function
