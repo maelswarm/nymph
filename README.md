@@ -50,7 +50,7 @@ box.n
     
     #include "rect.n"
 
-    pub obj Box:Rect { //Inheriting object Rect
+    pub obj Box:Rect { //inheriting object Rect
         int height = 10; //overridden
         int width = 20;  //overridden
         int depth = 30;
