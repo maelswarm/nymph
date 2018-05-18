@@ -48,7 +48,7 @@ box.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    obj Box { //like a struct, but with initializers.
+    pub obj Box { //like a struct, but with initializers.
         int height = 1;
         int width = 1;
         int depth = 1;
@@ -67,7 +67,7 @@ rect.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    obj Rect { //like a struct, but with initializers.
+    pub obj Rect { //like a struct, but with initializers.
         int height = 3;
         int width = 3;
     }
