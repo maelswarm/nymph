@@ -26,6 +26,10 @@ This project is very much in development... Please submit a issue if you see som
 
 * Basic Objects
 
+### In Progress
+
+* Generators
+
 ### Pending
 
 * Constructors and Destructors?
@@ -44,7 +48,7 @@ box.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    obj Box { //like a struct, but with initializers.
+    pub obj Box { //like a struct, but with initializers.
         int height = 1;
         int width = 1;
         int depth = 1;
@@ -63,7 +67,7 @@ rect.n
     #include <stdlib.h>
     #include <stdio.h>
 
-    obj Rect { //like a struct, but with initializers.
+    pub obj Rect { //like a struct, but with initializers.
         int height = 3;
         int width = 3;
     }
@@ -98,13 +102,13 @@ main.n
 makefile
 ```make
 nymph: nymph_pp.c main.n box.n rect.n
-	gcc -std=c11 -c helper_func.c helper_func.h
-	gcc -std=c11 -c error_checking.c error_checking.h
+	gcc -std=c11 -c helper_func.c
+	gcc -std=c11 -c error_checking.c
 	gcc -std=c11 -c nymph_pp.c
 	gcc -std=c11 helper_func.o error_checking.o nymph_pp.o -o nymph
 	./nymph main.n main
-	gcc -std=c11 -c rect.c rect.h
-	gcc -std=c11 -c box.c box.h
-	gcc -std=c11 -c main.c main.h
+	gcc -std=c11 -c rect.c
+	gcc -std=c11 -c box.c
+	gcc -std=c11 -c main.c
 	gcc -std=c11 main.o box.o rect.o -o out
 ```

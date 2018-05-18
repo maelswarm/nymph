@@ -5,7 +5,7 @@
 #include "box.h"
 #include "rect.h"
 
-char returnH(){  return 'H';}
+char returnH ŒöZ÷(){  return 'H';}
 
 int subtractintint(int a, int b){  return a - b;}
 
