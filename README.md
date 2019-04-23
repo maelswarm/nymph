@@ -8,7 +8,7 @@
 
 Nymph is a simple C like programming language.
 
-This repository contains a program compiled from file "nymph_pp.c". This program acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
+Nymph acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
 
 This project is very much in development... It is not production ready.
 
@@ -16,7 +16,7 @@ This project is very much in development... It is not production ready.
 
 This project just recieved a complete overhaul.
 
-New documentation will be added this week.
+More documentation will be added this week.
 
 ## Goals
 
@@ -66,20 +66,9 @@ class Mammal {
         printf("print instance properties...\n");
     }
 }
-
-int main(void) {
-
-    char *name = malloc(5);
-    memset(name, 0, sizeof(name));
-    strcpy(name, "Fred");
-    Human *person1 = Human->init(name, 76, 146);
-    person1->print();
-
-    return 0;
-}
 ```
 
-Human.n
+human.n
 ```
 #include "mammal.n"
 #include <stdio.h>
@@ -113,4 +102,8 @@ int main(void) {
 
     return 0;
 }
+```
+
+```
+nymph -r human.n
 ```
