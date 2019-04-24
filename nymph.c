@@ -1455,16 +1455,13 @@ void tokenize(char *filename, NFile *currFile)
     fread(buff, 1, len, f);
 
     int i = 0;
+    int inComment = 0;
     int tmpI = 0;
     char tmp[1000];
     memset(tmp, 0, sizeof(tmp));
     while (i < len + 1)
     {
-        if (isalnum(buff[i]) > 0 || buff[i] == '_')
-        {
-            tmp[tmpI++] = buff[i];
-        }
-        else if (isspace(buff[i]) == 0 || buff[i] == '\n')
+        if (buff[i] == '/' && buff[i + 1] == '/' && inComment == 0)
         {
             if (tmpI != 0)
             {
@@ -1472,18 +1469,65 @@ void tokenize(char *filename, NFile *currFile)
                 tmpI = 0;
                 memset(tmp, 0, sizeof(tmp));
             }
-            tmp[tmpI++] = buff[i];
-            appendToken(file, tmp, 'N');
-            tmpI = 0;
-            memset(tmp, 0, sizeof(tmp));
+            inComment = 1;
+            ++i;
+            ++i;
+            continue;
         }
-        else
+        if (buff[i] == '/' && buff[i + 1] == '*' && inComment == 0)
         {
             if (tmpI != 0)
             {
                 appendToken(file, tmp, 'N');
                 tmpI = 0;
                 memset(tmp, 0, sizeof(tmp));
+            }
+            inComment = 2;
+            ++i;
+            ++i;
+            continue;
+        }
+        if (inComment > 0)
+        {
+            if (buff[i] == '\n' && inComment == 1)
+            {
+                inComment = 0;
+            }
+            else if (buff[i] == '*' && buff[i + 1] == '/' && inComment == 2)
+            {
+                inComment = 0;
+                ++i;
+                ++i;
+            }
+            continue;
+        }
+        else
+        {
+            if (isalnum(buff[i]) > 0 || buff[i] == '_')
+            {
+                tmp[tmpI++] = buff[i];
+            }
+            else if (isspace(buff[i]) == 0 || buff[i] == '\n')
+            {
+                if (tmpI != 0)
+                {
+                    appendToken(file, tmp, 'N');
+                    tmpI = 0;
+                    memset(tmp, 0, sizeof(tmp));
+                }
+                tmp[tmpI++] = buff[i];
+                appendToken(file, tmp, 'N');
+                tmpI = 0;
+                memset(tmp, 0, sizeof(tmp));
+            }
+            else
+            {
+                if (tmpI != 0)
+                {
+                    appendToken(file, tmp, 'N');
+                    tmpI = 0;
+                    memset(tmp, 0, sizeof(tmp));
+                }
             }
         }
         ++i;

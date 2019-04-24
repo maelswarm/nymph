@@ -44,25 +44,25 @@ More documentation will be added this week.
 
 ## Example
 
-Mammal.n
+mammal.n
 ```
 #include <stdio.h>
 #include <stdlib.h>
 
 class Mammal {
 
-    + int population = 0;
-    - int height = 0;
-    - int weight = 100;
+    + int population = 0; // Class Variable (+)
+    - int height = 0;     // Object Variable (-)
+    - int weight = 100;   // Object Variable (-)
 
-    + Mammal *init(int height, int weight) {
+    + Mammal *init(int height, int weight) {  // Class Method (+) Constructor
         this->height = height;
         this->weight = weight;
         Mammal->population++;
         return this;
     }
 
-    - void print() {
+    - void print() {                          // Object Method (-)
         printf("print instance properties...\n");
     }
 }
@@ -76,15 +76,15 @@ human.n
 
 class Human : Mammal {
 
-    - char *name = NULL;
+    - char *name = NULL; // Object Variable (-)
 
-    + Human *init(char *name, int height, int weight) {
+    + Human *init(char *name, int height, int weight) { // Class Method (+) Constructor
         this = super->init(height, weight);
         this->name = name;
         return this;
     }
 
-    - void died() {
+    - void died() {                                     // Object Method (+) Constructor
         free(this->name);
         free(this);
         Mammal->population--;
@@ -96,9 +96,9 @@ int main(void) {
     char *name = malloc(5);
     memset(name, 0, sizeof(name));
     strcpy(name, "Fred");
-    Human *person1 = Human->init(name, 76, 146);
-    person1->print();
-    person1->died();
+    Human *person1 = Human->init(name, 76, 146); // Class Method Constructor Call
+    person1->print();                            // Object Method Call
+    person1->died();                             // Object Method Call
 
     return 0;
 }
