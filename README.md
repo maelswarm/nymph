@@ -84,7 +84,7 @@ class Human : Mammal {
         return this;
     }
 
-    - void died() {                                     // Object Method (+) Constructor
+    - void died() {                                     // Object Method (-) Constructor
         free(this->name);
         free(this);
         Mammal->population--;

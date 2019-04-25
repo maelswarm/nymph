@@ -872,7 +872,7 @@ void constructClassStruct(NFile *file, Class *class)
         }
     }
     sprintf(str, "%s};\n", str);
-    fwrite(str, 1, strlen(str), cFile);
+    fwrite(str, 1, strlen(str), hFile);
 
     memset(str, 0, sizeof(str));
     sprintf(str, "%sstruct Object_%s {\n", str, class->name);
@@ -908,7 +908,7 @@ void constructClassStruct(NFile *file, Class *class)
         }
     }
     sprintf(str, "%s};\n", str);
-    fwrite(str, 1, strlen(str), cFile);
+    fwrite(str, 1, strlen(str), hFile);
 }
 
 char *preInitContent(NFile *file, Class *class, Function *function)
@@ -1069,7 +1069,7 @@ void constructClassFunctions(NFile *file, Class *class)
                 }
                 else
                 {
-                    sprintf(str, "%s, %s %s,", str, class->functions[i]->params[j]->datatype, class->functions[i]->params[j]->name);
+                    sprintf(str, "%s, %s %s", str, class->functions[i]->params[j]->datatype, class->functions[i]->params[j]->name);
                 }
             }
         }
@@ -1492,13 +1492,17 @@ void tokenize(char *filename, NFile *currFile)
             if (buff[i] == '\n' && inComment == 1)
             {
                 inComment = 0;
+                ++i;
+                continue;
             }
             else if (buff[i] == '*' && buff[i + 1] == '/' && inComment == 2)
             {
                 inComment = 0;
                 ++i;
                 ++i;
+                continue;
             }
+            ++i;
             continue;
         }
         else

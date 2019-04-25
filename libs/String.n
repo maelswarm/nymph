@@ -1,0 +1,38 @@
+#include "mammal.n"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+class String {
+
+    - uint16_t *content = NULL;
+    - int length = 0;
+    - int size = 0;
+
+    + String *init(char *content) {
+        this->length = strlen(content);
+        this->size = this->length + 1;
+        this->content = (uint16_t *)calloc(this->size * sizeof(uint16_t));
+        memcpy(this->content, content, sizeof(content));
+        return this;
+    }
+
+    - void died() {
+        free(this->name);
+        free(this);
+        Mammal->population--;
+    }
+}
+
+int main(void) {
+
+    char *name = malloc(5);
+    memset(name, 0, sizeof(name));
+    strcpy(name, "Fred");
+    Human *person1 = Human->init(name, 76, 146); // Class Method Constructor Call
+    person1->print();                            // Object Method Call
+    person1->died();                             // Object Method Call
+
+    return 0;
+}
