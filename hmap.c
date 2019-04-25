@@ -76,7 +76,6 @@ void *fetch_hm(HMap **map, char *key)
     HMap *row = map[idx];
     if (row == NULL)
     {
-        printf("Before Crash ?\n");
         return NULL;
     }
     while (row->next != NULL && (strcmp(row->key, key) != 0))

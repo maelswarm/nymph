@@ -1,4 +1,3 @@
-#include "mammal.n"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,29 +9,35 @@ class String {
     - int length = 0;
     - int size = 0;
 
-    + String *init(char *content) {
-        this->length = strlen(content);
+    + String *init(char *text) {
+        this->length = strlen(text);
         this->size = this->length + 1;
-        this->content = (uint16_t *)calloc(this->size * sizeof(uint16_t));
-        memcpy(this->content, content, sizeof(content));
+        this->content = (uint16_t *)malloc(this->size * sizeof(uint16_t));
+        memset(this->content, 0, sizeof(this->content));
+        this->setContent(text);
+        this->println();
         return this;
     }
 
-    - void died() {
-        free(this->name);
-        free(this);
-        Mammal->population--;
+    - void setContent(char *text) {
+        int len = this->length;
+        for(int i=0; i<len; ++i) {
+            this->content[i] = text[i];
+        }
+    }
+
+    - void println() {
+        int len = this->length;
+        for(int i=0; i<len; ++i) {
+            printf("%d", this->content[i]);
+        }
+        printf("\n");
     }
 }
 
 int main(void) {
 
-    char *name = malloc(5);
-    memset(name, 0, sizeof(name));
-    strcpy(name, "Fred");
-    Human *person1 = Human->init(name, 76, 146); // Class Method Constructor Call
-    person1->print();                            // Object Method Call
-    person1->died();                             // Object Method Call
+    String *helloWorld = String->init("Hello World"); // Class Method Constructor Call
 
     return 0;
 }
