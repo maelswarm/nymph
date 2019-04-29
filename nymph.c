@@ -4,28 +4,6 @@
 #include <ctype.h>
 #include "nymph.h"
 #include "hmap.h"
-/* HELPER FUNCTIONS BEGIN */
-
-char *trim(char *str)
-{
-    char *end;
-
-    while (isspace((unsigned char)*str))
-        str++;
-
-    if (*str == 0)
-        return str;
-
-    end = str + strlen(str) - 1;
-    while (end > str && isspace((unsigned char)*end))
-        end--;
-
-    end[1] = '\0';
-
-    return str;
-}
-
-/* HELPER FUNCTIONS END */
 
 #define PUBLIC_CLASS_FUNC 0
 #define PUBLIC_OBJECT_FUNC 1
@@ -189,31 +167,6 @@ NFile *createNFile(char *filename)
     return newFile;
 }
 
-Token *endStatement(Token *curs, Token *end)
-{
-    int catch = 0;
-    while (curs != NULL)
-    {
-        if (strcmp(curs->val, "'") == 0 && (catch == 0 || catch == 2))
-        {
-            catch = (catch == 2) ? 0 : 2;
-        }
-        else if (strcmp(curs->val, "\"") == 0 && (catch == 0 || catch == 1))
-        {
-            catch = (catch == 1) ? 0 : 1;
-        }
-        else if (strcmp(curs->val, ";") == 0 && catch == 0)
-        {
-            if (curs == end)
-            {
-                return curs;
-            }
-            return curs->next;
-        }
-        curs = curs->next;
-    }
-}
-
 Token *endScope(Token *curs)
 {
     int balance = 1;
@@ -240,35 +193,6 @@ Token *endScope(Token *curs)
         end = end->next;
     }
     printf("UNBALANCED BRACKETS!\n");
-    exit(10);
-}
-
-Token *endParenth(Token *curs)
-{
-    int balance = 1;
-    while (curs != NULL && strcmp(curs->val, "(") != 0)
-    {
-        curs = curs->next;
-    }
-    Token *end = curs->next;
-
-    while (end != NULL)
-    {
-        if (strcmp(end->val, "(") == 0)
-        {
-            ++balance;
-        }
-        else if (strcmp(end->val, ")") == 0)
-        {
-            --balance;
-        }
-        if (balance < 1)
-        {
-            return end;
-        }
-        end = end->next;
-    }
-    printf("UNBALANCED Parenth!\n");
     exit(10);
 }
 
@@ -387,36 +311,47 @@ void parseStatement(Class *class, Token *start, Token *end)
     }
     if (strcmp(curs->next->val, "=") == 0)
     {
-        Property *prop = createProperty();
-        strcpy(prop->datatype, datatype);
-        strcpy(prop->name, curs->val);
-        prop->encapsulation = encapsulation;
-
-        curs = curs->next->next;
         int catch = 0;
-        while ((strcmp(curs->val, ";") != 0 && catch == 0) || catch == 1 || catch == 2)
+        while (strcmp(curs->val, ";") != 0)
         {
-            if (strcmp(curs->val, "'") == 0 && (catch == 0 || catch == 2))
+            memset(value, 0, sizeof(value));
+            Property *prop = createProperty();
+            strcpy(prop->datatype, datatype);
+            strcpy(prop->name, curs->val);
+            prop->encapsulation = encapsulation;
+
+            curs = curs->next->next;
+
+            while ((strcmp(curs->val, ";") != 0 && strcmp(curs->val, ",") != 0 && catch == 0) || catch == 1 || catch == 2)
             {
-                catch = (catch == 2) ? 0 : 2;
+                if (strcmp(curs->val, "'") == 0 && (catch == 0 || catch == 2))
+                {
+                    catch = (catch == 2) ? 0 : 2;
+                }
+                else if (strcmp(curs->val, "\"") == 0 && (catch == 0 || catch == 1))
+                {
+                    catch = (catch == 1) ? 0 : 1;
+                }
+                strcat(value, curs->val);
+                curs = curs->next;
             }
-            else if (strcmp(curs->val, "\"") == 0 && (catch == 0 || catch == 1))
+
+            strcpy(prop->value, value);
+            if (encapsulation == PUBLIC_CLASS_VAR)
             {
-                catch = (catch == 1) ? 0 : 1;
+                update_hm(class->class_hmap, prop->name, (void *)prop->datatype);
             }
-            strcat(value, curs->val);
-            curs = curs->next;
+            else
+            {
+                update_hm(class->object_hmap, prop->name, (void *)prop->datatype);
+            }
+            class->properties[class->propertiesCnt++] = prop;
+
+            if (strcmp(curs->val, ",") == 0)
+            {
+                curs = curs->next;
+            }
         }
-        strcpy(prop->value, value);
-        if (encapsulation == PUBLIC_CLASS_VAR)
-        {
-            update_hm(class->class_hmap, prop->name, (void *)prop->datatype);
-        }
-        else
-        {
-            update_hm(class->object_hmap, prop->name, (void *)prop->datatype);
-        }
-        class->properties[class->propertiesCnt++] = prop;
     }
     else if (strcmp(curs->next->val, ";") == 0)
     {
@@ -436,127 +371,6 @@ void parseStatement(Class *class, Token *start, Token *end)
         class->properties[class->propertiesCnt++] = prop;
     }
 }
-
-// void parseFunctionBodyStatement(Class *class, Function *function, Token *start, Token *end)
-// {
-//     char datatype[1000];
-//     memset(datatype, 0, sizeof(datatype));
-//     char name[1000];
-//     memset(name, 0, sizeof(name));
-//     char value[1000];
-//     memset(value, 0, sizeof(value));
-
-//     Token *curs = start;
-//     while (isspace(curs->val[0]) != 0 && curs != end)
-//     {
-//         curs = curs->next;
-//     }
-//     if (strcmp(curs->next->val, "=") == 0)
-//     {
-//         return;
-//     }
-//     while (strcmp(curs->next->next->val, "=") != 0 && strcmp(curs->next->next->val, ";") != 0)
-//     {
-//         curs = curs->next;
-//     }
-//     curs = curs->next;
-//     while (start != curs)
-//     {
-//         strcat(datatype, start->val);
-//         start = start->next;
-//     }
-//     if (strcmp(curs->next->val, "=") == 0 && curs->next != end)
-//     {
-//         curs = curs->next->next;
-
-//         int catch = 0;
-//         while ((strcmp(curs->val, ";") != 0 && catch == 0) || catch == 1 || catch == 2)
-//         {
-//             if (strcmp(curs->val, "'") == 0 && (catch == 0 || catch == 2))
-//             {
-//                 catch = (catch == 2) ? 0 : 2;
-//             }
-//             else if (strcmp(curs->val, "\"") == 0 && (catch == 0 || catch == 1))
-//             {
-//                 catch = (catch == 1) ? 0 : 1;
-//             }
-//             memset(name, 0, sizeof(name));
-//             memset(value, 0, sizeof(value));
-//             if ((strcmp(curs->next->val, ",") != 0 || strcmp(curs->next->val, ";") != 0) && catch == 0)
-//             {
-//                 strcat(name, start->val);
-//                 start = start->next->next;
-//                 while (start != end->next)
-//                 {
-//                     strcat(value, start->val);
-//                     Property *prop = createProperty();
-//                     strcpy(prop->datatype, datatype);
-//                     strcpy(prop->name, name);
-//                     strcpy(prop->value, value);
-//                     update_hm(function->hmap, prop->name, (void *)prop->datatype);
-//                     function->properties[function->propertiesCnt++] = prop;
-//                     start = start->next;
-//                 }
-//             }
-//             curs = curs->next;
-//         }
-//     }
-//     else
-//     {
-//         Property *prop = createProperty();
-//         strcpy(prop->datatype, datatype);
-//         strcpy(prop->name, name);
-//         strcpy(prop->value, "");
-//         update_hm(function->hmap, prop->name, (void *)prop->datatype);
-//         function->properties[function->propertiesCnt++] = prop;
-//     }
-// }
-
-// void parseFunctionBody(Class *class, Function *function, Token *start, Token *end)
-// {
-//     function->bodyStart = start;
-//     function->bodyEnd = end;
-//     int catch = 0;
-//     Token *curs = start;
-//     while (curs != end)
-//     {
-//         if (strcmp(curs->val, "'") == 0 && (catch == 0 || catch == 2))
-//         {
-//             catch = (catch == 2) ? 0 : 2;
-//         }
-//         else if (strcmp(curs->val, "\"") == 0 && (catch == 0 || catch == 1))
-//         {
-//             catch = (catch == 1) ? 0 : 1;
-//         }
-//         if (strcmp(curs->val, ";") == 0 && catch == 0)
-//         {
-//             parseFunctionBodyStatement(class, function, start, curs);
-//             curs = start = curs->next;
-//         }
-//         else if ((strcmp(curs->val, "for") == 0 || strcmp(curs->val, "while") == 0 || strcmp(curs->val, "if") == 0) && catch)
-//         {
-//             while ((strcmp(curs->val, "{") != 0 && strcmp(curs->val, "\n") != 0) || catch == 1 || catch == 2)
-//             {
-//                 if (strcmp(curs->val, "'") == 0 && (catch == 0 || catch == 2))
-//                 {
-//                     catch = (catch == 2) ? 0 : 2;
-//                 }
-//                 else if (strcmp(curs->val, "\"") == 0 && (catch == 0 || catch == 1))
-//                 {
-//                     catch = (catch == 1) ? 0 : 1;
-//                 }
-//                 if (strcmp(curs->val, "=") == 0 && strcmp(curs->next->val, "=") != 0 && isalpha(curs->prev->val[0]) != 0 && isalpha(curs->prev->prev->val[0]) != 0)
-//                 {
-//                     parseFunctionBodyStatement(class, function, start, curs);
-//                     start = curs = curs->next;
-//                     continue;
-//                 }
-//                 curs = curs->next;
-//             }
-//         }
-//         curs = curs->next;
-//     }
-// }
 
 void parseFunction(Class *class, Token *start, Token *end)
 {
@@ -651,8 +465,6 @@ void parseFunction(Class *class, Token *start, Token *end)
     strcpy(function->overloadedName, overloadedName);
     strcpy(function->datatype, datatype);
     strcpy(function->name, name);
-    //update_hm(class->return_hmap, function->overloadedName, (void *)function->datatype);
-    //parseFunctionBody(class, function, curs->next->next, end);
     function->bodyStart = curs->next->next;
     function->bodyEnd = end;
     function->encapsulation = encapsulation;
@@ -937,26 +749,6 @@ char *preInitContent(NFile *file, Class *class, Function *function)
         }
     }
     return str;
-}
-
-char *convertToOverloaded(char *val)
-{
-    int len = strlen(val);
-    char *newVal = malloc((strlen(val) + 1) * sizeof(char));
-    memset(newVal, 0, sizeof(newVal));
-    int j = 0;
-    for (int i = 0; i < len; ++i)
-    {
-        if (isalnum(val[i]) != 0)
-        {
-            newVal[j++] = val[i];
-        }
-        else if (val[i] == '*')
-        {
-            newVal[j++] = '1';
-        }
-    }
-    return newVal;
 }
 
 char *constructClassFunctionsBody(NFile *file, Class *class, Function *function, Token *start, Token *end)

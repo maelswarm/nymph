@@ -51,9 +51,8 @@ mammal.n
 
 class Mammal {
 
-    + int population = 0; // Class Variable (+)
-    - int height = 0;     // Object Variable (-)
-    - int weight = 100;   // Object Variable (-)
+    + int population = 0;             // Class Variable (+)
+    - int height = 0, weight = 100;   // Object Variable (-)
 
     + Mammal *init(int height, int weight) {  // Class Method (+) Constructor
         this->height = height;
