@@ -16,8 +16,6 @@ This project is very much in development... It is not production ready.
 
 This project just recieved a complete overhaul.
 
-More documentation will be added this week.
-
 ## Goals
 
 ### Completed
