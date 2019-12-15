@@ -41,8 +41,17 @@ class String {
     }
 
     - int indexOf(char *text) {
-        void *p = strstr((char *)this->content, text);
+        void *p = strstr(this->content, text);
         return (int)(p - (void *)this->content);
+    }
+
+    - int lastIndexOf(char *text) {
+        char *tmp = (void *)this->content, *p = 0;
+        while((tmp = strstr(tmp, text)) != NULL) {
+            p = tmp;
+            ++tmp;
+        }
+        return (int)(p - this->content);
     }
 }
 
@@ -53,6 +62,7 @@ int main(void) {
     helloWorld->value("This is me!");
     helloWorld->println();
     printf("%i\n", helloWorld->indexOf("is"));
+    printf("%i\n", helloWorld->lastIndexOf("is"));
 
     return 0;
 }

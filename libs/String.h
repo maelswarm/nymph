@@ -12,5 +12,6 @@ struct Object_String {
 	void(*valueString)(Object_String *this, char * text);
 	void(*printlnString)(Object_String *this);
 	int(*indexOfString)(Object_String *this, char * text);
+	int(*lastIndexOfString)(Object_String *this, char * text);
 };
 void startString();
