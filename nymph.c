@@ -1164,7 +1164,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                 if (isClassInstance(file, val))
                 {
                     sprintf(str, "%s%s->%s%s(%s", str, start->val, start->next->next->next->val, val, start->val);
-                    if (isalnum(start->next->next->next->next->next->val[0]) != 0)
+                    if (isgraph(start->next->next->next->next->next->val[0]) != 0 && start->next->next->next->next->next->val[0] != '(' && start->next->next->next->next->next->val[0] != ')')
                     {
                         strcat(str, ",");
                     }

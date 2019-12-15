@@ -8,7 +8,8 @@ struct Object_String {
 	uint16_t* content;
 	int length;
 	int size;
-	void(*setContentString)(Object_String *this, char * text);
+	void(*reallocString)(Object_String *this, int size);
+	void(*valueString)(Object_String *this, char * text);
 	void(*printlnString)(Object_String *this);
 };
 void startString();

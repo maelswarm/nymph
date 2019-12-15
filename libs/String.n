@@ -10,16 +10,22 @@ class String {
     - int size = 0;
 
     + String *init(char *text) {
-        this->length = strlen(text);
-        this->size = this->length + 1;
         this->content = (uint16_t *)malloc(this->size * sizeof(uint16_t));
         memset(this->content, 0, sizeof(this->content));
-        this->setContent(text);
-        this->println();
+        this->value(text);
         return this;
     }
 
-    - void setContent(char *text) {
+    - void realloc(int size) {
+        this->content = realloc(this->content, size);
+        this->size = size;
+    }
+
+    - void value(char *text) {
+        this->length = strlen(text);
+        if(strlen(text) >= this->size) {
+            this->realloc(this->length + 1);
+        }
         int len = this->length;
         for(int i=0; i<len; ++i) {
             this->content[i] = text[i];
@@ -29,7 +35,7 @@ class String {
     - void println() {
         int len = this->length;
         for(int i=0; i<len; ++i) {
-            printf("%d", this->content[i]);
+            printf("%c", (char)this->content[i]);
         }
         printf("\n");
     }
@@ -38,6 +44,9 @@ class String {
 int main(void) {
 
     String *helloWorld = String->init("Hello World"); // Class Method Constructor Call
+    helloWorld->println();
+    helloWorld->value("This is me!");
+    helloWorld->println();
 
     return 0;
 }
