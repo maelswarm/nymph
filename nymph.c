@@ -1156,7 +1156,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
             }
             continue;
         }
-        else if (isalnum(start->val[0]) != 0 && strcmp(start->next->val, "-") == 0 && strcmp(start->next->next->val, ">") == 0)
+        else if (isalnum(start->val[0]) != 0 && strcmp(start->next->val, "-") == 0 && strcmp(start->next->next->val, ">") == 0 && strcmp(start->next->next->next->next->val, "(") == 0)
         {
             char *val = fetch_hm(hmap, start->val);
             if (val != NULL)
@@ -1170,6 +1170,20 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                     }
                     fwrite(str, 1, strlen(str), file->fileC);
                     start = start->next->next->next->next->next;
+                    continue;
+                }
+            }
+        }
+        else if (isalnum(start->val[0]) != 0 && strcmp(start->next->val, "-") == 0 && strcmp(start->next->next->val, ">") == 0 && strcmp(start->next->next->next->next->val, "(") != 0)
+        {
+            char *val = fetch_hm(hmap, start->val);
+            if (val != NULL)
+            {
+                if (isClassInstance(file, val))
+                {
+                    sprintf(str, "%s%s->%s", str, start->val, start->next->next->next->val);
+                    fwrite(str, 1, strlen(str), file->fileC);
+                    start = start->next->next->next->next;
                     continue;
                 }
             }

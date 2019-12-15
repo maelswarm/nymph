@@ -5,53 +5,54 @@
 
 class String {
 
-    - char *content = NULL;
+    - char *value = NULL;
     - int length = 0;
     - int size = 0;
 
     + String *init(char *text) {
-        this->content = (char *)malloc(this->size * sizeof(char));
-        memset(this->content, 0, sizeof(this->content));
+        this->value = (char *)malloc(this->size * sizeof(char));
+        memset(this->value, 0, sizeof(this->value));
         this->value(text);
         return this;
     }
 
     - void realloc(int size) {
-        this->content = realloc(this->content, size);
+        this->value = realloc(this->value, size);
         this->size = size;
+        this->length = size - 1;
     }
 
     - void value(char *text) {
-        this->length = strlen(text);
         if(strlen(text) >= this->size) {
-            this->realloc(this->length + 1);
+            this->realloc(strlen(text) + 1);
         }
         int len = this->length;
         for(int i=0; i<len; ++i) {
-            this->content[i] = text[i];
+            this->value[i] = text[i];
         }
+        this->value[len] = 0;
     }
 
     - void println() {
         int len = this->length;
         for(int i=0; i<len; ++i) {
-            printf("%c", this->content[i]);
+            printf("%c", this->value[i]);
         }
         printf("\n");
     }
 
     - int indexOf(char *text) {
-        void *p = strstr(this->content, text);
-        return (int)(p - (void *)this->content);
+        char *p = strstr(this->value, text);
+        return p < 0 ? -1 : (int)(p - this->value);
     }
 
     - int lastIndexOf(char *text) {
-        char *tmp = (void *)this->content, *p = 0;
+        char *tmp = (void *)this->value, *p = 0;
         while((tmp = strstr(tmp, text)) != NULL) {
             p = tmp;
             ++tmp;
         }
-        return (int)(p - this->content);
+        return p < 0 ? -1 : (int)(p - this->value);
     }
 
     - char *slice(int start, int end) {
@@ -59,9 +60,24 @@ class String {
         char *r = (char *)malloc((len + 1) * sizeof(char));
         memset(r, 0, sizeof(r));
         for(int i = 0; i < len; ++i) {
-            r[i] = this->content[start + i];
+            r[i] = this->value[start + i];
         }
         return r;
+    }
+
+    - void replace(char *target, char *text) {
+        int p = this->indexOf(target);
+        if(p < 0) {
+            return;
+        }
+        if(strlen(target) < strlen(text)) {
+            this->realloc(strlen(text) - strlen(target) + this->size);
+        }
+        int len = strlen(text);
+        for(int i=0; i<len; ++i) {
+            this->value[p + i] = text[i];
+        }
+        this->value[this->size - 1] = 0;
     }
 }
 
@@ -74,6 +90,8 @@ int main(void) {
     printf("%i\n", helloWorld->indexOf("is"));
     printf("%i\n", helloWorld->lastIndexOf("is"));
     printf("%s\n", helloWorld->slice(2, 6));
+    helloWorld->replace("me", "bladerunner");
+    helloWorld->println();
 
     return 0;
 }

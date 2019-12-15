@@ -5,7 +5,7 @@ struct Class_String {
 	Object_String*(*initString)(char * text);
 };
 struct Object_String {
-	char* content;
+	char* value;
 	int length;
 	int size;
 	void(*reallocString)(Object_String *this, int size);
@@ -14,5 +14,6 @@ struct Object_String {
 	int(*indexOfString)(Object_String *this, char * text);
 	int(*lastIndexOfString)(Object_String *this, char * text);
 	char*(*sliceString)(Object_String *this, int start, int end);
+	void(*replaceString)(Object_String *this, char * target, char * text);
 };
 void startString();
