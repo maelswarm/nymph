@@ -7,23 +7,22 @@ class String {
 
     - char *value = NULL;
     - int length = 0;
-    - int size = 0;
 
     + String *init(char *text) {
-        this->value = (char *)malloc(this->size * sizeof(char));
+        this->value = (char *)malloc((sizeof(text) + 1) * sizeof(char));
         memset(this->value, 0, sizeof(this->value));
+        this->length = sizeof(text);
         this->value(text);
         return this;
     }
 
     - void realloc(int size) {
         this->value = realloc(this->value, size);
-        this->size = size;
-        this->length = size - 1;
+        this->length = size;
     }
 
     - void value(char *text) {
-        if(strlen(text) >= this->size) {
+        if(strlen(text) >= this->length - 1) {
             this->realloc(strlen(text) + 1);
         }
         int len = this->length;
@@ -71,14 +70,33 @@ class String {
             return;
         }
         if(strlen(target) < strlen(text)) {
-            this->realloc(strlen(text) - strlen(target) + this->size);
+            this->realloc(strlen(text) - strlen(target) + this->length);
         }
         int len = strlen(text);
         for(int i=0; i<len; ++i) {
             this->value[p + i] = text[i];
         }
-        this->value[this->size - 1] = 0;
+        this->value[this->length - 1] = 0;
     }
+
+    - void toLowerCase() {
+        for(int i=0; i<this->length; ++i) {
+            int val = this->value[i];
+            if(val > 64 && val < 91) {
+                this->value[i] = val + 32;
+            }
+        }
+    }
+
+    - void toUpperCase() {
+        for(int i=0; i<this->length; ++i) {
+            int val = this->value[i];
+            if(val > 96 && val < 123) {
+                this->value[i] = val - 32;
+            }
+        }
+    }
+
 }
 
 int main(void) {
@@ -91,6 +109,10 @@ int main(void) {
     printf("%i\n", helloWorld->lastIndexOf("is"));
     printf("%s\n", helloWorld->slice(2, 6));
     helloWorld->replace("me", "bladerunner");
+    helloWorld->println();
+    helloWorld->toUpperCase();
+    helloWorld->println();
+    helloWorld->toLowerCase();
     helloWorld->println();
 
     return 0;

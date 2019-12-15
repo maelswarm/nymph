@@ -13,6 +13,8 @@ int indexOfString( Object_String *this, char *  text);
 int lastIndexOfString( Object_String *this, char *  text);
 char* sliceString( Object_String *this, int  start, int  end);
 void replaceString( Object_String *this, char *  target, char *  text);
+void toLowerCaseString( Object_String *this);
+void toUpperCaseString( Object_String *this);
 Object_String* initString( char *  text) {
 	Object_String *this = malloc(sizeof(Object_String));
 	this->reallocString = &reallocString;
@@ -22,24 +24,25 @@ Object_String* initString( char *  text) {
 	this->lastIndexOfString = &lastIndexOfString;
 	this->sliceString = &sliceString;
 	this->replaceString = &replaceString;
+	this->toLowerCaseString = &toLowerCaseString;
+	this->toUpperCaseString = &toUpperCaseString;
 	this->value = NULL;
 	this->length = 0;
-	this->size = 0;
 
-this->value=(char*)malloc(this->size*sizeof(char));
+this->value=(char*)malloc((sizeof(text)+1)*sizeof(char));
 memset(this->value,0,sizeof(this->value));
+this->length=sizeof(text);
 this->valueString(this,text);
 return this;
 }
 void reallocString( Object_String *this, int  size) {
 
 this->value=realloc(this->value,size);
-this->size=size;
-this->length=size-1;
+this->length=size;
 }
 void valueString( Object_String *this, char *  text) {
 
-if(strlen(text)>=this->size){
+if(strlen(text)>=this->length-1){
 this->reallocString(this,strlen(text)+1);
 }
 int len=this->length;
@@ -87,13 +90,31 @@ if(p<0){
 return;
 }
 if(strlen(target)<strlen(text)){
-this->reallocString(this,strlen(text)-strlen(target)+this->size);
+this->reallocString(this,strlen(text)-strlen(target)+this->length);
 }
 int len=strlen(text);
 for(int i=0;i<len;++i){
 this->value[p+i]=text[i];
 }
-this->value[this->size-1]=0;
+this->value[this->length-1]=0;
+}
+void toLowerCaseString( Object_String *this) {
+
+for(int i=0;i<this->length;++i){
+int val=this->value[i];
+if(val>64&&val<91){
+this->value[i]=val+32;
+}
+}
+}
+void toUpperCaseString( Object_String *this) {
+
+for(int i=0;i<this->length;++i){
+int val=this->value[i];
+if(val>96&&val<123){
+this->value[i]=val-32;
+}
+}
 }
 void startString() {
 	if(Class_String_Instance == NULL) {
@@ -120,6 +141,10 @@ printf ("%i\n",helloWorld->indexOfString(helloWorld,"is"));
 printf ("%i\n",helloWorld->lastIndexOfString(helloWorld,"is"));
 printf ("%s\n",helloWorld->sliceString(helloWorld,2 ,6 ));
 helloWorld->replaceString(helloWorld,"me","bladerunner");
+helloWorld->printlnString(helloWorld);
+helloWorld->toUpperCaseString(helloWorld);
+helloWorld->printlnString(helloWorld);
+helloWorld->toLowerCaseString(helloWorld);
 helloWorld->printlnString(helloWorld);
 
 return 0 ;
