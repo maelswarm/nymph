@@ -5,12 +5,12 @@
 
 class String {
 
-    - uint16_t *content = NULL;
+    - char *content = NULL;
     - int length = 0;
     - int size = 0;
 
     + String *init(char *text) {
-        this->content = (uint16_t *)malloc(this->size * sizeof(uint16_t));
+        this->content = (char *)malloc(this->size * sizeof(char));
         memset(this->content, 0, sizeof(this->content));
         this->value(text);
         return this;
@@ -35,9 +35,14 @@ class String {
     - void println() {
         int len = this->length;
         for(int i=0; i<len; ++i) {
-            printf("%c", (char)this->content[i]);
+            printf("%c", this->content[i]);
         }
         printf("\n");
+    }
+
+    - int indexOf(char *text) {
+        void *p = strstr((char *)this->content, text);
+        return (int)(p - (void *)this->content);
     }
 }
 
@@ -47,6 +52,7 @@ int main(void) {
     helloWorld->println();
     helloWorld->value("This is me!");
     helloWorld->println();
+    printf("%i\n", helloWorld->indexOf("is"));
 
     return 0;
 }
