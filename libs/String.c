@@ -11,6 +11,7 @@ void valueString( Object_String *this, char *  text);
 void printlnString( Object_String *this);
 int indexOfString( Object_String *this, char *  text);
 int lastIndexOfString( Object_String *this, char *  text);
+char* sliceString( Object_String *this, int  start, int  end);
 Object_String* initString( char *  text) {
 	Object_String *this = malloc(sizeof(Object_String));
 	this->reallocString = &reallocString;
@@ -18,6 +19,7 @@ Object_String* initString( char *  text) {
 	this->printlnString = &printlnString;
 	this->indexOfString = &indexOfString;
 	this->lastIndexOfString = &lastIndexOfString;
+	this->sliceString = &sliceString;
 	this->content = NULL;
 	this->length = 0;
 	this->size = 0;
@@ -65,6 +67,16 @@ p=tmp;
 }
 return(int)(p-this->content);
 }
+char* sliceString( Object_String *this, int  start, int  end) {
+
+int len=end-start;
+char*r=(char*)malloc((len+1)*sizeof(char));
+memset(r,0,sizeof(r));
+for(int i=0;i<len;++i){
+r[i]=this->content[start+i];
+}
+return r;
+}
 void startString() {
 	if(Class_String_Instance == NULL) {
 		Class_String_Instance = malloc(sizeof(Class_String_Instance));
@@ -88,6 +100,7 @@ helloWorld->valueString(helloWorld,"Thisisme!");
 helloWorld->printlnString(helloWorld);
 printf ("%i\n",helloWorld->indexOfString(helloWorld,"is"));
 printf ("%i\n",helloWorld->lastIndexOfString(helloWorld,"is"));
+printf ("%s\n",helloWorld->sliceString(helloWorld,2 ,6 ));
 
 return 0 ;
 }

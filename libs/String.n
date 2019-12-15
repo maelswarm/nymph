@@ -53,6 +53,16 @@ class String {
         }
         return (int)(p - this->content);
     }
+
+    - char *slice(int start, int end) {
+        int len = end - start;
+        char *r = (char *)malloc((len + 1) * sizeof(char));
+        memset(r, 0, sizeof(r));
+        for(int i = 0; i < len; ++i) {
+            r[i] = this->content[start + i];
+        }
+        return r;
+    }
 }
 
 int main(void) {
@@ -63,6 +73,7 @@ int main(void) {
     helloWorld->println();
     printf("%i\n", helloWorld->indexOf("is"));
     printf("%i\n", helloWorld->lastIndexOf("is"));
+    printf("%s\n", helloWorld->slice(2, 6));
 
     return 0;
 }
