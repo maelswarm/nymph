@@ -18,5 +18,6 @@ struct Object_String {
 	void(*toUpperCaseString)(Object_String *this);
 	char*(*appendString)(Object_String *this, char * text);
 	char*(*prependString)(Object_String *this, char * text);
+	void(*trimString)(Object_String *this);
 };
 void startString();

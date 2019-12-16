@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 
 class String {
 
@@ -108,6 +109,7 @@ class String {
     }
 
     - char *prepend(char *text) {
+        printf("%s\n", text);
         int len = strlen(text);
         char *new = (char *)malloc(len + this->length);
         memset(new, 0, sizeof(new));
@@ -115,8 +117,23 @@ class String {
             new[i] = text[i];
         }
         for(int i = 0; i<strlen(this->value); ++i) {
-            new[i + len - 1] = this->value[i];
+            new[i + len] = this->value[i];
         }
+        free(this->value);
+        this->value = new;
+    }
+
+    - void trim() {
+        char *tmp1 = this->value;
+        while(isalnum(*tmp1) == 0 && *tmp1 != 0) {
+            ++tmp1;
+        }
+        char *tmp2 = tmp1;
+        while(isspace(*tmp2) == 0 && *tmp2 != 0) {
+            ++tmp2;
+        }
+        char *new = (char *)malloc(tmp2 - tmp1 + 1);
+        strncpy(new, tmp1, (int)(tmp2 - tmp1));
         free(this->value);
         this->value = new;
     }
@@ -138,9 +155,9 @@ int main(void) {
     helloWorld->println();
     helloWorld->toLowerCase();
     helloWorld->println();
-    helloWorld->append("blahblahblah");
+    helloWorld->append("blahblahblah    b");
     helloWorld->println();
-    helloWorld->prepend("blahblahblah");
+    helloWorld->prepend("b    blahblahblah");
     helloWorld->println();
 
     return 0;

@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<stdint.h>
 #include<string.h>
+#include<ctype.h>
 
 #include "String.h"
 
@@ -17,6 +18,7 @@ void toLowerCaseString( Object_String *this);
 void toUpperCaseString( Object_String *this);
 char* appendString( Object_String *this, char *  text);
 char* prependString( Object_String *this, char *  text);
+void trimString( Object_String *this);
 Object_String* initString( char *  text) {
 	Object_String *this = malloc(sizeof(Object_String));
 	this->reallocString = &reallocString;
@@ -30,6 +32,7 @@ Object_String* initString( char *  text) {
 	this->toUpperCaseString = &toUpperCaseString;
 	this->appendString = &appendString;
 	this->prependString = &prependString;
+	this->trimString = &trimString;
 	this->value = NULL;
 	this->length = 0;
 
@@ -132,6 +135,7 @@ this->value[start+i]=text[i];
 }
 char* prependString( Object_String *this, char *  text) {
 
+printf("%s\n",text);
 int len=strlen(text);
 char*new=(char*)malloc(len+this->length);
 memset(new,0,sizeof(new));
@@ -139,8 +143,23 @@ for(int i=0;i<len;++i){
 new[i]=text[i];
 }
 for(int i=0;i<strlen(this->value);++i){
-new[i+len-1]=this->value[i];
+new[i+len]=this->value[i];
 }
+free(this->value);
+this->value=new;
+}
+void trimString( Object_String *this) {
+
+char*tmp1=this->value;
+while(isalnum(*tmp1)==0&&*tmp1!=0){
+++tmp1;
+}
+char*tmp2=tmp1;
+while(isspace(*tmp2)==0&&*tmp2!=0){
+++tmp2;
+}
+char*new=(char*)malloc(tmp2-tmp1+1);
+strncpy(new,tmp1,(int)(tmp2-tmp1));
 free(this->value);
 this->value=new;
 }
@@ -157,13 +176,14 @@ void startString() {
 
 
 
+
 int main (void ){
 	startString();
 
 
-Object_String*helloWorld =Class_String_Instance->initString("HelloWorld");
+Object_String*helloWorld =Class_String_Instance->initString("Hello World");
 helloWorld->printlnString(helloWorld);
-helloWorld->valueString(helloWorld,"Thisisme!");
+helloWorld->valueString(helloWorld,"This is me!");
 helloWorld->printlnString(helloWorld);
 printf ("%i\n",helloWorld->indexOfString(helloWorld,"is"));
 printf ("%i\n",helloWorld->lastIndexOfString(helloWorld,"is"));
@@ -174,9 +194,9 @@ helloWorld->toUpperCaseString(helloWorld);
 helloWorld->printlnString(helloWorld);
 helloWorld->toLowerCaseString(helloWorld);
 helloWorld->printlnString(helloWorld);
-helloWorld->appendString(helloWorld,"blahblahblah");
+helloWorld->appendString(helloWorld,"blahblahblah    b");
 helloWorld->printlnString(helloWorld);
-helloWorld->prependString(helloWorld,"blahblahblah");
+helloWorld->prependString(helloWorld,"b    blahblahblah");
 helloWorld->printlnString(helloWorld);
 
 return 0 ;

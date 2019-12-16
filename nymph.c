@@ -1059,6 +1059,9 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
         memset(str, 0, sizeof(str));
         if (curs == NULL)
         {
+            // if(strcmp(start->val, "return") == 0) {
+
+            // }
             if (strcmp(start->val, "#") == 0 && strcmp(start->next->val, "include") == 0)
             {
                 while (start != NULL && strcmp(start->val, "\n") != 0)
@@ -1227,6 +1230,10 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
             {
                 inString = start->val[0];
             }
+            else if (inString != 0 && (start->val[0] != '"' && start->val[0] != '\''))
+            {
+                printf("UPSERT %s\n", start->val);
+            }
             else if ((inString == '"' && start->val[0] == '"') || (inString == '\'' && start->val[0] == '\''))
             {
                 inString = 0;
@@ -1339,8 +1346,9 @@ void tokenize(char *filename, NFile *currFile)
             {
                 tmp[tmpI++] = buff[i];
             }
-            else if (isspace(buff[i]) == 0 || buff[i] == '\n')
+            else if ((isspace(buff[i]) == 0 || buff[i] == '\n') && buff[i] != '"')
             {
+                printf("%s b\n", tmp);
                 if (tmpI != 0)
                 {
                     appendToken(file, tmp, 'N');
@@ -1348,12 +1356,52 @@ void tokenize(char *filename, NFile *currFile)
                     memset(tmp, 0, sizeof(tmp));
                 }
                 tmp[tmpI++] = buff[i];
+                printf("%s b\n", tmp);
                 appendToken(file, tmp, 'N');
                 tmpI = 0;
                 memset(tmp, 0, sizeof(tmp));
             }
+            else if (buff[i] == '"')
+            {
+                printf("%sc\n", tmp);
+                if (tmpI != 0)
+                {
+                    appendToken(file, tmp, 'N');
+                    tmpI = 0;
+                    memset(tmp, 0, sizeof(tmp));
+                }
+
+                tmp[tmpI++] = buff[i++];
+                if (tmpI != 0)
+                {
+                    appendToken(file, tmp, 'N');
+                    tmpI = 0;
+                    memset(tmp, 0, sizeof(tmp));
+                }
+                while (buff[i + 1] != '"')
+                {
+                    tmp[tmpI++] = buff[i++];
+                }
+                tmp[tmpI++] = buff[i++];
+                printf("%sc\n", tmp);
+                if (tmpI != 0)
+                {
+                    appendToken(file, tmp, 'N');
+                    tmpI = 0;
+                    memset(tmp, 0, sizeof(tmp));
+                }
+                tmp[tmpI++] = buff[i];
+                printf("%sc\n", tmp);
+                if (tmpI != 0)
+                {
+                    appendToken(file, tmp, 'N');
+                    tmpI = 0;
+                    memset(tmp, 0, sizeof(tmp));
+                }
+            }
             else
             {
+                printf("%sb\n", tmp);
                 if (tmpI != 0)
                 {
                     appendToken(file, tmp, 'N');
