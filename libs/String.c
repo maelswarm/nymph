@@ -15,6 +15,8 @@ char* sliceString( Object_String *this, int  start, int  end);
 void replaceString( Object_String *this, char *  target, char *  text);
 void toLowerCaseString( Object_String *this);
 void toUpperCaseString( Object_String *this);
+char* appendString( Object_String *this, char *  text);
+char* prependString( Object_String *this, char *  text);
 Object_String* initString( char *  text) {
 	Object_String *this = malloc(sizeof(Object_String));
 	this->reallocString = &reallocString;
@@ -26,6 +28,8 @@ Object_String* initString( char *  text) {
 	this->replaceString = &replaceString;
 	this->toLowerCaseString = &toLowerCaseString;
 	this->toUpperCaseString = &toUpperCaseString;
+	this->appendString = &appendString;
+	this->prependString = &prependString;
 	this->value = NULL;
 	this->length = 0;
 
@@ -37,23 +41,25 @@ return this;
 }
 void reallocString( Object_String *this, int  size) {
 
-this->value=realloc(this->value,size);
+char*new=(char*)malloc(size);
+memset(new,0,sizeof(new));
+for(int i=0;i<this->length;++i){
+new[i]=this->value[i];
+}
 this->length=size;
+free(this->value);
+this->value=new;
 }
 void valueString( Object_String *this, char *  text) {
 
-if(strlen(text)>=this->length-1){
-this->reallocString(this,strlen(text)+1);
+if(strlen(text)>=this->length){
+this->reallocString(this,strlen(text));
 }
-int len=this->length;
-for(int i=0;i<len;++i){
-this->value[i]=text[i];
-}
-this->value[len]=0;
+strncpy(this->value,text,this->length);
 }
 void printlnString( Object_String *this) {
 
-int len=this->length;
+int len=strlen(this->value);
 for(int i=0;i<len;++i){
 printf("%c",this->value[i]);
 }
@@ -96,7 +102,6 @@ int len=strlen(text);
 for(int i=0;i<len;++i){
 this->value[p+i]=text[i];
 }
-this->value[this->length-1]=0;
 }
 void toLowerCaseString( Object_String *this) {
 
@@ -115,6 +120,29 @@ if(val>96&&val<123){
 this->value[i]=val-32;
 }
 }
+}
+char* appendString( Object_String *this, char *  text) {
+
+int start=strlen(this->value);
+int len=strlen(text);
+this->reallocString(this,len+this->length);
+for(int i=0;i<len;++i){
+this->value[start+i]=text[i];
+}
+}
+char* prependString( Object_String *this, char *  text) {
+
+int len=strlen(text);
+char*new=(char*)malloc(len+this->length);
+memset(new,0,sizeof(new));
+for(int i=0;i<len;++i){
+new[i]=text[i];
+}
+for(int i=0;i<strlen(this->value);++i){
+new[i+len-1]=this->value[i];
+}
+free(this->value);
+this->value=new;
 }
 void startString() {
 	if(Class_String_Instance == NULL) {
@@ -145,6 +173,10 @@ helloWorld->printlnString(helloWorld);
 helloWorld->toUpperCaseString(helloWorld);
 helloWorld->printlnString(helloWorld);
 helloWorld->toLowerCaseString(helloWorld);
+helloWorld->printlnString(helloWorld);
+helloWorld->appendString(helloWorld,"blahblahblah");
+helloWorld->printlnString(helloWorld);
+helloWorld->prependString(helloWorld,"blahblahblah");
 helloWorld->printlnString(helloWorld);
 
 return 0 ;

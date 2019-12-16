@@ -16,5 +16,7 @@ struct Object_String {
 	void(*replaceString)(Object_String *this, char * target, char * text);
 	void(*toLowerCaseString)(Object_String *this);
 	void(*toUpperCaseString)(Object_String *this);
+	char*(*appendString)(Object_String *this, char * text);
+	char*(*prependString)(Object_String *this, char * text);
 };
 void startString();
