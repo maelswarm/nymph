@@ -135,7 +135,6 @@ this->value[start+i]=text[i];
 }
 char* prependString( Object_String *this, char *  text) {
 
-printf("%s\n",text);
 int len=strlen(text);
 char*new=(char*)malloc(len+this->length);
 memset(new,0,sizeof(new));
@@ -151,12 +150,15 @@ this->value=new;
 void trimString( Object_String *this) {
 
 char*tmp1=this->value;
-while(isalnum(*tmp1)==0&&*tmp1!=0){
+while(isspace(tmp1[0])!=0&&tmp1[0]!=0){
 ++tmp1;
 }
-char*tmp2=tmp1;
-while(isspace(*tmp2)==0&&*tmp2!=0){
+char*tmp2=tmp1+1;
+while(isspace(tmp2[0])==0||tmp2[0]==0){
 ++tmp2;
+}
+if(tmp2-tmp1<=0){
+return;
 }
 char*new=(char*)malloc(tmp2-tmp1+1);
 strncpy(new,tmp1,(int)(tmp2-tmp1));
@@ -196,7 +198,9 @@ helloWorld->toLowerCaseString(helloWorld);
 helloWorld->printlnString(helloWorld);
 helloWorld->appendString(helloWorld,"blahblahblah    b");
 helloWorld->printlnString(helloWorld);
-helloWorld->prependString(helloWorld,"b    blahblahblah");
+helloWorld->prependString(helloWorld,"    blahblahblah ");
+helloWorld->printlnString(helloWorld);
+helloWorld->trimString(helloWorld);
 helloWorld->printlnString(helloWorld);
 
 return 0 ;

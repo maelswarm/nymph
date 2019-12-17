@@ -109,7 +109,6 @@ class String {
     }
 
     - char *prepend(char *text) {
-        printf("%s\n", text);
         int len = strlen(text);
         char *new = (char *)malloc(len + this->length);
         memset(new, 0, sizeof(new));
@@ -125,12 +124,15 @@ class String {
 
     - void trim() {
         char *tmp1 = this->value;
-        while(isalnum(*tmp1) == 0 && *tmp1 != 0) {
+        while(isspace(tmp1[0]) != 0 && tmp1[0] != 0) {
             ++tmp1;
         }
-        char *tmp2 = tmp1;
-        while(isspace(*tmp2) == 0 && *tmp2 != 0) {
+        char *tmp2 = tmp1 + 1;
+        while(isspace(tmp2[0]) == 0 || tmp2[0] == 0) {
             ++tmp2;
+        }
+        if(tmp2 - tmp1 <= 0) {
+            return;
         }
         char *new = (char *)malloc(tmp2 - tmp1 + 1);
         strncpy(new, tmp1, (int)(tmp2 - tmp1));
@@ -157,7 +159,9 @@ int main(void) {
     helloWorld->println();
     helloWorld->append("blahblahblah    b");
     helloWorld->println();
-    helloWorld->prepend("b    blahblahblah");
+    helloWorld->prepend("    blahblahblah ");
+    helloWorld->println();
+    helloWorld->trim();
     helloWorld->println();
 
     return 0;
