@@ -2,42 +2,167 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 
 class String {
 
-    - uint16_t *content = NULL;
-    - int length = 0;
+    - char *value = NULL;
     - int size = 0;
 
     + String *init(char *text) {
-        this->length = strlen(text);
-        this->size = this->length + 1;
-        this->content = (uint16_t *)malloc(this->size * sizeof(uint16_t));
-        memset(this->content, 0, sizeof(this->content));
-        this->setContent(text);
-        this->println();
+        this->value = (char *)malloc((sizeof(text) + 1) * sizeof(char));
+        memset(this->value, 0, sizeof(this->value));
+        this->size = sizeof(text);
+        this->value(text);
         return this;
     }
 
-    - void setContent(char *text) {
-        int len = this->length;
-        for(int i=0; i<len; ++i) {
-            this->content[i] = text[i];
+    - void realloc(int size) {
+        char *new = (char *)malloc(size);
+        memset(new, 0, sizeof(new));
+        for(int i = 0; i<this->size; ++i) {
+            new[i] = this->value[i];
         }
+        this->size = size;
+        free(this->value);
+        this->value = new;
+    }
+
+    - void value(char *text) {
+        if(strlen(text) >= this->size) {
+            this->realloc(strlen(text));
+        }
+        strncpy(this->value, text, this->size);
     }
 
     - void println() {
-        int len = this->length;
+        int len = strlen(this->value);
         for(int i=0; i<len; ++i) {
-            printf("%d", this->content[i]);
+            printf("%c", this->value[i]);
         }
         printf("\n");
     }
+
+    - int indexOf(char *text) {
+        char *p = strstr(this->value, text);
+        return p < 0 ? -1 : (int)(p - this->value);
+    }
+
+    - int lastIndexOf(char *text) {
+        char *tmp = (void *)this->value, *p = 0;
+        while((tmp = strstr(tmp, text)) != NULL) {
+            p = tmp;
+            ++tmp;
+        }
+        return p < 0 ? -1 : (int)(p - this->value);
+    }
+
+    - char *slice(int start, int end) {
+        int len = end - start;
+        char *r = (char *)malloc((len + 1) * sizeof(char));
+        memset(r, 0, sizeof(r));
+        for(int i = 0; i < len; ++i) {
+            r[i] = this->value[start + i];
+        }
+        return r;
+    }
+
+    - void replace(char *target, char *text) {
+        int p = this->indexOf(target);
+        if(p < 0) {
+            return;
+        }
+        if(strlen(target) < strlen(text)) {
+            this->realloc(strlen(text) - strlen(target) + this->size);
+        }
+        int len = strlen(text);
+        for(int i=0; i<len; ++i) {
+            this->value[p + i] = text[i];
+        }
+    }
+
+    - void toLowerCase() {
+        for(int i=0; i<this->size; ++i) {
+            int val = this->value[i];
+            if(val > 64 && val < 91) {
+                this->value[i] = val + 32;
+            }
+        }
+    }
+
+    - void toUpperCase() {
+        for(int i=0; i<this->size; ++i) {
+            int val = this->value[i];
+            if(val > 96 && val < 123) {
+                this->value[i] = val - 32;
+            }
+        }
+    }
+
+    - char *append(char *text) {
+        int start = strlen(this->value);
+        int len = strlen(text);
+        this->realloc(len + this->size);
+        for(int i=0; i<len; ++i) {
+            this->value[start + i] = text[i];
+        }
+    }
+
+    - char *prepend(char *text) {
+        int len = strlen(text);
+        char *new = (char *)malloc(len + this->size);
+        memset(new, 0, sizeof(new));
+        for(int i = 0; i<len; ++i) {
+            new[i] = text[i];
+        }
+        for(int i = 0; i<strlen(this->value); ++i) {
+            new[i + len] = this->value[i];
+        }
+        free(this->value);
+        this->value = new;
+    }
+
+    - void trim() {
+        char *tmp1 = this->value;
+        while(isspace(tmp1[0]) != 0 && tmp1[0] != 0) {
+            ++tmp1;
+        }
+        char *tmp2 = tmp1 + 1;
+        while(isspace(tmp2[0]) == 0 || tmp2[0] == 0) {
+            ++tmp2;
+        }
+        if(tmp2 - tmp1 <= 0) {
+            return;
+        }
+        char *new = (char *)malloc(tmp2 - tmp1 + 1);
+        strncpy(new, tmp1, (int)(tmp2 - tmp1));
+        free(this->value);
+        this->value = new;
+    }
+
 }
 
 int main(void) {
 
     String *helloWorld = String->init("Hello World"); // Class Method Constructor Call
+    helloWorld->println();
+    helloWorld->value("This is me!");
+    helloWorld->println();
+    printf("%i\n", helloWorld->indexOf("is"));
+    printf("%i\n", helloWorld->lastIndexOf("is"));
+    printf("%s\n", helloWorld->slice(2, 6));
+    helloWorld->replace("me", "bladerunner");
+    helloWorld->println();
+    helloWorld->toUpperCase();
+    helloWorld->println();
+    helloWorld->toLowerCase();
+    helloWorld->println();
+    helloWorld->append("blahblahblah    b");
+    helloWorld->println();
+    helloWorld->prepend("    blahblahblah ");
+    helloWorld->println();
+    helloWorld->trim();
+    helloWorld->println();
 
     return 0;
 }
