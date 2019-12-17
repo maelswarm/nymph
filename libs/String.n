@@ -7,12 +7,12 @@
 class String {
 
     - char *value = NULL;
-    - int length = 0;
+    - int size = 0;
 
     + String *init(char *text) {
         this->value = (char *)malloc((sizeof(text) + 1) * sizeof(char));
         memset(this->value, 0, sizeof(this->value));
-        this->length = sizeof(text);
+        this->size = sizeof(text);
         this->value(text);
         return this;
     }
@@ -20,19 +20,19 @@ class String {
     - void realloc(int size) {
         char *new = (char *)malloc(size);
         memset(new, 0, sizeof(new));
-        for(int i = 0; i<this->length; ++i) {
+        for(int i = 0; i<this->size; ++i) {
             new[i] = this->value[i];
         }
-        this->length = size;
+        this->size = size;
         free(this->value);
         this->value = new;
     }
 
     - void value(char *text) {
-        if(strlen(text) >= this->length) {
+        if(strlen(text) >= this->size) {
             this->realloc(strlen(text));
         }
-        strncpy(this->value, text, this->length);
+        strncpy(this->value, text, this->size);
     }
 
     - void println() {
@@ -73,7 +73,7 @@ class String {
             return;
         }
         if(strlen(target) < strlen(text)) {
-            this->realloc(strlen(text) - strlen(target) + this->length);
+            this->realloc(strlen(text) - strlen(target) + this->size);
         }
         int len = strlen(text);
         for(int i=0; i<len; ++i) {
@@ -82,7 +82,7 @@ class String {
     }
 
     - void toLowerCase() {
-        for(int i=0; i<this->length; ++i) {
+        for(int i=0; i<this->size; ++i) {
             int val = this->value[i];
             if(val > 64 && val < 91) {
                 this->value[i] = val + 32;
@@ -91,7 +91,7 @@ class String {
     }
 
     - void toUpperCase() {
-        for(int i=0; i<this->length; ++i) {
+        for(int i=0; i<this->size; ++i) {
             int val = this->value[i];
             if(val > 96 && val < 123) {
                 this->value[i] = val - 32;
@@ -102,7 +102,7 @@ class String {
     - char *append(char *text) {
         int start = strlen(this->value);
         int len = strlen(text);
-        this->realloc(len + this->length);
+        this->realloc(len + this->size);
         for(int i=0; i<len; ++i) {
             this->value[start + i] = text[i];
         }
@@ -110,7 +110,7 @@ class String {
 
     - char *prepend(char *text) {
         int len = strlen(text);
-        char *new = (char *)malloc(len + this->length);
+        char *new = (char *)malloc(len + this->size);
         memset(new, 0, sizeof(new));
         for(int i = 0; i<len; ++i) {
             new[i] = text[i];

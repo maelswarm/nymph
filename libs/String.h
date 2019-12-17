@@ -6,7 +6,7 @@ struct Class_String {
 };
 struct Object_String {
 	char* value;
-	int length;
+	int size;
 	void(*reallocString)(Object_String *this, int size);
 	void(*valueString)(Object_String *this, char * text);
 	void(*printlnString)(Object_String *this);

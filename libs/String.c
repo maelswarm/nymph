@@ -34,11 +34,11 @@ Object_String* initString( char *  text) {
 	this->prependString = &prependString;
 	this->trimString = &trimString;
 	this->value = NULL;
-	this->length = 0;
+	this->size = 0;
 
 this->value=(char*)malloc((sizeof(text)+1)*sizeof(char));
 memset(this->value,0,sizeof(this->value));
-this->length=sizeof(text);
+this->size=sizeof(text);
 this->valueString(this,text);
 return this;
 }
@@ -46,19 +46,19 @@ void reallocString( Object_String *this, int  size) {
 
 char*new=(char*)malloc(size);
 memset(new,0,sizeof(new));
-for(int i=0;i<this->length;++i){
+for(int i=0;i<this->size;++i){
 new[i]=this->value[i];
 }
-this->length=size;
+this->size=size;
 free(this->value);
 this->value=new;
 }
 void valueString( Object_String *this, char *  text) {
 
-if(strlen(text)>=this->length){
+if(strlen(text)>=this->size){
 this->reallocString(this,strlen(text));
 }
-strncpy(this->value,text,this->length);
+strncpy(this->value,text,this->size);
 }
 void printlnString( Object_String *this) {
 
@@ -99,7 +99,7 @@ if(p<0){
 return;
 }
 if(strlen(target)<strlen(text)){
-this->reallocString(this,strlen(text)-strlen(target)+this->length);
+this->reallocString(this,strlen(text)-strlen(target)+this->size);
 }
 int len=strlen(text);
 for(int i=0;i<len;++i){
@@ -108,7 +108,7 @@ this->value[p+i]=text[i];
 }
 void toLowerCaseString( Object_String *this) {
 
-for(int i=0;i<this->length;++i){
+for(int i=0;i<this->size;++i){
 int val=this->value[i];
 if(val>64&&val<91){
 this->value[i]=val+32;
@@ -117,7 +117,7 @@ this->value[i]=val+32;
 }
 void toUpperCaseString( Object_String *this) {
 
-for(int i=0;i<this->length;++i){
+for(int i=0;i<this->size;++i){
 int val=this->value[i];
 if(val>96&&val<123){
 this->value[i]=val-32;
@@ -128,7 +128,7 @@ char* appendString( Object_String *this, char *  text) {
 
 int start=strlen(this->value);
 int len=strlen(text);
-this->reallocString(this,len+this->length);
+this->reallocString(this,len+this->size);
 for(int i=0;i<len;++i){
 this->value[start+i]=text[i];
 }
@@ -136,7 +136,7 @@ this->value[start+i]=text[i];
 char* prependString( Object_String *this, char *  text) {
 
 int len=strlen(text);
-char*new=(char*)malloc(len+this->length);
+char*new=(char*)malloc(len+this->size);
 memset(new,0,sizeof(new));
 for(int i=0;i<len;++i){
 new[i]=text[i];
