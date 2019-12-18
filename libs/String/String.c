@@ -8,7 +8,7 @@
 
 Object_String* initString( char *  text);
 void reallocString( Object_String *this, int  size);
-void valueString( Object_String *this, char *  text);
+void setString( Object_String *this, char *  text);
 void printlnString( Object_String *this);
 int indexOfString( Object_String *this, char *  text);
 int lastIndexOfString( Object_String *this, char *  text);
@@ -22,7 +22,7 @@ void trimString( Object_String *this);
 Object_String* initString( char *  text) {
 	Object_String *this = malloc(sizeof(Object_String));
 	this->reallocString = &reallocString;
-	this->valueString = &valueString;
+	this->setString = &setString;
 	this->printlnString = &printlnString;
 	this->indexOfString = &indexOfString;
 	this->lastIndexOfString = &lastIndexOfString;
@@ -39,7 +39,7 @@ Object_String* initString( char *  text) {
 this->value=(char*)malloc((sizeof(text)+1)*sizeof(char));
 memset(this->value,0,sizeof(this->value));
 this->size=sizeof(text);
-this->valueString(this,text);
+this->setString(this,text);
 return this;
 }
 void reallocString( Object_String *this, int  size) {
@@ -53,7 +53,7 @@ this->size=size;
 free(this->value);
 this->value=new;
 }
-void valueString( Object_String *this, char *  text) {
+void setString( Object_String *this, char *  text) {
 
 if(strlen(text)>=this->size){
 this->reallocString(this,strlen(text));
@@ -185,7 +185,7 @@ int main (void ){
 
 Object_String*helloWorld =Class_String_Instance->initString("Hello World");
 helloWorld->printlnString(helloWorld);
-helloWorld->valueString(helloWorld,"This is me!");
+helloWorld->setString(helloWorld,"This is me!");
 helloWorld->printlnString(helloWorld);
 printf ("%i\n",helloWorld->indexOfString(helloWorld,"is"));
 printf ("%i\n",helloWorld->lastIndexOfString(helloWorld,"is"));

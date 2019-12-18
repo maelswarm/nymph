@@ -13,7 +13,7 @@ class String {
         this->value = (char *)malloc((sizeof(text) + 1) * sizeof(char));
         memset(this->value, 0, sizeof(this->value));
         this->size = sizeof(text);
-        this->value(text);
+        this->set(text);
         return this;
     }
 
@@ -28,7 +28,7 @@ class String {
         this->value = new;
     }
 
-    - void value(char *text) {
+    - void set(char *text) {
         if(strlen(text) >= this->size) {
             this->realloc(strlen(text));
         }
@@ -146,7 +146,7 @@ int main(void) {
 
     String *helloWorld = String->init("Hello World"); // Class Method Constructor Call
     helloWorld->println();
-    helloWorld->value("This is me!");
+    helloWorld->set("This is me!");
     helloWorld->println();
     printf("%i\n", helloWorld->indexOf("is"));
     printf("%i\n", helloWorld->lastIndexOf("is"));
