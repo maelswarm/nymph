@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <ctype.h>
+
+
+
+class JSON_Entity {
+    - void *parent;
+    - void *keys;
+    - void *values;
+    + JSON_Entity *init() {
+        this->parent = NULL;
+        this->keys = NULL;
+        this->parent = NULL;
+        return this;
+    }
+}
+
+
+class JSON {
+
+    + JSON_Entity *_create_entity(void *datatype, void *value) { // return type needs to be transformed
+        JSON_Entity *entity = JSON_Entity->init();
+        entity->parent = NULL;
+        entity->keys = NULL;
+        entity->values = value;
+        return entity;
+    }
+
+    + void parse(char *str) {
+        printf("fff");
+    }
+
+    + char **_tokenize(char *str) {
+        char buff[100000];
+        int buffI = 0;
+        memset(buff, 0, sizeof(buff));
+        char **tokens = (char **)malloc((strlen(str) + 1) * sizeof(char *));
+        for(int i=0;i<strlen(str) + 1; ++i) {
+            tokens[i] = NULL;
+        }
+        int i = 0;
+        for(int idx = 0; idx<strlen(str); ++i) {
+            if(str[idx] == ',' || str[idx] == '{' || str[idx] == '}' || str[idx] == '[' || str[idx] == ']' || str[idx] == ':') {
+                tokens[i] = (char *)malloc(strlen(buff) + 1);
+                memset(tokens[i], 0, sizeof(tokens[i]));
+                strcpy(tokens[i], buff);
+                memset(buff, 0, sizeof(buff));
+                buffI = 0;
+                ++i;
+
+                tokens[i] = malloc(2);
+                memset(tokens[i], 0, sizeof(tokens[i]));
+                tokens[i][0] = str[idx];
+                buffI = 0;
+                ++i;
+            } else {
+                buff[buffI] = str[idx];
+            }
+        }
+        if(strlen(buff) > 0) {
+            tokens[i] = (char *)malloc(strlen(buff) + 1);
+            memset(tokens[i], 0, sizeof(tokens[i]));
+            strcpy(tokens[i], buff);
+            memset(buff, 0, sizeof(buff));
+            buffI = 0;
+            ++i;
+        }
+        return tokens;
+    }
+
+}
+
+int main(void) {
+    char **tokens = JSON->_tokenize("{ aaa:[1,2,3,4], bbb: null }");
+    int i = 0;
+    while(tokens[i] != NULL) {
+        printf("%s\n", tokens[i]);
+        ++i;
+    }
+    return 0;
+}

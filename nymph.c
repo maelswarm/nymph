@@ -167,6 +167,25 @@ NFile *createNFile(char *filename)
     return newFile;
 }
 
+char *trimNonAlnum(char *str)
+{
+    char *tmp = (char *)malloc(sizeof(str));
+    memset(tmp, 0, sizeof(tmp));
+    int i = 0;
+    while (isalnum(str[i]) == 0)
+    {
+        ++i;
+    }
+    int ii = 0;
+    while (isalnum(str[i]) != 0)
+    {
+        tmp[ii] = str[i];
+        ++ii;
+        ++i;
+    }
+    return tmp;
+}
+
 Token *endScope(Token *curs)
 {
     int balance = 1;
@@ -654,11 +673,29 @@ void constructClassStruct(NFile *file, Class *class)
         {
             if (parent != NULL && strstr(class->functions[i]->name, parent->name) != NULL)
             {
-                sprintf(str, "%s\t%s(*%s%s)(Object_%s *this,", str, class->functions[i]->datatype, class->functions[i]->name, class->name, class->name);
+                printf("111 %s\n", class->functions[i]->datatype);
+                char *tmp = trimNonAlnum(class->functions[i]->datatype);
+                if (isClassInstance(file, tmp))
+                {
+                    sprintf(str, "%s\tObject_%s(*%s%s)(Object_%s *this,", str, class->functions[i]->datatype, class->functions[i]->name, class->name, class->name);
+                }
+                else
+                {
+                    sprintf(str, "%s\t%s(*%s%s)(Object_%s *this,", str, class->functions[i]->datatype, class->functions[i]->name, class->name, class->name);
+                }
             }
             else
             {
-                sprintf(str, "%s\t%s(*%s%s)(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+                printf("111 %s\n", class->functions[i]->datatype);
+                char *tmp = trimNonAlnum(class->functions[i]->datatype);
+                if (isClassInstance(file, tmp))
+                {
+                    sprintf(str, "%s\tObject_%s(*%s%s)(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+                }
+                else
+                {
+                    sprintf(str, "%s\t%s(*%s%s)(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+                }
             }
             for (int j = 0; j < class->functions[i]->paramsCnt; ++j)
             {
@@ -702,7 +739,16 @@ void constructClassStruct(NFile *file, Class *class)
     {
         if (class->functions[i]->encapsulation == PUBLIC_OBJECT_FUNC && strcmp(class->functions[i]->name, "main") != 0)
         {
-            sprintf(str, "%s\t%s(*%s%s)(Object_%s *this", str, class->functions[i]->datatype, class->functions[i]->name, class->name, class->name);
+            printf("111 %s\n", class->functions[i]->datatype);
+            char *tmp = trimNonAlnum(class->functions[i]->datatype);
+            if (isClassInstance(file, tmp))
+            {
+                sprintf(str, "%s\tObject_%s(*%s%s)(Object_%s *this", str, class->functions[i]->datatype, class->functions[i]->name, class->name, class->name);
+            }
+            else
+            {
+                sprintf(str, "%s\t%s(*%s%s)(Object_%s *this", str, class->functions[i]->datatype, class->functions[i]->name, class->name, class->name);
+            }
             for (int j = 0; j < class->functions[i]->paramsCnt; ++j)
             {
                 if (class->functions[i]->params[j]->datatype != NULL)
@@ -780,19 +826,6 @@ char *constructClassFunctionsBody(NFile *file, Class *class, Function *function,
                 start = start->next->next->next->next->next;
                 continue;
             }
-            else if (strcmp(start->val, "this") != 0)
-            {
-                val = fetch_hm(function->hmap, start->val);
-                if (val != NULL)
-                {
-                    if (isClassInstance(file, val))
-                    {
-                        sprintf(str, "%s%s->%s%s", str, start->val, start->next->next->next->val, val);
-                        start = start->next->next->next->next;
-                        continue;
-                    }
-                }
-            }
             else if (strcmp(start->val, "this") == 0)
             {
                 if (strcmp(start->next->next->next->next->val, "(") == 0)
@@ -811,6 +844,19 @@ char *constructClassFunctionsBody(NFile *file, Class *class, Function *function,
                     }
                     start = start->next->next->next->next->next;
                     continue;
+                }
+            }
+            else if (strcmp(start->val, "this") != 0 && strcmp(start->next->next->next->next->val, "(") == 0)
+            {
+                val = fetch_hm(function->hmap, start->val);
+                if (val != NULL)
+                {
+                    if (isClassInstance(file, val))
+                    {
+                        sprintf(str, "%s%s->%s%s", str, start->val, start->next->next->next->val, val);
+                        start = start->next->next->next->next;
+                        continue;
+                    }
                 }
             }
         }
@@ -854,7 +900,18 @@ void constructClassFunctions(NFile *file, Class *class)
                 parentInit = 1;
             }
         }
-        sprintf(str, "%s%s %s%s(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+
+        printf("111 %s\n", class->functions[i]->datatype);
+        char *tmp = trimNonAlnum(class->functions[i]->datatype);
+        if (isClassInstance(file, tmp))
+        {
+            sprintf(str, "%sObject_%s %s%s(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+        }
+        else
+        {
+            sprintf(str, "%s%s %s%s(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+        }
+
         if (((class->functions[i]->encapsulation == PUBLIC_OBJECT_FUNC) && strcmp(class->functions[i]->name, "main") != 0) || parentInit)
         {
             sprintf(str, "%s Object_%s *this", str, class->name);
@@ -930,7 +987,17 @@ void constructClassFunctionProtos(NFile *file, Class *class)
             }
         }
 
-        sprintf(str, "%s%s %s%s(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+        printf("111 %s\n", class->functions[i]->datatype);
+        char *tmp = trimNonAlnum(class->functions[i]->datatype);
+        if (isClassInstance(file, tmp))
+        {
+            sprintf(str, "%sObject_%s %s%s(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+        }
+        else
+        {
+            sprintf(str, "%s%s %s%s(", str, class->functions[i]->datatype, class->functions[i]->name, class->name);
+        }
+
         if ((class->functions[i]->encapsulation == PUBLIC_OBJECT_FUNC && strcmp(class->functions[i]->name, "main") != 0) || parentInit)
         {
             sprintf(str, "%s Object_%s *this", str, class->name);
@@ -979,6 +1046,7 @@ void constructInitFunction(NFile *file)
         Class *class = file->classes[i];
         memset(hStr, 0, sizeof(hStr));
         sprintf(hStr, "%svoid start%s();\n", hStr, class->name);
+        printf("%s\n", class->name);
         fwrite(hStr, 1, strlen(hStr), file->fileH);
 
         sprintf(str, "%svoid start%s() {\n", str, class->name);
@@ -1044,6 +1112,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
     memset(str, 0, sizeof(str));
     Token *eof = eend;
     Token *start = sstart;
+    Token *last = start;
     Token *curs = NULL;
     HMap **hmap = create_hm();
     int inString = 0;
@@ -1066,6 +1135,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
             {
                 while (start != NULL && strcmp(start->val, "\n") != 0)
                 {
+                    last = start;
                     start = start->next;
                 }
                 continue;
@@ -1073,10 +1143,11 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
             if (strcmp(start->val, "class") == 0)
             {
                 start = endScope(start);
+                last = start;
                 start = start->next;
                 continue;
             }
-            if (strcmp(start->val, "-") == 0)
+            if (strcmp(start->val, "-") == 0 && strcmp(start->next->val, "-") != 0 && strcmp(last->val, "-") != 0)
             {
                 int catch = 0;
                 curs = start;
@@ -1096,10 +1167,11 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                 {
                     curs = endScope(curs);
                 }
+                last = start;
                 start = start->next;
                 continue;
             }
-            if (strcmp(start->val, "+") == 0)
+            if (strcmp(start->val, "+") == 0 && strcmp(start->next->val, "+") != 0 && strcmp(last->val, "+") != 0)
             {
                 int catch = 0;
                 Token *tmpStart;
@@ -1139,6 +1211,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                 {
                     curs = endScope(curs);
                 }
+                last = start;
                 start = start->next;
                 continue;
             }
@@ -1149,12 +1222,14 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
             {
                 sprintf(str, "%sClass_%s_Instance->%s%s", str, start->val, start->next->next->next->val, start->val);
                 fwrite(str, 1, strlen(str), file->fileC);
+                last = start;
                 start = start->next->next->next->next;
             }
             else
             {
                 sprintf(str, "%sClass_%s_Instance", str, start->val);
                 fwrite(str, 1, strlen(str), file->fileC);
+                last = start;
                 start = start->next;
             }
             continue;
@@ -1172,6 +1247,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                         strcat(str, ",");
                     }
                     fwrite(str, 1, strlen(str), file->fileC);
+                    last = start;
                     start = start->next->next->next->next->next;
                     continue;
                 }
@@ -1186,6 +1262,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                 {
                     sprintf(str, "%s%s->%s", str, start->val, start->next->next->next->val);
                     fwrite(str, 1, strlen(str), file->fileC);
+                    last = start;
                     start = start->next->next->next->next;
                     continue;
                 }
@@ -1201,6 +1278,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
             update_hm(hmap, tmp->val, start->val);
             sprintf(str, "%sObject_%s", str, start->val);
             fwrite(str, 1, strlen(str), file->fileC);
+            last = start;
             start = start->next;
             continue;
         }
@@ -1221,6 +1299,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                 sprintf(str, "%s\tstart%s();\n", str, file->classes[i]->name);
             }
             fwrite(str, 1, strlen(str), file->fileC);
+            last = start;
             start = start->next;
             continue;
         }
@@ -1240,6 +1319,7 @@ void constructEverythingElse(NFile *file, Token *sstart, Token *eend)
                 fwrite(" ", 1, 1, file->fileC);
             }
         }
+        last = start;
         start = start->next;
     }
 }
