@@ -153,9 +153,9 @@ char*tmp1=this->value;
 while(isspace(tmp1[0])!=0&&tmp1[0]!=0){
 ++tmp1;
 }
-char*tmp2=tmp1+1;
-while(isspace(tmp2[0])==0||tmp2[0]==0){
-++tmp2;
+char*tmp2=&tmp1[strlen(tmp1)-1];
+while(isspace(tmp2[0])!=0&&tmp2>=this->value){
+--tmp2;
 }
 if(tmp2-tmp1<=0){
 return;

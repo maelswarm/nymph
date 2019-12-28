@@ -673,7 +673,6 @@ void constructClassStruct(NFile *file, Class *class)
         {
             if (parent != NULL && strstr(class->functions[i]->name, parent->name) != NULL)
             {
-                printf("111 %s\n", class->functions[i]->datatype);
                 char *tmp = trimNonAlnum(class->functions[i]->datatype);
                 if (isClassInstance(file, tmp))
                 {
@@ -686,7 +685,6 @@ void constructClassStruct(NFile *file, Class *class)
             }
             else
             {
-                printf("111 %s\n", class->functions[i]->datatype);
                 char *tmp = trimNonAlnum(class->functions[i]->datatype);
                 if (isClassInstance(file, tmp))
                 {
@@ -739,7 +737,6 @@ void constructClassStruct(NFile *file, Class *class)
     {
         if (class->functions[i]->encapsulation == PUBLIC_OBJECT_FUNC && strcmp(class->functions[i]->name, "main") != 0)
         {
-            printf("111 %s\n", class->functions[i]->datatype);
             char *tmp = trimNonAlnum(class->functions[i]->datatype);
             if (isClassInstance(file, tmp))
             {
@@ -900,8 +897,6 @@ void constructClassFunctions(NFile *file, Class *class)
                 parentInit = 1;
             }
         }
-
-        printf("111 %s\n", class->functions[i]->datatype);
         char *tmp = trimNonAlnum(class->functions[i]->datatype);
         if (isClassInstance(file, tmp))
         {
@@ -986,8 +981,6 @@ void constructClassFunctionProtos(NFile *file, Class *class)
                 parentInit = 1;
             }
         }
-
-        printf("111 %s\n", class->functions[i]->datatype);
         char *tmp = trimNonAlnum(class->functions[i]->datatype);
         if (isClassInstance(file, tmp))
         {
@@ -1046,7 +1039,6 @@ void constructInitFunction(NFile *file)
         Class *class = file->classes[i];
         memset(hStr, 0, sizeof(hStr));
         sprintf(hStr, "%svoid start%s();\n", hStr, class->name);
-        printf("%s\n", class->name);
         fwrite(hStr, 1, strlen(hStr), file->fileH);
 
         sprintf(str, "%svoid start%s() {\n", str, class->name);
