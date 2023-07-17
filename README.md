@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/maelswarm/nymph/assets/6314185/cd63b3c0-bf17-4a4a-8f2c-26f69c56a3b1" width="auto" height="200" /></p>
+<p align="center"><img src="https://github.com/maelswarm/nymph/assets/6314185/f0f5d03f-0e69-42f5-a070-d33e1e13cab7" width="auto" height="200" /></p>
 
 <h1 align=center>Nymph</h1>
 
