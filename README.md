@@ -14,7 +14,7 @@ This project is very much in development... It is not production ready.
 
 ## What's New
 
-This project just recieved a complete overhaul.
+Nothing right now
 
 ## Goals
 
