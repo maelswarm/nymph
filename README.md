@@ -1,4 +1,4 @@
-<p align="center"><img src="https://cdn.pixabay.com/photo/2013/07/12/12/13/fairy-145352_960_720.png" width="auto" height="200" /></p>
+<p align="center"><img src="https://github.com/maelswarm/nymph/assets/6314185/cd63b3c0-bf17-4a4a-8f2c-26f69c56a3b1" width="auto" height="200" /></p>
 
 <h1 align=center>Nymph</h1>
 
