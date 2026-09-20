@@ -10,7 +10,7 @@ Nymph is a simple C like programming language.
 
 Nymph acts as a preprocessor, converting Nymph files (extension \*.n) into C files.
 
-This project is very much in development... It is not production ready.
+This project needs ideas and more work... It is not production ready.
 
 ## What's New
 
